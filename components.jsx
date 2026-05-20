@@ -801,7 +801,7 @@ function HelpCenterModal({ onClose }) {
   const hotKeys = ['新增', '审批', '编码', '搜索'];
 
   return (
-    <Modal title="帮助中心" subtitle="搜索问题并查看答案" size="md" onClose={onClose}>
+    <Modal title="帮助中心" subtitle="搜索问题并查看答案" size="md" className="aw-help-modal" onClose={onClose}>
       <div className="aw-help-center">
         <div className="aw-help-search">
           <span className="aw-help-search-ic">⌕</span>

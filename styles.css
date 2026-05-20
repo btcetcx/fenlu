@@ -328,6 +328,7 @@ button{font:inherit;cursor:pointer}
 .aw-modal-sub{font-size:12px;color:var(--aw-fg-3);font-weight:400;margin-left:8px}
 .aw-confirm-body{display:flex;gap:12px;align-items:flex-start;line-height:1.7;color:var(--aw-fg-2)}
 .aw-confirm-ic{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--aw-tint-peach);color:#B26A24;font-weight:600;flex:none}
+.aw-modal.aw-help-modal .body{overflow:hidden}
 .aw-help-center{display:flex;flex-direction:column;gap:14px}
 .aw-help-search{display:flex;align-items:center;gap:8px;height:38px;padding:0 10px;border:1px solid var(--aw-border);border-radius:6px;background:#F5F6FA}
 .aw-help-search:focus-within{background:#fff;border-color:var(--aw-primary);box-shadow:0 0 0 3px rgba(86,119,252,.12)}

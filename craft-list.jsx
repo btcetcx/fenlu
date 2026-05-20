@@ -558,7 +558,7 @@ const DETAIL_STEPS = [
   {seq:4,procs:[{name:'质检',code:'GX-005',type:'self'}]},
   {seq:5,procs:[{name:'返工打磨',code:'GX-R01',type:'self',routeType:'rework',reworkTrigger:'质检不合格',reworkTarget:'质检'}]},
 ];
-function CraftDetailScreen({ data, onBack }) {
+function CraftDetailScreenLegacy({ data, onBack }) {
   const [tab, setTab] = React.useState('info');
   const current = data || CRAFT_SAMPLES[0];
   const statusTone = current.tone || (current.status === '已生效' ? 'g' : current.status === '待审核' ? 'y' : current.status === '草稿' ? 'b' : 'gray');
@@ -674,6 +674,280 @@ function CraftDetailScreen({ data, onBack }) {
   );
 }
 
+const DETAIL_STAGES_V2 = [
+  { id:'detail-st-1', kind:'seq', ops:[{ id:'detail-op-1', code:'OP1101', name:'来料检验', type:'in', cat:'检验', workCenter:'质检中心', equipment:'检验台 1', setupTime:0, runTime:4, queueTime:15, laborCount:1, costRate:1.2, qcRequired:true, qcPlan:'首件 + 巡检', sopCode:'SOP-118', materialRows:[['M-001','主控板组件',1,'件']], wasteRows:[['检验不良隔离品','按实计','件']] }] },
+  { id:'detail-st-2', kind:'par', ops:[
+    { id:'detail-op-2', code:'OP1102', name:'切割', type:'in', cat:'加工', workCenter:'一车间', equipment:'CNC-01', setupTime:15, runTime:8, queueTime:30, laborCount:1, costRate:1.2, qcRequired:false, qcPlan:'随机抽检', sopCode:'SOP-236', materialRows:[['M-101','铝型材毛坯',1,'件'],['M-203','螺丝 M3x8',4,'个']], wasteRows:[['切削屑',0.02,'kg']] },
+    { id:'detail-op-3', code:'OP1103', name:'钻孔', type:'in', cat:'加工', workCenter:'一车间', equipment:'CNC-02', setupTime:10, runTime:5, queueTime:30, laborCount:1, costRate:1.2, qcRequired:false, qcPlan:'随机抽检', sopCode:'SOP-241', materialRows:[['M-101','铝型材毛坯',1,'件']], wasteRows:[['孔屑',0.01,'kg']] },
+    { id:'detail-op-4', code:'OP1104', name:'车削', type:'in', cat:'加工', workCenter:'二车间', equipment:'CNC-03', setupTime:20, runTime:12, queueTime:30, laborCount:1, costRate:1.2, qcRequired:false, qcPlan:'随机抽检', sopCode:'SOP-245', materialRows:[['M-102','轴套毛坯',1,'件']], wasteRows:[['车削屑',0.03,'kg']] },
+  ] },
+  { id:'detail-st-3', kind:'seq', ops:[{ id:'detail-op-5', code:'OP1105', name:'组装', type:'in', cat:'装配', workCenter:'装配车间', equipment:'装配台 A', setupTime:10, runTime:20, queueTime:20, laborCount:2, costRate:1.2, qcRequired:true, qcPlan:'首件 + 巡检', sopCode:'SOP-352', materialRows:[['M-301','控制器壳体',1,'套'],['M-302','线束组件',1,'套']], wasteRows:[['装配损耗',0.01,'套']] }] },
+  { id:'detail-st-4', kind:'par', ops:[
+    { id:'detail-op-6', code:'OP1106', name:'委外热处理', type:'out', cat:'委外', supplier:'南海五金加工厂', agreement:'XY-2026-007', setupTime:0, runTime:480, queueTime:1440, laborCount:0, costRate:8.5, qcRequired:true, qcPlan:'来料复检', sopCode:'SOP-481', materialRows:[['M-401','待热处理半成品',1,'件']], wasteRows:[['委外损耗',0,'件']] },
+    { id:'detail-op-7', code:'OP1107', name:'抛光', type:'in', cat:'表面', workCenter:'表面处理线', equipment:'抛光机 1', setupTime:5, runTime:8, queueTime:30, laborCount:1, costRate:1.2, qcRequired:false, qcPlan:'外观抽检', sopCode:'SOP-418', materialRows:[['M-501','抛光耗材',15,'g']], wasteRows:[['抛光粉尘',0.02,'kg']] },
+  ] },
+  { id:'detail-st-5', kind:'seq', ops:[{ id:'detail-op-8', code:'OP1108', name:'调试', type:'in', cat:'装配', workCenter:'装配车间', equipment:'调试台 A', setupTime:5, runTime:15, queueTime:20, laborCount:1, costRate:1.2, qcRequired:true, qcPlan:'功能全检', sopCode:'SOP-513', materialRows:[['M-601','测试治具',1,'套']], wasteRows:[['异常返修品','按实计','件']] }] },
+  { id:'detail-st-6', kind:'seq', ops:[{ id:'detail-op-9', code:'OP1109', name:'出货检验', type:'in', cat:'检验', workCenter:'质检中心', equipment:'检验台 2', setupTime:0, runTime:5, queueTime:15, laborCount:1, costRate:1.2, qcRequired:true, qcPlan:'OQC 全检', sopCode:'SOP-612', materialRows:[['M-701','成品待检件',1,'件']], wasteRows:[['不合格隔离品','按实计','件']] }] },
+  { id:'detail-st-7', kind:'seq', ops:[{ id:'detail-op-10', code:'OP1110', name:'包装', type:'in', cat:'包装', workCenter:'包装车间', equipment:'包装线 A', setupTime:5, runTime:5, queueTime:10, laborCount:1, costRate:1.2, qcRequired:false, qcPlan:'包装抽检', sopCode:'SOP-701', materialRows:[['M-801','包装箱',1,'个'],['M-802','标签',1,'张']], wasteRows:[['包装边角料',0.01,'kg']] }] },
+];
+
+function calcCraftDetailStatsV2(stages) {
+  let inOps = 0;
+  let outOps = 0;
+  let totalMin = 0;
+  let totalCost = 0;
+  let laborMin = 0;
+  stages.forEach(stage => {
+    const stageTimes = stage.ops.map(op => op.setupTime + op.runTime);
+    totalMin += stageTimes.length ? Math.max(...stageTimes) : 0;
+    stage.ops.forEach(op => {
+      if (op.type === 'in') inOps += 1;
+      else outOps += 1;
+      totalCost += (op.setupTime + op.runTime) * op.costRate;
+      laborMin += (op.setupTime + op.runTime) * op.laborCount;
+    });
+  });
+  return { inOps, outOps, totalMin, totalCost: totalCost.toFixed(0), laborMin };
+}
+
+function CraftDetailOpCardV2({ op, selected, onSelect }) {
+  const isIn = op.type === 'in';
+  const totalTime = op.setupTime + op.runTime;
+  return (
+    <div className={'cf-op ' + (isIn ? 'in' : 'out') + (selected ? ' selected' : '')} onClick={onSelect} style={{cursor:'pointer'}}>
+      <div className="cf-op-h">
+        <span className="num">{op.code}</span>
+        <span className="nm">{op.name}</span>
+      </div>
+      <div className="cf-op-tags">
+        <span className={'cf-op-tag ' + (isIn ? 'in-tag' : 'out-tag')}>{isIn ? '自制' : '委外'}</span>
+        <span className="cf-op-tag">{op.cat}</span>
+        {op.qcRequired && <span className="cf-op-tag" style={{background:'#FBDFDF',color:'#7A2A2A'}}>需检验</span>}
+      </div>
+      <div className="cf-op-b">
+        <div className="cf-op-b-row">
+          <span className="k">{isIn ? '工作中心' : '委外厂商'}</span>
+          <span className="v" style={{fontFamily:'inherit',fontWeight:500,maxWidth:130,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{isIn ? op.workCenter : op.supplier}</span>
+        </div>
+        <div className="cf-op-b-row">
+          <span className="k">{isIn ? '设备' : '工艺时长'}</span>
+          <span className="v" style={{fontFamily:isIn?'inherit':'var(--aw-font-num)',fontWeight:500,maxWidth:130,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            {isIn ? op.equipment : (totalTime >= 60 ? (totalTime / 60).toFixed(1) + ' h' : totalTime + ' min')}
+          </span>
+        </div>
+        <div className="cf-op-b-row"><span className="k">单件工时</span><span className="v">{totalTime} min</span></div>
+      </div>
+      <div className="cf-op-f">
+        <span className="av">{isIn ? '内' : '委'}</span>
+        <span>{isIn ? `${op.laborCount} 人` : '外部加工'}</span>
+        <span className="ml">¥ {(totalTime * op.costRate).toFixed(0)}/件</span>
+      </div>
+    </div>
+  );
+}
+
+function CraftDetailStageViewV2({ stage, index, selectedOpId, onSelectOp }) {
+  if (stage.kind === 'seq') {
+    const op = stage.ops[0];
+    return (
+      <div className="cf-stage cf-stage-seq">
+        <div style={{position:'relative'}}>
+          <span className="cf-stage-no">{index + 1}</span>
+          <CraftDetailOpCardV2 op={op} selected={op.id === selectedOpId} onSelect={() => onSelectOp(op.id)} />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="cf-stage">
+      <div className="cf-stage-par">
+        <span className="cf-par-gateway in"><span>⫲</span></span>
+        <span className="cf-par-gateway out"><span>⫳</span></span>
+        <span className="cf-stage-no par">{index + 1}</span>
+        <span className="cf-stage-par-label">⫲ 并序 · 同时执行</span>
+        {stage.ops.map(op => (
+          <div key={op.id} className="cf-par-op-row">
+            <CraftDetailOpCardV2 op={op} selected={op.id === selectedOpId} onSelect={() => onSelectOp(op.id)} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CraftDetailReadonlyPanelV2({ op, stage }) {
+  const isIn = op.type === 'in';
+  const rows = [
+    ['工序编号', op.code],
+    ['工序名称', op.name],
+    ['工序分类', op.cat],
+    ['工序类型', isIn ? '自制工序' : '委外工序'],
+    ['排序方式', stage.kind === 'par' ? '并序，同时执行' : '串序，独立步骤'],
+    [isIn ? '工作中心' : '委外厂商', isIn ? op.workCenter : op.supplier],
+    [isIn ? '设备' : '外协协议', isIn ? op.equipment : op.agreement],
+    ['准备工时', `${op.setupTime} min`],
+    ['单件工时', `${op.runTime} min`],
+    ['排队等待', `${op.queueTime} min`],
+    ['合计时长', `${op.setupTime + op.runTime + op.queueTime} min`],
+    [isIn ? '工价' : '外协单价', isIn ? `${op.costRate} 元/min` : `${op.costRate} 元/件`],
+    ['是否检验', op.qcRequired ? '需要' : '不需要'],
+    ['检验方案', op.qcPlan],
+    ['SOP 编号', op.sopCode],
+  ];
+  return (
+    <div style={{display:'grid',gridTemplateColumns:'minmax(0,1.1fr) minmax(280px,.9fr)',gap:16,alignItems:'start'}}>
+      <Card title="工序只读信息">
+        <div className="aw-kv-grid" style={{gridTemplateColumns:'repeat(2,minmax(0,1fr))'}}>
+          {rows.map(([label, value]) => <div className="aw-kv" key={label}><div className="aw-kv-l">{label}</div><div className="aw-kv-v">{value}</div></div>)}
+        </div>
+      </Card>
+      <Card title="物料与质量要求">
+        <div className="section-title" style={{marginBottom:10}}>物料消耗（每件）</div>
+        <table className="aw-table" style={{fontSize:12,minWidth:'auto'}}>
+          <thead><tr><th>物料编码</th><th>名称</th><th>数量</th><th>单位</th></tr></thead>
+          <tbody>{(op.materialRows || []).map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+        </table>
+        <div className="section-title" style={{margin:'18px 0 10px'}}>副产品 / 废料</div>
+        <table className="aw-table" style={{fontSize:12,minWidth:'auto'}}>
+          <thead><tr><th>名称</th><th>数量</th><th>单位</th></tr></thead>
+          <tbody>{(op.wasteRows || []).map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+        </table>
+      </Card>
+    </div>
+  );
+}
+
+function CraftDetailScreenV2({ data, onBack }) {
+  const [tab, setTab] = React.useState('route');
+  const [selectedOpId, setSelectedOpId] = React.useState(DETAIL_STAGES_V2[0].ops[0].id);
+  const current = data || CRAFT_SAMPLES[0];
+  const stages = DETAIL_STAGES_V2;
+  const stats = calcCraftDetailStatsV2(stages);
+  const statusTone = current.tone || (current.status === '已生效' ? 'g' : current.status === '待审核' ? 'y' : current.status === '草稿' ? 'b' : 'gray');
+  const selected = (() => {
+    for (const stage of stages) {
+      const op = stage.ops.find(item => item.id === selectedOpId);
+      if (op) return { stage, op };
+    }
+    return { stage: stages[0], op: stages[0].ops[0] };
+  })();
+  const paramRows = stages.flatMap((stage, si) => stage.ops.map((op, oi) => ({
+    seq: `${si + 1}${stage.ops.length > 1 ? '.' + (oi + 1) : ''}`,
+    code: op.code,
+    name: op.name,
+    type: op.type === 'out' ? '委外' : '自制',
+    work: op.type === 'out' ? op.supplier : op.workCenter,
+    hours: `${op.setupTime + op.runTime} min`,
+    qc: op.qcPlan,
+    output: si === stages.length - 1 ? current.product : '半成品过程件',
+  })));
+
+  return (
+    <div className="aw-doc-form">
+      <div className="aw-doc-form-head">
+        <span className="aw-link" onClick={onBack}>← 返回工艺列表</span>
+        <span style={{flex:1}}/>
+        <Btn>编辑</Btn>
+        <Btn>复制为新版本</Btn>
+        <Btn>打印</Btn>
+        <Btn>导出</Btn>
+      </div>
+      <div className="aw-doc-form-body" style={{padding:18}}>
+        <Card title="工艺基础信息">
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+            <div style={{fontSize:18,fontWeight:700,color:'var(--aw-fg-1)'}}>{current.name}</div>
+            <span className={'aw-state aw-state-' + statusTone}>{current.status}</span>
+            <span className="aw-badge g">当前版本</span>
+          </div>
+          <div className="cf-base-grid">
+            {[
+              ['工艺编号', current.code],
+              ['工艺名称', current.name],
+              ['适用产品', current.product],
+              ['版本号', current.version],
+              ['工艺分类', current.category],
+              ['编制人', `${current.creator} / ${current.owner}`],
+              ['生效日期', '2026-06-01'],
+              ['审批流程', '默认审批流'],
+            ].map(([label, value]) => <div className="aw-kv" key={label}><div className="aw-kv-l">{label}</div><div className="aw-kv-v">{value}</div></div>)}
+          </div>
+        </Card>
+
+        <div className="cf-summary" style={{marginTop:14}}>
+          <div className="cf-summary-card"><div className="l">工序总数</div><div className="n">{stats.inOps + stats.outOps}<span className="u">道</span></div></div>
+          <div className="cf-summary-card in"><div className="l">自制工序</div><div className="n">{stats.inOps}<span className="u">道</span></div></div>
+          <div className="cf-summary-card out"><div className="l">委外工序</div><div className="n">{stats.outOps}<span className="u">道</span></div></div>
+          <div className="cf-summary-card"><div className="l">工艺总时长 <span style={{color:'var(--aw-fg-4)'}}>(并序取最大)</span></div><div className="n">{(stats.totalMin/60).toFixed(1)}<span className="u">h</span></div></div>
+          <div className="cf-summary-card"><div className="l">人工总工时</div><div className="n">{(stats.laborMin/60).toFixed(1)}<span className="u">h</span></div></div>
+          <div className="cf-summary-card"><div className="l">单件成本</div><div className="n">¥ {stats.totalCost}</div></div>
+        </div>
+
+        <Card>
+          <Tabs items={[{k:'route',label:'工艺路线'},{k:'op',label:'工序详情'},{k:'params',label:'工序参数'},{k:'info',label:'发布信息'},{k:'log',label:'操作记录'}]} active={tab} onChange={setTab} />
+          {tab === 'route' && (
+            <div style={{paddingTop:18}}>
+              <div className="cf-canvas" style={{border:'1px solid var(--aw-border)',borderRadius:8,minHeight:360,maxHeight:520}}>
+                <div className="cf-cv-bar">
+                  <span className="legend">
+                    <span className="lg"><span className="sw in"/> 自制</span>
+                    <span className="lg"><span className="sw out"/> 委外</span>
+                    <span className="lg"><span style={{display:'inline-block',width:24,height:2,background:'#5677FC',borderRadius:1}}/> 串序</span>
+                    <span className="lg"><span style={{display:'inline-block',width:24,height:8,background:'#fff',border:'1.5px dashed #10B981',borderRadius:2}}/> 并序</span>
+                  </span>
+                  <div className="zoom"><span>只读</span><span>100%</span><span>适配</span></div>
+                </div>
+                <div className="cf-flow">
+                  <div className="cf-conn start">
+                    <span className="start-dot" />
+                    <span className="start-badge">开始</span>
+                    <div className="hline" />
+                  </div>
+                  {stages.map((stage, i) => (
+                    <React.Fragment key={stage.id}>
+                      <CraftDetailStageViewV2 stage={stage} index={i} selectedOpId={selectedOpId} onSelectOp={setSelectedOpId} />
+                      <div className={'cf-conn' + (i === stages.length - 1 ? ' end' : '')}>
+                        <div className="hline" />
+                        {i < stages.length - 1 && <div className="arrow">→</div>}
+                      </div>
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+              <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>点击工序卡片后，可在“工序详情”页签查看资源、工时、质量与物料信息。</div>
+            </div>
+          )}
+          {tab === 'op' && <div style={{paddingTop:18}}><CraftDetailReadonlyPanelV2 op={selected.op} stage={selected.stage} /></div>}
+          {tab === 'params' && (
+            <div className="aw-table-scroll" style={{paddingTop:18}}>
+              <table className="aw-table">
+                <thead><tr>{['序号','工序编号','工序名称','工序类型','默认执行','标准工时','质检方案','产出物'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+                <tbody>{paramRows.map(r => <tr key={r.seq}><td>{r.seq}</td><td className="aw-num aw-link">{r.code}</td><td>{r.name}</td><td>{r.type}</td><td>{r.work}</td><td>{r.hours}</td><td>{r.qc}</td><td>{r.output}</td></tr>)}</tbody>
+              </table>
+            </div>
+          )}
+          {tab === 'info' && (
+            <div style={{paddingTop:18}}>
+              <div className="aw-kv-grid">
+                {[
+                  ['适用范围', current.scope],
+                  ['质检方案', current.qcPlan || 'IPQC + FQC'],
+                  ['责任组织', current.owner],
+                  ['创建日期', current.created],
+                  ['更新日期', current.updated],
+                  ['默认工艺', current.isDefault],
+                  ['引用状态', '未被在制订单锁定'],
+                  ['发布说明', '与新增工艺页面的路线、资源、质量和物料结构保持一致。'],
+                ].map(([label, value]) => <div className="aw-kv" key={label}><div className="aw-kv-l">{label}</div><div className="aw-kv-v">{value}</div></div>)}
+              </div>
+            </div>
+          )}
+          {tab === 'log' && <div style={{fontSize:13,color:'var(--aw-fg-3)',textAlign:'center',padding:'34px 0'}}>暂无操作记录</div>}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 // ─── Craft List Screen ──────────────────────────────────────────
 function CraftListScreen({ onAdd, onView }) {
   const [rows] = React.useState(CRAFT_SAMPLES);
@@ -748,7 +1022,7 @@ function CraftScreen({ initialAction, onActionConsumed }) {
     }
   }, [initialAction]);
   if(view==='add')    return <CraftNewScreen onBack={()=>setView('list')} />;
-  if(view==='detail') return <CraftDetailScreen data={detail} onBack={()=>setView('list')} />;
+  if(view==='detail') return <CraftDetailScreenV2 data={detail} onBack={()=>setView('list')} />;
   return <CraftListScreen onAdd={()=>setView('add')} onView={d=>{setDetail(d);setView('detail');}} />;
 }
 
