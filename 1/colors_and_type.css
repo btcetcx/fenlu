@@ -1,0 +1,123 @@
+/* 海南傲为 Design System — colors & type */
+/* Source: product screenshots (默认页, 详情, 新增, 审批流程, 编码设置, 策略设置, 打印模板) */
+
+/* === Brand fonts: Noto Sans SC === */
+@font-face { font-family: "Noto Sans SC"; font-style: normal; font-weight: 100;
+  src: url("../../fonts/NotoSansSCThin-5.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Noto Sans SC"; font-style: normal; font-weight: 300;
+  src: url("../../fonts/NotoSansSCLight-3.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Noto Sans SC"; font-style: normal; font-weight: 400;
+  src: url("../../fonts/NotoSansSC-6.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Noto Sans SC"; font-style: normal; font-weight: 500;
+  src: url("../../fonts/NotoSansSCMedium-4.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Noto Sans SC"; font-style: normal; font-weight: 700;
+  src: url("../../fonts/Noto-Sans-SC-Bold-2.ttf") format("truetype"); font-display: swap; }
+
+:root {
+  /* ===== Brand ===== */
+  --aw-primary:        #5677FC;   /* 主色：按钮、链接、选中态、链接文字 */
+  --aw-primary-hover:  #4566EB;
+  --aw-primary-active: #3A58D6;
+  --aw-primary-soft:   #EEF1FF;   /* 浅蓝填充：选中卡片底色 */
+  --aw-nav-grad-from:  #5A77FF;   /* 顶部导航渐变左 */
+  --aw-nav-grad-to:    #6E8BFF;   /* 顶部导航渐变右 */
+
+  /* ===== Neutrals (灰阶) ===== */
+  --aw-bg:        #F5F6FA;   /* 页面底色 */
+  --aw-surface:   #FFFFFF;   /* 卡片/面板 */
+  --aw-surface-2: #FAFBFC;   /* 表头/分组底色 */
+  --aw-border:    #E5E7EB;   /* 默认描边 */
+  --aw-border-strong: #D1D5DB;
+  --aw-divider:   #F0F1F4;
+
+  --aw-fg-1: #1F2937;   /* 主文本 */
+  --aw-fg-2: #4B5563;   /* 次级文本（label） */
+  --aw-fg-3: #6B7280;   /* 辅助文本 */
+  --aw-fg-4: #9CA3AF;   /* placeholder / 占位 */
+  --aw-fg-on-primary: #FFFFFF;
+
+  /* ===== Semantic ===== */
+  --aw-success: #10B981;  /* 开关开启绿 */
+  --aw-warning: #F59E0B;
+  --aw-danger:  #F5222D;  /* 总量/总金额、必填星号、删除 */
+  --aw-info:    #5677FC;
+
+  /* KPI 卡片柔色系（截图中的六张「待办事项」卡） */
+  --aw-tint-peach: #FDECDC;
+  --aw-tint-mint:  #DBF3E6;
+  --aw-tint-sky:   #DCE7FB;
+  --aw-tint-rose:  #FBDFDF;
+  --aw-tint-lilac: #E8DEFB;
+  --aw-tint-sand:  #F6EFD9;
+
+  /* ===== Radius ===== */
+  --aw-radius-xs: 2px;
+  --aw-radius-sm: 4px;
+  --aw-radius-md: 6px;   /* 输入框/按钮 */
+  --aw-radius-lg: 8px;   /* 卡片 */
+  --aw-radius-xl: 12px;
+
+  /* ===== Spacing (4 基线) ===== */
+  --aw-s-1: 4px;  --aw-s-2: 8px;  --aw-s-3: 12px;
+  --aw-s-4: 16px; --aw-s-5: 20px; --aw-s-6: 24px;
+  --aw-s-8: 32px; --aw-s-10: 40px; --aw-s-12: 48px;
+
+  /* ===== Shadow ===== */
+  --aw-shadow-sm: 0 1px 2px rgba(16,24,40,.04);
+  --aw-shadow-md: 0 2px 8px rgba(16,24,40,.06);
+  --aw-shadow-lg: 0 8px 24px rgba(16,24,40,.08);
+  --aw-shadow-pop: 0 4px 16px rgba(86,119,252,.18);
+
+  /* ===== Type ===== */
+  --aw-font-sans: "Noto Sans SC", "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", "Source Han Sans CN", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --aw-font-num:  "Inter", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  --aw-font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  /* 字号阶 */
+  --aw-fs-12: 12px; --aw-fs-13: 13px; --aw-fs-14: 14px;
+  --aw-fs-15: 15px; --aw-fs-16: 16px; --aw-fs-18: 18px;
+  --aw-fs-20: 20px; --aw-fs-24: 24px; --aw-fs-28: 28px;
+  --aw-fs-32: 32px;
+
+  --aw-lh-tight: 1.3; --aw-lh-base: 1.5; --aw-lh-loose: 1.7;
+}
+
+/* ===== Base ===== */
+html, body {
+  font-family: var(--aw-font-sans);
+  color: var(--aw-fg-1);
+  background: var(--aw-bg);
+  font-size: var(--aw-fs-14);
+  line-height: var(--aw-lh-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Semantic type ===== */
+.aw-h1 { font-size: var(--aw-fs-24); font-weight: 600; line-height: var(--aw-lh-tight); color: var(--aw-fg-1); }
+.aw-h2 { font-size: var(--aw-fs-18); font-weight: 600; line-height: var(--aw-lh-tight); color: var(--aw-fg-1); }
+.aw-h3 { font-size: var(--aw-fs-16); font-weight: 600; line-height: var(--aw-lh-tight); color: var(--aw-fg-1); }
+.aw-body  { font-size: var(--aw-fs-14); color: var(--aw-fg-1); }
+.aw-label { font-size: var(--aw-fs-13); color: var(--aw-fg-2); }
+.aw-caption { font-size: var(--aw-fs-12); color: var(--aw-fg-3); }
+.aw-num   { font-family: var(--aw-font-num); font-variant-numeric: tabular-nums; }
+
+/* 页面标题前的蓝色竖条（截图所有页面顶部都用） */
+.aw-page-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--aw-fs-14); font-weight: 500; color: var(--aw-fg-1);
+}
+.aw-page-title::before {
+  content: ""; display: inline-block; width: 3px; height: 14px;
+  background: var(--aw-primary); border-radius: 2px;
+}
+
+/* 章节标题（截图中"详细信息""产品信息""附件"使用相同样式） */
+.aw-section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--aw-fs-15); font-weight: 600; color: var(--aw-fg-1);
+  margin-bottom: 16px;
+}
+.aw-section-title::before {
+  content: ""; display: inline-block; width: 3px; height: 14px;
+  background: var(--aw-primary); border-radius: 2px;
+}

@@ -1,0 +1,487 @@
+// ui_kits/erp-console/components.jsx
+const { useState } = React;
+
+/* ===== MODULES config ===== */
+const MODULES = {
+  doc:      { name:'文档', code:'doc', hasPrint:true,  hasPolicy:true  },
+  project:  { name:'项目', code:'proj',hasPrint:true,  hasPolicy:true  },
+  product:  { name:'产品', code:'prod',hasPrint:true,  hasPolicy:true  },
+  material: { name:'物料', code:'mat', hasPrint:true,  hasPolicy:true  },
+  process:  { name:'工序', code:'proc',hasPrint:true,  hasPolicy:true  },
+  craft:    { name:'工艺', code:'craft',hasPrint:true, hasPolicy:true  },
+  bom:      { name:'BOM', code:'bom',  hasPrint:true,  hasPolicy:true  },
+  supplier: { name:'供应商', code:'supp', hasPrint:false, hasPolicy:true },
+  pr:       { name:'请购',   code:'pr',   hasPrint:true,  hasPolicy:true },
+  inquiry:  { name:'询价',   code:'inq',  hasPrint:true,  hasPolicy:true },
+  order:    { name:'采购',   code:'ord',  hasPrint:true,  hasPolicy:true },
+  pret:     { name:'退货',   code:'pret', hasPrint:true,  hasPolicy:true },
+  exchange: { name:'换货',   code:'exch', hasPrint:true,  hasPolicy:true },
+  report:   { name:'报表',   code:'rpt',  hasPrint:false, hasPolicy:false },
+};
+const MODULE_DOC = MODULES.doc;
+
+/* ===== PICK_MAP ===== */
+const PICK_MAP = {
+  '设置文档编号':'coderule','设置项目编号':'coderule','设置产品编号':'coderule',
+  '设置物料编号':'coderule','设置工序编号':'coderule','设置工艺编号':'coderule',
+  '设置 BOM 编号':'coderule','BOM 编号':'coderule',
+  '设置文档分类':'category','设置项目分类':'category','设置产品分类':'category',
+  '设置物料分类':'category','设置工序分类':'category','设置工艺分类':'category',
+  '设置审批流程':'flow','审批流程':'flow',
+  '设置自定义字段':'field','自定义字段':'field',
+  '设置文档策略':'policy','设置项目策略':'policy','设置产品策略':'policy',
+  '设置物料策略':'policy','设置工序策略':'policy','设置工艺策略':'policy',
+  '设置执行标准':'policy','项目策略':'policy','工艺策略':'policy','设置bom策略':'policy','设置bom分类':'category','设置bom模板':'flow','设置bom流程':'flow',
+  '设置打印模板':'print','打印模板':'print',
+  // 供应商
+  '设置供应商编号':'coderule', '设置供应商分类':'category', '设置供应商分组':'category',
+  '供应商分组设置':'category', '供应商自定义字段':'field',
+  '供应商自定义编号':'coderule', '供应商审批设置':'flow',
+  '供应商等级设置':'policy', '设置供应商策略':'policy', '供应商策略设置':'policy',
+  // 请购
+  '设置请购编号':'coderule', '请购自定义编号':'coderule',
+  '请购自定义字段':'field',
+  '请购审批设置':'flow',
+  '请购策略设置':'policy',
+  '设置采购打印模板':'print',
+  // 询价
+  '设置询价编号':'coderule', '询价自定义编号':'coderule',
+  '询价自定义字段':'field',
+  '询价审批设置':'flow',
+  '询价策略设置':'policy',
+  // 采购
+  '设置采购编号':'coderule', '采购自定义编号':'coderule',
+  '采购自定义字段':'field',
+  '采购审批设置':'flow',
+  '采购策略设置':'policy',
+  // 退货
+  '设置退货编号':'coderule', '退货自定义编号':'coderule',
+  '退货自定义字段':'field',
+  '退货审批设置':'flow',
+  '退货策略设置':'policy',
+  // 换货
+  '设置换货编号':'coderule', '换货自定义编号':'coderule',
+  '换货自定义字段':'field',
+  '换货审批设置':'flow',
+  '换货策略设置':'policy',
+};
+
+/* ===== NAV ===== */
+const NAV = [
+  { k: 'rd', label: '研发', ic: '✎' },
+  { k: 'pur', label: '采购', ic: '📦' },
+  { k: 'wh', label: '仓储', ic: '🗄' },
+  { k: 'prod', label: '产品', ic: '◎' },
+  { k: 'des', label: '设计', ic: '◇' },
+  { k: 'mfg', label: '生产', ic: '⚙' },
+  { k: 'fin', label: '财务', ic: '¥' },
+  { k: 'hr', label: '人力', ic: '👤' },
+  { k: 'oa', label: '办公', ic: '📁' },
+  { k: 'eq', label: '设备', ic: '🔧' },
+  { k: 'en', label: '能耗', ic: '⚡' },
+  { k: 'set', label: '设置', ic: '⚙' },
+];
+
+// 12 部门完整配置：侧栏 + 飞单 + 工作台数据
+const DEPT_CONFIG = {
+  rd: {
+    title: '研发中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'doc',label:'文档库'},{k:'project',label:'项目管理'},{k:'product',label:'产品管理'},{k:'material',label:'物料管理'},{k:'process',label:'工序管理'},{k:'craft',label:'工艺管理'},{k:'bom',label:'BOM管理'}],
+    flyouts: {
+      doc:{sections:[{title:'文档库',items:['新增文档','文档列表']},{title:'文档设置',items:['设置文档编号','设置文档分类','设置审批流程','设置自定义字段','设置文档策略','设置打印模板']}]},
+      project:{sections:[{title:'项目管理',items:['新增项目','项目列表']},{title:'项目设置',items:['设置项目编号','设置项目分类','设置审批流程','设置自定义字段','设置项目策略','设置打印模板']}]},
+      product:{sections:[{title:'产品管理',items:['新增产品','产品列表']},{title:'产品设置',items:['设置产品编号','设置产品分类','设置审批流程','设置自定义字段','设置产品策略','设置打印模板']}]},
+      material:{sections:[{title:'物料管理',items:['新增物料','物料列表']},{title:'物料设置',items:['设置物料编号','设置物料分类','设置审批流程','设置自定义字段','设置物料策略','设置打印模板']}]},
+      process:{sections:[{title:'工序管理',items:['新增工序','工序列表']},{title:'工序设置',items:['设置工序编号','设置工序分类','设置审批流程','设置自定义字段','设置工序策略','设置打印模板']}]},
+      craft:{sections:[{title:'工艺管理',items:['新增工艺','工艺列表']},{title:'工艺设置',items:['设置工艺编号','设置工艺分类','设置审批流程','设置自定义字段','设置工艺策略','设置打印模板']}]},
+      bom:{sections:[
+        {title:'物料清单库',items:['新增物料清单','清单列表']},
+        {title:'物料组件库',items:['新增组件','组件列表']},
+        {title:'BOM模块',items:['新增模块','模块列表']},
+        {title:'代替物料库',items:['新增代替','代替列表']},
+        {title:'BOM设置',items:['设置项目编号','设置bom策略','设置bom分类','设置bom模板','设置bom流程','设置自定义字段']}
+      ]},
+    },
+    workbench:{
+      kpis:[{tone:'peach',key:'doc',label:'待审批文档',value:10,ic:'doc'},{tone:'mint',key:'proj',label:'待审批的项目',value:10,ic:'folder'},{tone:'sky',key:'prod',label:'待审批的产品',value:10,ic:'cube'},{tone:'rose',key:'craft',label:'待审批的工艺',value:10,ic:'edit'},{tone:'lilac',key:'bom',label:'待审批的物料清单',value:10,ic:'list'},{tone:'sand',key:'sub',label:'待审批的代替料',value:10,ic:'flow'}],
+      moreKpis:[{tone:'sky',key:'order',label:'待审批的订单',value:8,ic:'cart'},{tone:'mint',key:'pur',label:'待审批的采购申请',value:5,ic:'cart'},{tone:'peach',key:'sale',label:'待审批的销售合同',value:3,ic:'doc'},{tone:'rose',key:'change',label:'待审批的变更单',value:2,ic:'edit'},{tone:'lilac',key:'leave',label:'待审批的请假',value:4,ic:'user'},{tone:'sand',key:'stock',label:'待审批的出入库',value:6,ic:'list'}],
+      navTiles:[{label:'文档',sub:'设计图纸',n:25,tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'项目',sub:'项目管理',n:28,tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'产品',sub:'产品管理',n:18,tint:'#DCE7FB',fg:'#5677FC',ic:'cube'},{label:'物料',sub:'物料清单',n:52,tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'工序',sub:'工序管理',n:0,tint:'#FEF3CD',fg:'#B26A24',ic:'flow'},{label:'工艺',sub:'工艺管理',n:0,tint:'#FBDFDF',fg:'#D14D4D',ic:'edit'},{label:'人员',sub:'研发人员',n:36,tint:'#E8DEFB',fg:'#8957D8',ic:'user'},{label:'评审',sub:'评审记录',n:7,tint:'#DBF3E6',fg:'#10B981',ic:'check'}],
+      entries:[{label:'新建工单',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'上传图纸',tint:'#DCE7FB',fg:'#5677FC',ic:'upload'},{label:'采购申请',tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},{label:'库存查询',tint:'#DCE7FB',fg:'#5677FC',ic:'search'},{label:'我的审批',tint:'#DCE7FB',fg:'#5677FC',ic:'check'}]}},
+  pur: {
+    title: '采购中心',
+    sideItems: [
+      {k:'workbench', label:'工作台'},
+      {k:'supplier', label:'供应商管理'},
+      {k:'pr', label:'请购管理'},
+      {k:'inquiry', label:'询价管理'},
+      {k:'order', label:'采购管理'},
+      {k:'pret', label:'采购退货'},
+      {k:'exchange', label:'采购换货'},
+      {k:'report', label:'采购报表'},
+    ],
+    flyouts: {
+      supplier: {
+        sections: [
+          {title:'供应商管理', items:['添加供应商','供应商列表']},
+          {title:'供应商设置', items:['供应商分组设置','供应商自定义字段','供应商自定义编号','供应商等级设置','供应商审批设置','供应商策略设置']},
+        ]
+      },
+      pr: {
+        sections: [
+          {title:'请购管理', items:['添加请购','请购列表']},
+          {title:'请购设置', items:['请购自定义字段','请购自定义编号','请购审批设置','请购策略设置','设置采购打印模板']},
+        ]
+      },
+      inquiry: {
+        sections: [
+          {title:'询价管理', items:['添加询价','询价列表']},
+          {title:'询价设置', items:['询价自定义字段','询价自定义编号','询价审批设置','询价策略设置','设置采购打印模板']},
+        ]
+      },
+      order: {
+        sections: [
+          {title:'采购管理', items:['添加采购','采购列表']},
+          {title:'采购设置', items:['采购自定义字段','采购自定义编号','采购审批设置','采购策略设置','设置采购打印模板']},
+        ]
+      },
+      pret: {
+        sections: [
+          {title:'退货管理', items:['添加退货','退货列表']},
+          {title:'退货设置', items:['退货自定义字段','退货自定义编号','退货审批设置','退货策略设置','设置退货打印模板']},
+        ]
+      },
+      exchange: {
+        sections: [
+          {title:'换货管理', items:['添加换货','换货列表']},
+          {title:'换货设置', items:['换货自定义字段','换货自定义编号','换货审批设置','换货策略设置','设置换货打印模板']},
+        ]
+      },
+      report: {
+        sections: [
+          {title:'采购报表', items:['供应商对账表','按供应商查询']},
+          {title:'采购统计', items:['按产品统计','退货明细','换货明细']},
+        ]
+      },
+    },
+    workbench: {
+      kpis: [
+        {tone:'peach',key:'pr',label:'待审批请购单',value:12,ic:'cart'},
+        {tone:'mint',key:'order',label:'待审批采购单',value:8,ic:'doc'},
+        {tone:'sky',key:'inquiry',label:'待处理询价',value:5,ic:'search'},
+        {tone:'rose',key:'supplier',label:'待审核供应商',value:3,ic:'user'},
+        {tone:'lilac',key:'receipt',label:'待质检入库单',value:15,ic:'list'},
+        {tone:'sand',key:'pret',label:'待处理退货单',value:2,ic:'flow'},
+      ],
+      moreKpis: [
+        {tone:'sky',key:'urgent',label:'紧急采购',value:4,ic:'cart'},
+        {tone:'mint',key:'plan',label:'采购计划',value:20,ic:'folder'},
+        {tone:'peach',key:'budget',label:'预算超支提醒',value:1,ic:'doc'},
+        {tone:'rose',key:'delay',label:'逾期未交货',value:6,ic:'edit'},
+        {tone:'lilac',key:'quality',label:'质量问题',value:3,ic:'list'},
+        {tone:'sand',key:'stock',label:'库存预警',value:7,ic:'list'},
+      ],
+      navTiles: [
+        {label:'供应商',sub:'供应商管理',n:156,tint:'#DCE7FB',fg:'#5677FC',ic:'user'},
+        {label:'请购',sub:'请购管理',n:32,tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},
+        {label:'询价',sub:'询价管理',n:18,tint:'#DCE7FB',fg:'#5677FC',ic:'search'},
+        {label:'采购',sub:'采购管理',n:48,tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},
+        {label:'退货',sub:'采购退货',n:3,tint:'#FBDFDF',fg:'#D14D4D',ic:'flow'},
+        {label:'换货',sub:'采购换货',n:2,tint:'#E8DEFB',fg:'#8957D8',ic:'edit'},
+        {label:'报表',sub:'采购报表',n:0,tint:'#DBF3E6',fg:'#10B981',ic:'check'},
+        {label:'分析',sub:'采购分析',n:0,tint:'#FEF3CD',fg:'#B26A24',ic:'list'},
+      ],
+      entries: [
+        {label:'新建请购单',tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},
+        {label:'供应商询价',tint:'#DCE7FB',fg:'#5677FC',ic:'search'},
+        {label:'采购订单',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},
+        {label:'采购报表',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},
+        {label:'我的审批',tint:'#DCE7FB',fg:'#5677FC',ic:'list'},
+      ],
+    },
+  },
+  wh: {
+    title: '仓储中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'inbound',label:'入库管理'},{k:'outbound',label:'出库管理'},{k:'stock',label:'库存查询'},{k:'check',label:'盘点管理'},{k:'transfer',label:'调拨管理'},{k:'location',label:'库位管理'}],
+    flyouts: {
+      inbound:{sections:[{title:'入库管理',items:['采购入库','生产入库','退货入库']},{title:'入库设置',items:['入库编号','质检标准']}]},
+      outbound:{sections:[{title:'出库管理',items:['销售出库','领料出库','调拨出库']},{title:'出库设置',items:['出库编号','审批流程']}]},
+      stock:{sections:[{title:'库存查询',items:['实时库存','库存流水','库龄分析']},{title:'库存设置',items:['安全库存','库存预警']}]},
+      check:{sections:[{title:'盘点管理',items:['盘点计划','盘点执行','盘点报告']},{title:'盘点设置',items:['盘点周期','审批流程']}]},
+      transfer:{sections:[{title:'调拨管理',items:['新增调拨','调拨列表']},{title:'调拨设置',items:['调拨编号','审批流程']}]},
+      location:{sections:[{title:'库位管理',items:['库位视图','库位分配']},{title:'库位设置',items:['库位编号','库位分类']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'inbound',label:'待入库通知',value:18,ic:'list'},{tone:'mint',key:'outbound',label:'待出库通知',value:22,ic:'flow'},{tone:'sky',key:'check',label:'待盘点计划',value:3,ic:'search'},{tone:'rose',key:'alert',label:'库存预警',value:9,ic:'edit'},{tone:'lilac',key:'transfer',label:'待调拨确认',value:5,ic:'cart'},{tone:'sand',key:'quality',label:'待质检物料',value:14,ic:'doc'}],
+      moreKpis:[{tone:'sky',key:'overstock',label:'呆滞物料',value:32,ic:'list'},{tone:'mint',key:'shortage',label:'缺货物料',value:7,ic:'cart'},{tone:'peach',key:'expire',label:'临期物料',value:12,ic:'doc'},{tone:'rose',key:'damage',label:'报损物料',value:3,ic:'edit'},{tone:'lilac',key:'borrow',label:'借出未还',value:4,ic:'user'},{tone:'sand',key:'count',label:'盘点差异',value:8,ic:'check'}],
+      navTiles:[{label:'入库',sub:'入库管理',n:45,tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'出库',sub:'出库管理',n:38,tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},{label:'库存',sub:'库存查询',n:1250,tint:'#DCE7FB',fg:'#5677FC',ic:'search'},{label:'盘点',sub:'盘点管理',n:3,tint:'#FEF3CD',fg:'#B26A24',ic:'check'},{label:'调拨',sub:'调拨管理',n:7,tint:'#DBF3E6',fg:'#10B981',ic:'cart'},{label:'库位',sub:'库位管理',n:280,tint:'#E8DEFB',fg:'#8957D8',ic:'folder'},{label:'质检',sub:'质量检验',n:14,tint:'#FBDFDF',fg:'#D14D4D',ic:'edit'},{label:'报表',sub:'库存报表',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'doc'}],
+      entries:[{label:'采购入库',tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'销售出库',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},{label:'库存查询',tint:'#DCE7FB',fg:'#5677FC',ic:'search'},{label:'盘点计划',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'物料调拨',tint:'#DCE7FB',fg:'#5677FC',ic:'cart'}]}},
+  prod: {
+    title: '产品中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'product',label:'产品管理'},{k:'category',label:'产品分类'},{k:'bom',label:'BOM 管理'},{k:'doc',label:'产品文档'},{k:'change',label:'产品变更'}],
+    flyouts: {
+      product:{sections:[{title:'产品管理',items:['新增产品','产品列表','产品详情']},{title:'产品设置',items:['产品编号','产品属性','审批流程','自定义字段']}]},
+      category:{sections:[{title:'产品分类',items:['分类管理','属性模板']},{title:'分类设置',items:['分类编码','层级设置']}]},
+      bom:{sections:[{title:'BOM 管理',items:['新增 BOM','BOM 列表','BOM 对比']},{title:'BOM 设置',items:['BOM 编号','审批流程','版本管理']}]},
+      doc:{sections:[{title:'产品文档',items:['新增文档','文档列表']},{title:'文档设置',items:['文档编号','文档分类','审批流程']}]},
+      change:{sections:[{title:'产品变更',items:['新增变更','变更列表','变更历史']},{title:'变更设置',items:['变更编号','审批流程','通知设置']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'product',label:'待审批产品',value:8,ic:'cube'},{tone:'mint',key:'bom',label:'待审批 BOM',value:6,ic:'list'},{tone:'sky',key:'change',label:'待审批变更',value:4,ic:'edit'},{tone:'rose',key:'doc',label:'待完善文档',value:15,ic:'doc'},{tone:'lilac',key:'review',label:'待评审产品',value:3,ic:'check'},{tone:'sand',key:'sample',label:'打样中产品',value:5,ic:'folder'}],
+      moreKpis:[{tone:'sky',key:'new',label:'新产品立项',value:2,ic:'cube'},{tone:'mint',key:'stop',label:'待停产产品',value:1,ic:'list'},{tone:'peach',key:'price',label:'待定价产品',value:7,ic:'doc'},{tone:'rose',key:'quality',label:'质量异常',value:3,ic:'edit'},{tone:'lilac',key:'patent',label:'专利申请',value:2,ic:'user'},{tone:'sand',key:'cost',label:'成本核算',value:12,ic:'check'}],
+      navTiles:[{label:'产品',sub:'产品管理',n:86,tint:'#DCE7FB',fg:'#5677FC',ic:'cube'},{label:'分类',sub:'产品分类',n:12,tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'BOM',sub:'物料清单',n:45,tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'文档',sub:'产品文档',n:32,tint:'#FEF3CD',fg:'#B26A24',ic:'doc'},{label:'变更',sub:'产品变更',n:18,tint:'#DBF3E6',fg:'#10B981',ic:'edit'},{label:'工艺',sub:'生产工艺',n:24,tint:'#E8DEFB',fg:'#8957D8',ic:'flow'},{label:'标准',sub:'质量标准',n:8,tint:'#FBDFDF',fg:'#D14D4D',ic:'check'},{label:'统计',sub:'产品统计',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'search'}],
+      entries:[{label:'新增产品',tint:'#DCE7FB',fg:'#5677FC',ic:'cube'},{label:'管理 BOM',tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'产品变更',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'查看文档',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'我的审批',tint:'#DCE7FB',fg:'#5677FC',ic:'check'}]}},
+  des: {
+    title: '设计中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'task',label:'设计任务'},{k:'drawing',label:'图纸管理'},{k:'review',label:'设计评审'},{k:'change',label:'设计变更'},{k:'spec',label:'设计规范'}],
+    flyouts: {
+      task:{sections:[{title:'设计任务',items:['新增任务','任务列表','任务看板']},{title:'任务设置',items:['任务编号','任务分类','审批流程']}]},
+      drawing:{sections:[{title:'图纸管理',items:['上传图纸','图纸列表','版本对比']},{title:'图纸设置',items:['图纸编号','图纸分类','权限设置']}]},
+      review:{sections:[{title:'设计评审',items:['发起评审','评审列表','评审记录']},{title:'评审设置',items:['评审流程','评审模板']}]},
+      change:{sections:[{title:'设计变更',items:['新增变更','变更列表']},{title:'变更设置',items:['变更编号','审批流程']}]},
+      spec:{sections:[{title:'设计规范',items:['规范文档','标准图框']},{title:'规范设置',items:['规范编号','规范分类']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'task',label:'待处理设计任务',value:12,ic:'edit'},{tone:'mint',key:'drawing',label:'待审核图纸',value:20,ic:'doc'},{tone:'sky',key:'review',label:'待评审设计',value:5,ic:'check'},{tone:'rose',key:'change',label:'待审批变更',value:3,ic:'flow'},{tone:'lilac',key:'urgent',label:'紧急设计需求',value:2,ic:'folder'},{tone:'sand',key:'delay',label:'逾期未完成',value:7,ic:'list'}],
+      moreKpis:[{tone:'sky',key:'new',label:'新立项设计',value:4,ic:'edit'},{tone:'mint',key:'prototype',label:'打样中',value:6,ic:'cube'},{tone:'peach',key:'test',label:'测试中',value:3,ic:'search'},{tone:'rose',key:'reject',label:'评审退回',value:2,ic:'flow'},{tone:'lilac',key:'archive',label:'待归档',value:15,ic:'doc'},{tone:'sand',key:'external',label:'外部协作',value:1,ic:'user'}],
+      navTiles:[{label:'任务',sub:'设计任务',n:34,tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'图纸',sub:'图纸管理',n:128,tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'评审',sub:'设计评审',n:8,tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'变更',sub:'设计变更',n:11,tint:'#FBDFDF',fg:'#D14D4D',ic:'flow'},{label:'规范',sub:'设计规范',n:22,tint:'#DBF3E6',fg:'#10B981',ic:'folder'},{label:'BOM',sub:'设计 BOM',n:36,tint:'#E8DEFB',fg:'#8957D8',ic:'list'},{label:'人员',sub:'设计人员',n:18,tint:'#FEF3CD',fg:'#B26A24',ic:'user'},{label:'统计',sub:'设计统计',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'search'}],
+      entries:[{label:'新建设计任务',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'上传图纸',tint:'#DCE7FB',fg:'#5677FC',ic:'upload'},{label:'发起评审',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'设计变更',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},{label:'我的审批',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'}]}},
+  mfg: {
+    title: '生产中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'plan',label:'生产计划'},{k:'order',label:'工单管理'},{k:'schedule',label:'排程调度'},{k:'quality',label:'质量检验'},{k:'report',label:'生产报工'},{k:'finish',label:'完工入库'}],
+    flyouts: {
+      plan:{sections:[{title:'生产计划',items:['编制计划','计划列表','计划甘特图']},{title:'计划设置',items:['计划编号','计划周期','审批流程']}]},
+      order:{sections:[{title:'工单管理',items:['新增工单','工单列表','工单进度']},{title:'工单设置',items:['工单编号','工单分类','打印模板']}]},
+      schedule:{sections:[{title:'排程调度',items:['排程看板','资源调度','产能分析']},{title:'排程设置',items:['班次设置','产线设置']}]},
+      quality:{sections:[{title:'质量检验',items:['来料检验','过程检验','完工检验']},{title:'质检设置',items:['检验标准','抽样方案','不合格品处理']}]},
+      report:{sections:[{title:'生产报工',items:['工时报工','产量报工','异常报工']},{title:'报工设置',items:['报工编号','审批流程']}]},
+      finish:{sections:[{title:'完工入库',items:['完工申报','入库确认']},{title:'入库设置',items:['入库编号','质检标准']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'order',label:'进行中工单',value:28,ic:'list'},{tone:'mint',key:'plan',label:'待排产计划',value:6,ic:'folder'},{tone:'sky',key:'quality',label:'待检验批次',value:14,ic:'check'},{tone:'rose',key:'delay',label:'延期工单',value:5,ic:'flow'},{tone:'lilac',key:'report',label:'待审批报工',value:18,ic:'edit'},{tone:'sand',key:'finish',label:'待入库成品',value:9,ic:'cube'}],
+      moreKpis:[{tone:'sky',key:'urgent',label:'紧急插单',value:3,ic:'list'},{tone:'mint',key:'material',label:'缺料工单',value:4,ic:'cart'},{tone:'peach',key:'machine',label:'设备故障',value:2,ic:'edit'},{tone:'rose',key:'rework',label:'返工工单',value:7,ic:'flow'},{tone:'lilac',key:'scrap',label:'报废记录',value:1,ic:'doc'},{tone:'sand',key:'efficiency',label:'效率低于标准',value:3,ic:'search'}],
+      navTiles:[{label:'计划',sub:'生产计划',n:12,tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'工单',sub:'工单管理',n:56,tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'排程',sub:'排程调度',n:0,tint:'#FEF3CD',fg:'#B26A24',ic:'flow'},{label:'质检',sub:'质量检验',n:32,tint:'#DBF3E6',fg:'#10B981',ic:'check'},{label:'报工',sub:'生产报工',n:48,tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'入库',sub:'完工入库',n:22,tint:'#E8DEFB',fg:'#8957D8',ic:'cube'},{label:'产线',sub:'产线状态',n:8,tint:'#FBDFDF',fg:'#D14D4D',ic:'user'},{label:'看板',sub:'生产看板',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'search'}],
+      entries:[{label:'新增工单',tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'排程查看',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},{label:'质量检验',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'完工入库',tint:'#DCE7FB',fg:'#5677FC',ic:'cube'},{label:'我的审批',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'}]}},
+  fin: {
+    title: '财务中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'ar',label:'应收管理'},{k:'ap',label:'应付管理'},{k:'cost',label:'成本核算'},{k:'gl',label:'总账管理'},{k:'invoice',label:'发票管理'},{k:'report',label:'财务报表'}],
+    flyouts: {
+      ar:{sections:[{title:'应收管理',items:['应收账款','收款管理','客户对账']},{title:'应收设置',items:['账期设置','坏账计提','提醒规则']}]},
+      ap:{sections:[{title:'应付管理',items:['应付账款','付款管理','供应商对账']},{title:'应付设置',items:['付款审批','账期设置']}]},
+      cost:{sections:[{title:'成本核算',items:['材料成本','人工成本','制造费用','成本分摊']},{title:'核算设置',items:['核算方法','成本中心','核算周期']}]},
+      gl:{sections:[{title:'总账管理',items:['凭证录入','凭证审核','科目余额','期末结账']},{title:'总账设置',items:['科目设置','凭证模板','会计期间']}]},
+      invoice:{sections:[{title:'发票管理',items:['开票管理','收票管理','发票认证']},{title:'发票设置',items:['税率设置','发票类型']}]},
+      report:{sections:[{title:'财务报表',items:['资产负债表','利润表','现金流量表']},{title:'报表设置',items:['报表模板','报表周期']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'ar',label:'逾期应收账款',value:15,ic:'doc'},{tone:'mint',key:'ap',label:'待付应付账款',value:22,ic:'list'},{tone:'sky',key:'invoice',label:'待开发票',value:8,ic:'edit'},{tone:'rose',key:'budget',label:'预算预警',value:3,ic:'flow'},{tone:'lilac',key:'voucher',label:'待审核凭证',value:45,ic:'folder'},{tone:'sand',key:'cost',label:'成本异常',value:2,ic:'search'}],
+      moreKpis:[{tone:'sky',key:'reconcile',label:'待对账',value:12,ic:'check'},{tone:'mint',key:'reimburse',label:'待审批报销',value:18,ic:'user'},{tone:'peach',key:'advance',label:'预付款项',value:9,ic:'cart'},{tone:'rose',key:'overdue',label:'超期未收',value:7,ic:'doc'},{tone:'lilac',key:'tax',label:'待报税',value:1,ic:'edit'},{tone:'sand',key:'close',label:'待结账期间',value:1,ic:'list'}],
+      navTiles:[{label:'应收',sub:'应收管理',n:86,tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'应付',sub:'应付管理',n:62,tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'成本',sub:'成本核算',n:0,tint:'#FEF3CD',fg:'#B26A24',ic:'search'},{label:'总账',sub:'总账管理',n:156,tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'发票',sub:'发票管理',n:34,tint:'#DBF3E6',fg:'#10B981',ic:'edit'},{label:'报表',sub:'财务报表',n:12,tint:'#E8DEFB',fg:'#8957D8',ic:'check'},{label:'报销',sub:'费用报销',n:18,tint:'#FBDFDF',fg:'#D14D4D',ic:'user'},{label:'资金',sub:'资金管理',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'flow'}],
+      entries:[{label:'录入凭证',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'应收对账',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'应付审批',tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'查看报表',tint:'#DCE7FB',fg:'#5677FC',ic:'search'},{label:'费用报销',tint:'#DCE7FB',fg:'#5677FC',ic:'user'}]}},
+  hr: {
+    title: '人力中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'org',label:'组织架构'},{k:'employee',label:'员工管理'},{k:'attend',label:'考勤管理'},{k:'salary',label:'薪酬管理'},{k:'recruit',label:'招聘管理'},{k:'train',label:'培训管理'}],
+    flyouts: {
+      org:{sections:[{title:'组织架构',items:['公司架构','部门管理','岗位管理']},{title:'架构设置',items:['架构层级','编制管理']}]},
+      employee:{sections:[{title:'员工管理',items:['员工档案','入职管理','离职管理','异动管理']},{title:'员工设置',items:['员工编号','工号规则','合同模板']}]},
+      attend:{sections:[{title:'考勤管理',items:['考勤记录','请假申请','加班管理','出差管理']},{title:'考勤设置',items:['考勤规则','假期类型','加班规则']}]},
+      salary:{sections:[{title:'薪酬管理',items:['薪资计算','薪资发放','个税申报']},{title:'薪酬设置',items:['薪资结构','社保公积金','薪资周期']}]},
+      recruit:{sections:[{title:'招聘管理',items:['招聘需求','简历管理','面试评估','录用审批']},{title:'招聘设置',items:['招聘渠道','岗位模板']}]},
+      train:{sections:[{title:'培训管理',items:['培训计划','培训记录','培训考核']},{title:'培训设置',items:['课程管理','讲师管理']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'leave',label:'待审批请假',value:8,ic:'edit'},{tone:'mint',key:'recruit',label:'招聘中岗位',value:12,ic:'user'},{tone:'sky',key:'onboard',label:'待入职员工',value:3,ic:'check'},{tone:'rose',key:'resign',label:'待办离职',value:2,ic:'flow'},{tone:'lilac',key:'contract',label:'合同到期提醒',value:5,ic:'doc'},{tone:'sand',key:'train',label:'待开展培训',value:4,ic:'folder'}],
+      moreKpis:[{tone:'sky',key:'probation',label:'转正提醒',value:6,ic:'check'},{tone:'mint',key:'overtime',label:'待审批加班',value:15,ic:'list'},{tone:'peach',key:'travel',label:'待审批出差',value:3,ic:'cart'},{tone:'rose',key:'salary',label:'薪资异常',value:1,ic:'edit'},{tone:'lilac',key:'cert',label:'证书到期',value:2,ic:'doc'},{tone:'sand',key:'birthday',label:'本月生日',value:8,ic:'user'}],
+      navTiles:[{label:'组织',sub:'组织架构',n:0,tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'员工',sub:'员工管理',n:320,tint:'#DCE7FB',fg:'#5677FC',ic:'user'},{label:'考勤',sub:'考勤管理',n:28,tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'薪酬',sub:'薪酬管理',n:0,tint:'#FEF3CD',fg:'#B26A24',ic:'list'},{label:'招聘',sub:'招聘管理',n:12,tint:'#DBF3E6',fg:'#10B981',ic:'search'},{label:'培训',sub:'培训管理',n:6,tint:'#E8DEFB',fg:'#8957D8',ic:'edit'},{label:'合同',sub:'合同管理',n:24,tint:'#FBDFDF',fg:'#D14D4D',ic:'doc'},{label:'统计',sub:'人力统计',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'flow'}],
+      entries:[{label:'请假审批',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'员工查询',tint:'#DCE7FB',fg:'#5677FC',ic:'search'},{label:'招聘需求',tint:'#DCE7FB',fg:'#5677FC',ic:'user'},{label:'薪资查询',tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'我的审批',tint:'#DCE7FB',fg:'#5677FC',ic:'check'}]}},
+  oa: {
+    title: '办公中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'notice',label:'公告通知'},{k:'approval',label:'流程审批'},{k:'meeting',label:'会议管理'},{k:'doc',label:'公文管理'},{k:'calendar',label:'日程管理'},{k:'car',label:'用车管理'}],
+    flyouts: {
+      notice:{sections:[{title:'公告通知',items:['发布公告','公告列表','我的公告']},{title:'公告设置',items:['公告分类','发布权限','通知范围']}]},
+      approval:{sections:[{title:'流程审批',items:['发起审批','我的审批','审批记录']},{title:'流程设置',items:['流程模板','节点设置','抄送规则']}]},
+      meeting:{sections:[{title:'会议管理',items:['预约会议','会议列表','会议纪要']},{title:'会议设置',items:['会议室管理','会议分类']}]},
+      doc:{sections:[{title:'公文管理',items:['发文管理','收文管理','公文归档']},{title:'公文设置',items:['公文编号','公文分类','审批流程']}]},
+      calendar:{sections:[{title:'日程管理',items:['个人日程','团队日程','日程提醒']},{title:'日程设置',items:['工作日历','提醒设置']}]},
+      car:{sections:[{title:'用车管理',items:['用车申请','车辆调度','费用结算']},{title:'用车设置',items:['车辆管理','司机管理','审批流程']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'approval',label:'待我审批',value:12,ic:'edit'},{tone:'mint',key:'meeting',label:'今日会议',value:3,ic:'folder'},{tone:'sky',key:'notice',label:'未读公告',value:5,ic:'doc'},{tone:'rose',key:'urgent',label:'紧急审批',value:2,ic:'flow'},{tone:'lilac',key:'task',label:'待办任务',value:8,ic:'list'},{tone:'sand',key:'calendar',label:'今日日程',value:4,ic:'check'}],
+      moreKpis:[{tone:'sky',key:'car',label:'待审批用车',value:3,ic:'cart'},{tone:'mint',key:'doc',label:'待处理公文',value:6,ic:'doc'},{tone:'peach',key:'seal',label:'用章申请',value:2,ic:'edit'},{tone:'rose',key:'overdue',label:'逾期未批',value:1,ic:'flow'},{tone:'lilac',key:'visitor',label:'访客预约',value:1,ic:'user'},{tone:'sand',key:'purchase',label:'办公用品',value:2,ic:'cart'}],
+      navTiles:[{label:'公告',sub:'公告通知',n:15,tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'审批',sub:'流程审批',n:28,tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'会议',sub:'会议管理',n:8,tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'公文',sub:'公文管理',n:22,tint:'#DBF3E6',fg:'#10B981',ic:'list'},{label:'日程',sub:'日程管理',n:0,tint:'#FEF3CD',fg:'#B26A24',ic:'check'},{label:'用车',sub:'用车管理',n:5,tint:'#E8DEFB',fg:'#8957D8',ic:'cart'},{label:'印章',sub:'印章管理',n:0,tint:'#FBDFDF',fg:'#D14D4D',ic:'edit'},{label:'用品',sub:'办公用品',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'flow'}],
+      entries:[{label:'发起审批',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'预约会议',tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'查看公告',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'工作日程',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'我的审批',tint:'#DCE7FB',fg:'#5677FC',ic:'list'}]}},
+  eq: {
+    title: '设备中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'asset',label:'设备台账'},{k:'maintain',label:'保养计划'},{k:'repair',label:'维修记录'},{k:'inspect',label:'点检记录'},{k:'spare',label:'备件管理'}],
+    flyouts: {
+      asset:{sections:[{title:'设备台账',items:['设备档案','设备分类','设备状态']},{title:'台账设置',items:['设备编号','设备分类','资产标签']}]},
+      maintain:{sections:[{title:'保养计划',items:['保养计划','保养执行','保养预警']},{title:'保养设置',items:['保养标准','保养周期','审批流程']}]},
+      repair:{sections:[{title:'维修记录',items:['报修申请','维修派工','维修验收']},{title:'维修设置',items:['故障分类','维修等级','审批流程']}]},
+      inspect:{sections:[{title:'点检记录',items:['点检计划','点检执行','点检异常']},{title:'点检设置',items:['点检标准','点检周期']}]},
+      spare:{sections:[{title:'备件管理',items:['备件库存','备件申请','备件采购']},{title:'备件设置',items:['安全库存','备件分类']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'repair',label:'待维修设备',value:5,ic:'edit'},{tone:'mint',key:'maintain',label:'本周保养计划',value:12,ic:'list'},{tone:'sky',key:'inspect',label:'待点检设备',value:18,ic:'check'},{tone:'rose',key:'fault',label:'故障停用设备',value:3,ic:'flow'},{tone:'lilac',key:'spare',label:'备件库存预警',value:7,ic:'cart'},{tone:'sand',key:'scrap',label:'待报废设备',value:2,ic:'doc'}],
+      moreKpis:[{tone:'sky',key:'overdue',label:'逾期未保养',value:4,ic:'list'},{tone:'mint',key:'new',label:'新到设备',value:2,ic:'cube'},{tone:'peach',key:'accept',label:'待验收设备',value:3,ic:'check'},{tone:'rose',key:'urgent',label:'紧急维修',value:1,ic:'flow'},{tone:'lilac',key:'calibrate',label:'待校准设备',value:6,ic:'edit'},{tone:'sand',key:'transfer',label:'设备调拨',value:1,ic:'cart'}],
+      navTiles:[{label:'台账',sub:'设备台账',n:320,tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'保养',sub:'保养计划',n:24,tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'维修',sub:'维修记录',n:18,tint:'#FBDFDF',fg:'#D14D4D',ic:'edit'},{label:'点检',sub:'点检记录',n:56,tint:'#DBF3E6',fg:'#10B981',ic:'check'},{label:'备件',sub:'备件管理',n:142,tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},{label:'状态',sub:'设备状态',n:0,tint:'#FEF3CD',fg:'#B26A24',ic:'search'},{label:'统计',sub:'设备统计',n:0,tint:'#E8DEFB',fg:'#8957D8',ic:'flow'},{label:'资产',sub:'资产折旧',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'doc'}],
+      entries:[{label:'报修申请',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'保养计划',tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'设备点检',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'备件申领',tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},{label:'设备查询',tint:'#DCE7FB',fg:'#5677FC',ic:'search'}]}},
+  en: {
+    title: '能耗中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'monitor',label:'能耗监测'},{k:'analysis',label:'能耗分析'},{k:'report',label:'能耗报表'},{k:'save',label:'节能措施'},{k:'carbon',label:'碳排放'}],
+    flyouts: {
+      monitor:{sections:[{title:'能耗监测',items:['实时监测','异常告警','设备能耗']},{title:'监测设置',items:['采集点管理','告警阈值','监测频率']}]},
+      analysis:{sections:[{title:'能耗分析',items:['趋势分析','对比分析','成本分析']},{title:'分析设置',items:['分析维度','基准设置','分析周期']}]},
+      report:{sections:[{title:'能耗报表',items:['日报','月报','年报','自定义报表']},{title:'报表设置',items:['报表模板','报送设置']}]},
+      save:{sections:[{title:'节能措施',items:['措施方案','措施执行','效果评估']},{title:'措施设置',items:['措施分类','目标设定']}]},
+      carbon:{sections:[{title:'碳排放',items:['排放核算','排放报告','减排目标']},{title:'碳设置',items:['核算标准','排放因子']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'alert',label:'能耗异常告警',value:3,ic:'flow'},{tone:'mint',key:'today',label:'今日用电量',value:4820,ic:'search'},{tone:'sky',key:'target',label:'超指标能耗',value:2,ic:'edit'},{tone:'rose',key:'peak',label:'峰值预警',value:1,ic:'list'},{tone:'lilac',key:'save',label:'进行中节能措施',value:4,ic:'check'},{tone:'sand',key:'carbon',label:'碳排考核',value:0,ic:'doc'}],
+      moreKpis:[{tone:'sky',key:'water',label:'今日用水量',value:128,ic:'flow'},{tone:'mint',key:'gas',label:'今日用气量',value:350,ic:'search'},{tone:'peach',key:'cost',label:'今日能耗成本',value:12500,ic:'doc'},{tone:'rose',key:'leak',label:'疑似泄漏',value:1,ic:'edit'},{tone:'lilac',key:'equip',label:'高能耗设备',value:8,ic:'list'},{tone:'sand',key:'report',label:'待上报报表',value:1,ic:'check'}],
+      navTiles:[{label:'监测',sub:'能耗监测',n:0,tint:'#DCE7FB',fg:'#5677FC',ic:'search'},{label:'分析',sub:'能耗分析',n:0,tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},{label:'报表',sub:'能耗报表',n:8,tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},{label:'节能',sub:'节能措施',n:4,tint:'#DBF3E6',fg:'#10B981',ic:'check'},{label:'碳排放',sub:'碳排放管理',n:0,tint:'#E8DEFB',fg:'#8957D8',ic:'folder'},{label:'电表',sub:'电表管理',n:36,tint:'#FEF3CD',fg:'#B26A24',ic:'list'},{label:'水表',sub:'水表管理',n:12,tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'成本',sub:'能耗成本',n:0,tint:'#FBDFDF',fg:'#D14D4D',ic:'cart'}],
+      entries:[{label:'实时监测',tint:'#DCE7FB',fg:'#5677FC',ic:'search'},{label:'异常处理',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},{label:'能耗分析',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'节能方案',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'查看报表',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'}]}},
+  set: {
+    title: '设置中心',
+    sideItems: [{k:'workbench',label:'工作台'},{k:'system',label:'系统设置'},{k:'user',label:'用户管理'},{k:'role',label:'角色权限'},{k:'dict',label:'数据字典'},{k:'code',label:'编码规则'},{k:'approval',label:'审批流程'}],
+    flyouts: {
+      system:{sections:[{title:'系统设置',items:['基础信息','系统参数','界面配置']},{title:'系统维护',items:['系统日志','数据备份','版本管理']}]},
+      user:{sections:[{title:'用户管理',items:['用户列表','新增用户','部门管理']},{title:'用户设置',items:['密码策略','登录设置']}]},
+      role:{sections:[{title:'角色权限',items:['角色管理','权限分配','数据权限']},{title:'权限设置',items:['菜单权限','操作权限','字段权限']}]},
+      dict:{sections:[{title:'数据字典',items:['字典管理','字典项管理']},{title:'字典设置',items:['字典分类','编码规则']}]},
+      code:{sections:[{title:'编码规则',items:['规则管理','编码预览']},{title:'规则设置',items:['规则模板','流水号设置']}]},
+      approval:{sections:[{title:'审批流程',items:['流程管理','节点配置','审批策略']},{title:'流程设置',items:['流程模板','条件设置','通知设置']}]}},
+    workbench:{
+      kpis:[{tone:'peach',key:'user',label:'待审核用户',value:3,ic:'user'},{tone:'mint',key:'role',label:'待配置角色',value:2,ic:'check'},{tone:'sky',key:'log',label:'异常日志',value:8,ic:'list'},{tone:'rose',key:'alert',label:'系统告警',value:1,ic:'flow'},{tone:'lilac',key:'dict',label:'字典变更',value:5,ic:'edit'},{tone:'sand',key:'backup',label:'待备份数据',value:1,ic:'folder'}],
+      moreKpis:[{tone:'sky',key:'license',label:'许可证到期',value:1,ic:'doc'},{tone:'mint',key:'online',label:'当前在线用户',value:86,ic:'user'},{tone:'peach',key:'task',label:'定时任务',value:12,ic:'list'},{tone:'rose',key:'error',label:'接口异常',value:2,ic:'flow'},{tone:'lilac',key:'update',label:'待升级模块',value:3,ic:'cube'},{tone:'sand',key:'audit',label:'待审计日志',value:156,ic:'search'}],
+      navTiles:[{label:'系统',sub:'系统设置',n:0,tint:'#DCE7FB',fg:'#5677FC',ic:'folder'},{label:'用户',sub:'用户管理',n:320,tint:'#DCE7FB',fg:'#5677FC',ic:'user'},{label:'角色',sub:'角色权限',n:28,tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'字典',sub:'数据字典',n:64,tint:'#DBF3E6',fg:'#10B981',ic:'edit'},{label:'编码',sub:'编码规则',n:18,tint:'#E8DEFB',fg:'#8957D8',ic:'list'},{label:'审批',sub:'审批流程',n:12,tint:'#FBDFDF',fg:'#D14D4D',ic:'flow'},{label:'日志',sub:'系统日志',n:0,tint:'#FEF3CD',fg:'#B26A24',ic:'doc'},{label:'安全',sub:'安全设置',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'search'}],
+      entries:[{label:'用户管理',tint:'#DCE7FB',fg:'#5677FC',ic:'user'},{label:'权限配置',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'编码规则',tint:'#DCE7FB',fg:'#5677FC',ic:'list'},{label:'审批流程',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},{label:'系统日志',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'}]}}
+};
+
+function Topbar({ active, onChange }) {
+  return (
+    <div className="aw-topbar">
+      <div className="brand">海南傲为智慧</div>
+      <div className="tabs">
+        {NAV.map(n => (
+          <span key={n.k} className={'tab' + (active===n.k?' on':'')} onClick={()=>onChange&&onChange(n.k)}>
+            <span style={{fontSize:13}}>{n.ic}</span> {n.label}
+          </span>
+        ))}
+      </div>
+      <div className="right">
+        <span className="ic" title="帮助">?</span>
+        <span className="ic" title="通知" style={{position:'relative'}}>🔔<span style={{position:'absolute',top:-2,right:-4,width:6,height:6,background:'#F5222D',borderRadius:'50%'}}></span></span>
+        <div className="av">夏</div>
+        <span>老夏 ▾</span>
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({ title, items, active, onChange, flyouts }) {
+  const [hover, setHover] = useState(null);
+  const [top, setTop] = useState(0);
+  const hide = React.useRef();
+  const open = (k, e) => {
+    clearTimeout(hide.current);
+    const r = e.currentTarget.getBoundingClientRect();
+    setTop(r.top); setHover(k);
+  };
+  const close = () => { hide.current = setTimeout(()=>setHover(null), 150); };
+  const stay = () => clearTimeout(hide.current);
+  const fly = hover && flyouts && flyouts[hover];
+  return (
+    <div className="aw-side">
+      <h4>{title}</h4>
+      {items.map(it => (
+        <div key={it.k}
+          className={'item' + (active===it.k?' on':'')}
+          onClick={()=>onChange&&onChange(it.k)}
+          onMouseEnter={(e)=>open(it.k,e)} onMouseLeave={close}>
+          <span style={{opacity:.6}}>○</span> {it.label}
+        </div>
+      ))}
+      {fly && (
+        <div className="aw-flyout" style={{top}} onMouseEnter={stay} onMouseLeave={close}>
+          {fly.sections.map((s,i)=>(
+            <div key={i} className="aw-flyout-sec">
+              <div className="aw-flyout-h">{s.title}</div>
+              <div className="aw-flyout-items">
+                {s.items.map((x,j)=><a key={j} onClick={()=>{onChange&&onChange(hover); s.onPick&&s.onPick(x);}}>{x}</a>)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PageHead({ children }) {
+  return <div className="aw-page-head">{children}</div>;
+}
+
+function Card({ title, children, style }) {
+  return (
+    <div className="aw-card" style={style}>
+      {title && <div className="section-title">{title}</div>}
+      {children}
+    </div>
+  );
+}
+
+function Btn({ kind = 'secondary', children, onClick, style }) {
+  const cls = 'aw-btn' + (kind==='primary'?' primary':kind==='text'?' text':kind==='danger'?' danger':'');
+  return <button className={cls} onClick={onClick} style={style}>{children}</button>;
+}
+
+function Field({ label, req, children }) {
+  return (
+    <div className={'aw-field' + (req?' req':'')}>
+      <label>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function Input(props) { return <input className="aw-input" {...props} />; }
+function Select({ children, value, onChange, ...rest }) {
+  return <select className="aw-select" value={value} onChange={onChange} {...rest}>{children}</select>;
+}
+
+function Switch({ on, onChange }) {
+  return <span className={'aw-switch' + (on?'':' off')} onClick={()=>onChange&&onChange(!on)} />;
+}
+
+function Radio({ on, children, onClick }) {
+  return <span className={'aw-radio' + (on?' on':'')} onClick={onClick}><span className="aw-dot" />{children}</span>;
+}
+
+function Tabs({ items, active, onChange }) {
+  return (
+    <div className="aw-tabs">
+      {items.map(it => (
+        <div key={it.k} className={'t' + (active===it.k?' on':'')} onClick={()=>onChange&&onChange(it.k)}>{it.label}</div>
+      ))}
+    </div>
+  );
+}
+
+function Badge({ tone='b', children }) {
+  return <span className={'aw-badge' + (tone==='b'?'':' '+tone)}>{children}</span>;
+}
+
+function KPI({ tone='peach', label, value, action='点击查看', ic='📄', onClick }) {
+  return (
+    <div className={'aw-kpi ' + tone} onClick={onClick} style={{cursor:'pointer'}}>
+      <div className="l">{label}</div>
+      <div className="n">{value}</div>
+      <div className="a">{action}</div>
+      <div className="ic">{ic}</div>
+    </div>
+  );
+}
+
+function Modal({ title, children, footer, onClose }) {
+  return (
+    <div className="aw-mask" onClick={onClose}>
+      <div className="aw-modal" onClick={e=>e.stopPropagation()}>
+        <div className="head">{title}<span style={{cursor:'pointer',color:'#9CA3AF'}} onClick={onClose}>✕</span></div>
+        <div className="body">{children}</div>
+        {footer && <div className="foot">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { Topbar, Sidebar, PageHead, Card, Btn, Field, Input, Select, Switch, Radio, Tabs, Badge, KPI, Modal, NAV, DEPT_CONFIG, MODULES, PICK_MAP, MODULE_DOC });
