@@ -8,10 +8,9 @@
 
 .bn-create-steps{display:flex;align-items:stretch;gap:14px;margin-top:14px;padding:14px;background:#fff;border:1px solid var(--aw-border);border-radius:8px}
 .bn-step-track{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;flex:1;min-width:0}
-.bn-step{display:flex;gap:8px;align-items:flex-start;min-width:0;padding:10px;border:1px solid var(--aw-divider);border-radius:7px;background:var(--aw-surface-2)}
+.bn-step{display:flex;gap:8px;align-items:center;min-width:0;padding:10px 12px;border:1px solid var(--aw-divider);border-radius:7px;background:var(--aw-surface-2)}
 .bn-step .dot{width:22px;height:22px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--aw-border);font-size:11px;color:var(--aw-fg-3);font-family:var(--aw-font-num)}
 .bn-step .name{font-size:13px;font-weight:600;color:var(--aw-fg-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bn-step .hint{font-size:11px;color:var(--aw-fg-3);line-height:1.5;margin-top:2px}
 .bn-step.current{background:var(--aw-primary-soft);border-color:var(--aw-primary)}
 .bn-step.current .dot,.bn-step.done .dot{background:var(--aw-primary);border-color:var(--aw-primary);color:#fff}
 .bn-step-actions{width:168px;display:flex;flex-direction:column;gap:8px;flex:none}
