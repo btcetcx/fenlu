@@ -275,13 +275,6 @@ function ProjectNewView({ onBack }) {
                 </Select>
               </Field>
             )}
-            <Field label={<span>项目类型<HelpTip text="项目类型影响引用隔离、报价确认和后续采购/生产流程；项目内引用标准 BOM 或标准工艺后，修改只影响当前项目副本。" /></span>}>
-              <div style={{ display: 'flex', alignItems: 'center', paddingTop: 6 }}>
-                <Radio on={true} onClick={() => {}}>内部</Radio>
-                <Radio on={false} onClick={() => {}}>外部</Radio>
-                <Radio on={false} onClick={() => {}}>研发</Radio>
-              </div>
-            </Field>
             <Field label="优先级">
               <div style={{ display: 'flex', alignItems: 'center', paddingTop: 6 }}>
                 <Radio on={false} onClick={() => {}}>高</Radio>
@@ -289,28 +282,11 @@ function ProjectNewView({ onBack }) {
                 <Radio on={false} onClick={() => {}}>低</Radio>
               </div>
             </Field>
-            <Field label="项目状态">
-              <Select defaultValue="筹备中">
-                <option>筹备中</option>
-                <option>进行中</option>
-                <option>已完成</option>
-                <option>已暂停</option>
-              </Select>
-            </Field>
             <Field label="负责人" req>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <Input placeholder="请选择负责人" value={selectedPerson ? selectedPerson.name : ''} readOnly onClick={() => setShowPersonPicker(true)} style={{ flex: 1, cursor:'pointer' }} />
                 <Btn onClick={() => setShowPersonPicker(true)}>选择</Btn>
               </div>
-            </Field>
-            <Field label="所属部门">
-              <Select>
-                <option value="">请选择</option>
-                <option>研发部</option>
-                <option>产品部</option>
-                <option>设计部</option>
-                <option>采购部</option>
-              </Select>
             </Field>
             <Field label="开始日期" req>
               <Input placeholder="请选择" />
