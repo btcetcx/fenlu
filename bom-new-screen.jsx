@@ -399,7 +399,7 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
 
   const handleBack = () => {
     const dirty = baseInfo.name || baseInfo.product || tree.length || detailText !== BOM_DETAIL_TEXT;
-    if (dirty && !window.confirm('当前新增物料清单尚未保存，确定返回列表吗？')) return;
+    if (dirty && !window.confirm('当前新增BOM尚未保存，确定返回列表吗？')) return;
     onBack && onBack();
   };
 
@@ -649,7 +649,7 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
     <div className="aw-doc-form bn-page" style={{height:'auto'}}>
       <div className="aw-doc-form-head">
         <span className="aw-link" onClick={handleBack}>← 返回</span>
-        <span className="bn-toolbar-title">研发中心 / BOM管理 / 新增物料清单</span>
+        <span className="bn-toolbar-title">研发中心 / BOM管理 / 新增BOM</span>
         <span className="bn-toolbar-spacer" />
         {notice && <span style={{fontSize:12,color:'#2563EB',marginRight:8}}>{notice}</span>}
         <Btn onClick={handleDraft}>暂存草稿</Btn>
@@ -1382,7 +1382,7 @@ function BomNewStandaloneApp() {
       <div className="aw-shell">
         <Sidebar title={cfg.title} items={cfg.sideItems} active="bom" onChange={() => {}} flyouts={cfg.flyouts} />
         <div className="aw-main">
-          <PageHead><span style={{fontSize:15,fontWeight:600}}>新增物料清单</span></PageHead>
+          <PageHead><span style={{fontSize:15,fontWeight:600}}>新增BOM</span></PageHead>
           <BomNewScreen onBack={() => { window.location.href = 'index.html'; }} />
         </div>
       </div>

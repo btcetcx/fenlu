@@ -309,7 +309,7 @@ const DEPT_CONFIG = {
       process:{sections:[{title:'工序管理',items:['新增工序','工序列表']},{title:'工序设置',items:['设置工序编号','设置工序分类','设置审批流程','设置自定义字段','设置工序策略','设置打印模板']}]},
       craft:{sections:[{title:'工艺管理',items:['新增工艺','工艺列表']},{title:'工艺设置',items:['设置工艺编号','设置工艺分类','设置审批流程','设置自定义字段','设置工艺策略','设置打印模板']}]},
       bom:{sections:[
-        {title:'物料清单库',items:['新增物料清单','清单列表']},
+        {title:'BOM库',items:['新增BOM','BOM列表']},
         {title:'代替物料库',items:['新增代替','代替列表']},
         {title:'BOM设置',items:['设置项目编号','设置bom策略','设置bom分类','设置bom模板','设置bom流程','设置自定义字段']}
       ]},

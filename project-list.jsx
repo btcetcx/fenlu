@@ -440,6 +440,7 @@ function ProjectNewView({ onBack }) {
 function ProjectDetailView({ onBack, projectIndex = 0 }) {
   const [tab, setTab] = useState('detail');
   const [hasProjectBom, setHasProjectBom] = useState(false);
+  const [projectBomLocked, setProjectBomLocked] = useState(false);
   const [hasProjectProcess, setHasProjectProcess] = useState(false);
   const [quoteItems, setQuoteItems] = useState([]);
   const [projectModal, setProjectModal] = useState(null);
@@ -609,17 +610,21 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
         ],
       }) : (
         <>
-          <div style={{display:'flex',gap:8,marginBottom:12}}>
+          <div style={{display:'flex',gap:8,marginBottom:12,alignItems:'center'}}>
             <Btn onClick={()=>setProjectModal('bomRef')}>引用BOM</Btn>
             <Btn onClick={()=>setProjectModal('bomAdd')}>添加BOM</Btn>
             <Btn onClick={()=>setProjectModal('bomImport')}>导入Excel</Btn>
+            <Btn kind={projectBomLocked ? 'secondary' : 'primary'} onClick={()=>setProjectBomLocked(true)}>{projectBomLocked ? '已锁定' : '锁定BOM'}</Btn>
+            {projectBomLocked && <span style={{fontSize:12,color:'var(--aw-fg-3)'}}>锁定后作为当前项目采购、报价和生产的版本基准。</span>}
           </div>
           <table className="aw-table">
-            <thead><tr><th>序号</th><th>BOM编号</th><th>BOM名称</th><th>适用产品</th><th>版本</th><th>来源</th><th>状态</th></tr></thead>
+            <thead><tr><th>序号</th><th>层级</th><th>物料编码</th><th>物料名称</th><th>规格型号</th><th>单位</th><th>项目用量</th><th>损耗率</th><th>来源</th><th>状态</th></tr></thead>
             <tbody>
               {[
-                ['1','BOM-2026-0008','智能输送线项目BOM','智能输送线系统','V1.0','项目BOM','可编辑'],
-              ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 1 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
+                ['1','1','WL-7820864','半成品物料','规格一','KG','500','2%','标准BOM引用',projectBomLocked ? '已锁定' : '可调整'],
+                ['2','1.1','WL-8518691','铝合金型材','AL-6061','KG','320','3%','标准BOM引用',projectBomLocked ? '已锁定' : '可调整'],
+                ['3','1.2','WL-6081578','外箱包装','PK-500','个','800','0%','项目新增',projectBomLocked ? '已锁定' : '可调整'],
+              ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 2 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
             </tbody>
           </table>
         </>
@@ -806,31 +811,55 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
   const renderProjectModal = () => {
     if (!projectModal) return null;
     if (projectModal === 'bomRef') {
+      const bomRows = [
+        ['BOM-STD-001','标准输送线BOM','智能输送线系统','成品BOM','V3.2','已发布'],
+        ['BOM-STD-002','半成品模组BOM','半成品模组','半成品BOM','V2.1','已发布'],
+        ['BOM-STD-003','工程试制BOM','新品试制','工程BOM','V0.9','待审核'],
+      ];
       return (
         <StandardModal title="引用BOM" size="lg" onClose={closeProjectModal}
-          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectBom(true); closeProjectModal(); }}>引用</Btn></>}>
-          <table className="aw-table">
-            <thead><tr><th style={{width:46}}></th><th>BOM编号</th><th>BOM名称</th><th>适用产品</th><th>版本</th><th>状态</th></tr></thead>
-            <tbody>
-              {[
-                ['BOM-STD-001','标准输送线BOM','智能输送线系统','V3.2','已发布'],
-                ['BOM-STD-002','半成品模组BOM','半成品模组','V2.1','已发布'],
-              ].map((r,i)=><tr key={r[0]} style={{background:i===0?'var(--aw-primary-soft)':undefined}}><td><input type="radio" checked={i===0} readOnly /></td>{r.map((c,ci)=><td key={ci}>{c}</td>)}</tr>)}
-            </tbody>
-          </table>
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectBom(true); setProjectBomLocked(false); closeProjectModal(); }}>引用</Btn></>}>
+          <div style={{display:'grid',gridTemplateColumns:'170px 1fr',minHeight:420}}>
+            <div style={{borderRight:'1px solid var(--aw-border)',padding:8,background:'var(--aw-surface-2)'}}>
+              {['全部BOM','成品BOM','半成品BOM','工程BOM','虚拟BOM'].map((name,i)=><div key={name} className={'aw-tree-row aw-tree-l2' + (i===0 ? ' on' : '')}><span className="aw-tree-caret">{i===0 ? '▾' : ''}</span><TileIcon name={i===0?'folder':'doc'} size={14}/><span>{name}</span></div>)}
+            </div>
+            <div style={{minWidth:0,padding:'0 0 0 14px'}}>
+              <PurchaseListToolbar searchPlaceholder="搜索BOM编号、BOM名称、适用产品" hideNew />
+              <table className="aw-table">
+                <thead><tr><th style={{width:46}}></th><th>BOM编号</th><th>BOM名称</th><th>适用产品</th><th>分类</th><th>版本</th><th>状态</th></tr></thead>
+                <tbody>{bomRows.map((r,i)=><tr key={r[0]} style={{background:i===0?'var(--aw-primary-soft)':undefined}}><td><input type="radio" checked={i===0} readOnly /></td>{r.map((c,ci)=><td key={ci}>{c}</td>)}</tr>)}</tbody>
+              </table>
+            </div>
+          </div>
         </StandardModal>
       );
     }
     if (projectModal === 'bomAdd') {
       return (
-        <StandardModal title="新增物料清单" size="md" onClose={closeProjectModal}
-          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectBom(true); closeProjectModal(); }}>保存</Btn></>}>
-          <FormGrid columns={2}>
-            <Field label="BOM名称" req><Input defaultValue="智能输送线项目BOM" /></Field>
-            <Field label="适用产品" req><Input defaultValue="智能输送线系统" /></Field>
-            <Field label="版本号"><Input defaultValue="V1.0" /></Field>
-            <Field label="来源"><Input value="项目新增" readOnly /></Field>
-          </FormGrid>
+        <StandardModal title="新增BOM" size="lg" onClose={closeProjectModal}
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectBom(true); setProjectBomLocked(false); closeProjectModal(); }}>保存BOM</Btn></>}>
+          <PurchaseSection title="BOM基础信息">
+            <FormGrid columns={3}>
+              <Field label="BOM名称" req><Input defaultValue="智能输送线项目BOM" /></Field>
+              <Field label="适用产品" req><Input defaultValue="智能输送线系统" /></Field>
+              <Field label="版本号"><Input defaultValue="V1.0" /></Field>
+              <Field label="BOM分类"><Select defaultValue="项目BOM"><option>项目BOM</option><option>成品BOM</option><option>工程BOM</option></Select></Field>
+              <Field label="来源"><Input value="项目新增" readOnly /></Field>
+              <Field label="锁定状态"><Input value="未锁定" readOnly /></Field>
+            </FormGrid>
+          </PurchaseSection>
+          <PurchaseSection title="BOM明细">
+            <table className="aw-table">
+              <thead><tr><th>序号</th><th>层级</th><th>物料编码</th><th>物料名称</th><th>规格型号</th><th>单位</th><th>用量</th><th>损耗率</th><th>操作</th></tr></thead>
+              <tbody>
+                {[
+                  ['1','1','WL-7820864','半成品物料','规格一','KG','500','2%'],
+                  ['2','1.1','WL-8518691','铝合金型材','AL-6061','KG','320','3%'],
+                ].map(r=><tr key={r[0]}>{r.map((c,i)=><td key={i}>{c}</td>)}<td><span className="aw-link">调整</span></td></tr>)}
+                <tr><td colSpan={9}><span className="aw-link">+ 添加子件</span></td></tr>
+              </tbody>
+            </table>
+          </PurchaseSection>
         </StandardModal>
       );
     }

@@ -60,7 +60,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
 
   useEffect(() => {
     if (initialAction === 'new') { setView('new'); onActionConsumed && onActionConsumed(); }
-    else if (initialAction === 'list' || initialAction === '清单列表') { setView('list'); onActionConsumed && onActionConsumed(); }
+    else if (initialAction === 'list' || initialAction === 'BOM列表') { setView('list'); onActionConsumed && onActionConsumed(); }
   }, [initialAction]);
 
   // Type map: tree key → table type label
@@ -236,7 +236,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
               <button className="aw-btn" onClick={() => setDrawer('field')}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="7" height="7" /><rect x="14" y="4" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>字段配置</button>
               <button className="aw-btn" onClick={() => setDrawer('export')}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 4v12" /><path d="M7 11l5 5 5-5" /><path d="M4 20h16" /></svg>导出</button>
               <button className="aw-btn" onClick={() => setDrawer('import')}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 20V8" /><path d="M7 13l5-5 5 5" /><path d="M4 4h16" /></svg>导入</button>
-              <button className="aw-btn primary" onClick={() => { setEditInitial(null); setView('new'); }}>{isBomModule ? '新增物料清单' : `新增${m.name}`}</button>
+              <button className="aw-btn primary" onClick={() => { setEditInitial(null); setView('new'); }}>{isBomModule ? '新增BOM' : `新增${m.name}`}</button>
             </div>
             <div className="aw-doc-tbl-wrap">
               <div className="aw-doc-tbl-inner">
