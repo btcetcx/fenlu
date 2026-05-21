@@ -443,8 +443,13 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
   const [projectBomLocked, setProjectBomLocked] = useState(false);
   const [hasProjectProcess, setHasProjectProcess] = useState(false);
   const [quoteItems, setQuoteItems] = useState([]);
+  const [projectCostItems, setProjectCostItems] = useState([
+    ['差旅费', '客户现场调研', '¥ 8,600.00', '2026-06-09', '李文涛', '已入账'],
+    ['测试费', '样机可靠性测试', '¥ 12,000.00', '2026-06-14', '陈思源', '待审核'],
+  ]);
   const [projectModal, setProjectModal] = useState(null);
   const p = PROJECT_ROWS[projectIndex] || PROJECT_ROWS[0];
+  const isProjectCompleted = p.status === '已完成';
 
   const TABS = [
     { k: 'detail',     label: '项目详情' },
@@ -454,7 +459,7 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
     { k: 'quote',      label: '报价信息' },
     { k: 'purchase',   label: '采购信息' },
     { k: 'production', label: '生产信息' },
-    { k: 'expense',    label: '关联费用' },
+    { k: 'expense',    label: '项目成本' },
     { k: 'logs',       label: '操作记录' },
   ];
 
@@ -711,16 +716,28 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
   const renderExpenseTab = () => (
     <div>
       {renderBusinessIntro([
-        '添加项目其他产生的相关费用，用于项目整体成本核算。',
-        '费用可按类别、发生部门和责任人归集，并参与项目利润分析。',
+        '记录项目BOM、工艺之外产生的成本项目，用于项目整体成本核算。',
+        '成本可按类别、发生日期和责任人归集，并参与项目利润分析。',
       ])}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,marginBottom:12}}>
+        <div style={{fontSize:12,color:'var(--aw-fg-3)'}}>
+          {isProjectCompleted ? '项目已完成，不可新增成本项目。' : '可补充差旅、测试、外协等项目执行成本。'}
+        </div>
+        {isProjectCompleted ? (
+          <button className="aw-btn" disabled style={{opacity:.55,cursor:'not-allowed'}}>新增成本项目</button>
+        ) : (
+          <Btn kind="primary" onClick={() => setProjectModal('projectCostAdd')}>新增成本项目</Btn>
+        )}
+      </div>
       <table className="aw-table">
-        <thead><tr><th>序号</th><th>费用类型</th><th>费用说明</th><th>金额</th><th>发生日期</th><th>责任人</th><th>状态</th></tr></thead>
+        <thead><tr><th>序号</th><th>成本类型</th><th>成本说明</th><th>金额</th><th>发生日期</th><th>责任人</th><th>状态</th></tr></thead>
         <tbody>
-          {[
-            ['1','差旅费','客户现场调研','¥ 8,600.00','2026-06-09','李文涛','已入账'],
-            ['2','测试费','样机可靠性测试','¥ 12,000.00','2026-06-14','陈思源','待审核'],
-          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 3 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
+          {projectCostItems.map((r, idx) => (
+            <tr key={`${r[0]}-${idx}`}>
+              <td>{idx + 1}</td>
+              {r.map((c,i)=><td key={i} className={i === 2 ? 'aw-num' : ''}>{c}</td>)}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -911,6 +928,20 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
             <Field label="成本项" req><Input defaultValue="项目管理费" /></Field>
             <Field label="金额" req><Input defaultValue="¥ 60,000.00" /></Field>
             <Field label="说明"><Input defaultValue="手动录入的项目成本项" /></Field>
+          </FormGrid>
+        </StandardModal>
+      );
+    }
+    if (projectModal === 'projectCostAdd') {
+      return (
+        <StandardModal title="新增成本项目" size="sm" onClose={closeProjectModal}
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { if (!isProjectCompleted) setProjectCostItems(items => [...items, ['外协费','项目执行过程中的外协加工费用','¥ 3,000.00','2026-06-20',p.owner,'待审核']]); closeProjectModal(); }}>保存</Btn></>}>
+          <FormGrid columns={1}>
+            <Field label="成本类型" req><Input defaultValue="外协费" /></Field>
+            <Field label="金额" req><Input defaultValue="¥ 3,000.00" /></Field>
+            <Field label="发生日期"><Input defaultValue="2026-06-20" /></Field>
+            <Field label="责任人"><Input defaultValue={p.owner} /></Field>
+            <Field label="成本说明"><Input defaultValue="项目执行过程中的外协加工费用" /></Field>
           </FormGrid>
         </StandardModal>
       );
