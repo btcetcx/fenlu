@@ -308,7 +308,11 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
   const totalAmount = selectedRows.reduce((sum, row) => sum + Number(row.purchaseQty || 0) * Number(row.price || 0), 0);
 
   return (
-    <div className="aw-modal-mask" onClick={onClose}>
+    <div
+      className="aw-modal-mask"
+      style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', padding:'28px', background:'rgba(15,23,42,.28)' }}
+      onClick={onClose}
+    >
       <div className="aw-modal xl" style={{width:'min(1180px,96vw)',maxHeight:'86vh'}} onClick={e => e.stopPropagation()}>
         <div className="head">
           <div className="aw-modal-title">
