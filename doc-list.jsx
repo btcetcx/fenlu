@@ -34,7 +34,6 @@ function DocListView({onNew, onView, picked}){
     {k:'type',  label:'类型',    w:120, filter:['全部','工艺方案','工艺文件','技术文档','操作规范']},
     {k:'state', label:'状态',    w:120, filter:['全部','已发布','待审核','已停用','草稿']},
     {k:'ver',   label:'版本',    w:80},
-    {k:'security', label:'安全策略', w:180},
     {k:'owner', label:'编制人',  w:100},
     {k:'date',  label:'更新日期', w:120},
     {k:'op',    label:'操作',    w:80},
@@ -42,18 +41,18 @@ function DocListView({onNew, onView, picked}){
   // 分类树 key → 表格 type 映射
   const typeMap = { plan:'工艺方案', craft:'工艺文件', tech:'技术文档', spec:'操作规范' };
   const allRows = [
-    {code:'DD-2024-001', name:'智能控制器标准规范', type:'工艺方案', state:'已发布', stTone:'g', ver:'V 1.0', security:'签章 / 水印 / 下载审批', owner:'傲为', date:'2025-12-12'},
-    {code:'DD-2024-002', name:'嵌入式系统设计指南', type:'工艺方案', state:'已发布', stTone:'g', ver:'V 2.1', security:'签章 / 外发审批', owner:'李文涛', date:'2025-11-20'},
-    {code:'DD-2024-003', name:'生产线自动化方案', type:'工艺方案', state:'待审核', stTone:'y', ver:'V 0.5', security:'待配置', owner:'陈思源', date:'2025-12-01'},
-    {code:'DD-2024-011', name:'装配线巡检模板', type:'工艺文件', state:'已停用', stTone:'gray', ver:'V 1.2', security:'禁止外发', owner:'陈思源', date:'2025-12-08'},
-    {code:'DD-2024-012', name:'焊接作业指导书', type:'工艺文件', state:'已发布', stTone:'g', ver:'V 3.0', security:'水印 / 下载审批', owner:'赵工', date:'2025-10-15'},
-    {code:'DD-2024-013', name:'喷涂工艺规范', type:'工艺文件', state:'待审核', stTone:'y', ver:'V 0.8', security:'待配置', owner:'王志强', date:'2025-12-05'},
-    {code:'DD-2024-021', name:'数控加工技术手册', type:'技术文档', state:'已发布', stTone:'g', ver:'V 1.0', security:'签章 / 水印', owner:'张明', date:'2025-09-18'},
-    {code:'DD-2024-022', name:'PLC 编程规范', type:'技术文档', state:'草稿', stTone:'b', ver:'V 0.2', security:'草稿未生效', owner:'李文涛', date:'2025-12-12'},
-    {code:'DD-2024-023', name:'传感器选型指南', type:'技术文档', state:'已发布', stTone:'g', ver:'V 2.3', security:'水印 / 外发审批', owner:'陈思源', date:'2025-11-30'},
-    {code:'DD-2024-031', name:'通用安全操作流程', type:'操作规范', state:'待审核', stTone:'y', ver:'V 0.3', security:'待配置', owner:'李文涛', date:'2025-12-10'},
-    {code:'DD-2024-032', name:'设备点检操作规程', type:'操作规范', state:'已发布', stTone:'g', ver:'V 1.1', security:'查看水印', owner:'赵工', date:'2025-08-22'},
-    {code:'DD-2024-033', name:'化学品管理办法', type:'操作规范', state:'已停用', stTone:'gray', ver:'V 1.0', security:'禁止外发', owner:'王志强', date:'2024-06-15'},
+    {code:'DD-2024-001', name:'智能控制器标准规范', type:'工艺方案', state:'已发布', stTone:'g', ver:'V 1.0', owner:'傲为', date:'2025-12-12'},
+    {code:'DD-2024-002', name:'嵌入式系统设计指南', type:'工艺方案', state:'已发布', stTone:'g', ver:'V 2.1', owner:'李文涛', date:'2025-11-20'},
+    {code:'DD-2024-003', name:'生产线自动化方案', type:'工艺方案', state:'待审核', stTone:'y', ver:'V 0.5', owner:'陈思源', date:'2025-12-01'},
+    {code:'DD-2024-011', name:'装配线巡检模板', type:'工艺文件', state:'已停用', stTone:'gray', ver:'V 1.2', owner:'陈思源', date:'2025-12-08'},
+    {code:'DD-2024-012', name:'焊接作业指导书', type:'工艺文件', state:'已发布', stTone:'g', ver:'V 3.0', owner:'赵工', date:'2025-10-15'},
+    {code:'DD-2024-013', name:'喷涂工艺规范', type:'工艺文件', state:'待审核', stTone:'y', ver:'V 0.8', owner:'王志强', date:'2025-12-05'},
+    {code:'DD-2024-021', name:'数控加工技术手册', type:'技术文档', state:'已发布', stTone:'g', ver:'V 1.0', owner:'张明', date:'2025-09-18'},
+    {code:'DD-2024-022', name:'PLC 编程规范', type:'技术文档', state:'草稿', stTone:'b', ver:'V 0.2', owner:'李文涛', date:'2025-12-12'},
+    {code:'DD-2024-023', name:'传感器选型指南', type:'技术文档', state:'已发布', stTone:'g', ver:'V 2.3', owner:'陈思源', date:'2025-11-30'},
+    {code:'DD-2024-031', name:'通用安全操作流程', type:'操作规范', state:'待审核', stTone:'y', ver:'V 0.3', owner:'李文涛', date:'2025-12-10'},
+    {code:'DD-2024-032', name:'设备点检操作规程', type:'操作规范', state:'已发布', stTone:'g', ver:'V 1.1', owner:'赵工', date:'2025-08-22'},
+    {code:'DD-2024-033', name:'化学品管理办法', type:'操作规范', state:'已停用', stTone:'gray', ver:'V 1.0', owner:'王志强', date:'2024-06-15'},
   ];
   // 根据左侧树选中分类过滤
   const matchedType = typeMap[picked];
