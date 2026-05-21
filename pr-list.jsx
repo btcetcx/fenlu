@@ -40,6 +40,109 @@ function PrFixedSummaryBar({ items }) {
   );
 }
 
+const PR_PURCHASE_SUPPLIERS = [
+  { id:'s1', name:'海南傲为', level:'A', contact:'夏经理', phone:'13800138000' },
+  { id:'s2', name:'华南铝材', level:'A', contact:'陈经理', phone:'13500001111' },
+  { id:'s3', name:'深圳精密轴承', level:'A', contact:'周经理', phone:'13500002222' },
+  { id:'s4', name:'海南包装材料', level:'B', contact:'林经理', phone:'13500003333' },
+];
+
+function PrSupplierEditField({ value, onEdit }) {
+  return (
+    <div style={{display:'flex',alignItems:'center',height:32,border:'1px solid var(--aw-border-strong)',background:'#fff'}}>
+      <input
+        value={value || ''}
+        readOnly
+        placeholder="请选择供应商"
+        style={{flex:1,minWidth:0,border:0,outline:'none',padding:'0 8px',height:'100%',font:'inherit',fontSize:13,background:'transparent'}}
+      />
+      <button
+        type="button"
+        title="更换供应商"
+        onClick={onEdit}
+        style={{width:32,height:30,border:0,borderLeft:'1px solid var(--aw-divider)',background:'#fff',cursor:'pointer',color:'var(--aw-primary)',fontSize:14}}
+      >✎</button>
+    </div>
+  );
+}
+
+function PrSupplierReasonModal({ supplierName, onClose, onConfirm }) {
+  const [reason, setReason] = usePrState('');
+  return (
+    <div className="aw-modal-mask" style={{position:'fixed',inset:0,zIndex:1200,display:'flex',alignItems:'center',justifyContent:'center',padding:'28px',background:'rgba(15,23,42,.28)'}} onClick={onClose}>
+      <div className="aw-modal" style={{width:'min(520px,92vw)'}} onClick={e => e.stopPropagation()}>
+        <div className="head">
+          <span>更换供应商提醒</span>
+          <span style={{cursor:'pointer',color:'var(--aw-fg-4)'}} onClick={onClose}>✕</span>
+        </div>
+        <div className="body">
+          <div style={{fontSize:13,lineHeight:1.7,color:'var(--aw-fg-2)',marginBottom:14}}>
+            当前供应商：<b style={{color:'var(--aw-fg-1)'}}>{supplierName || '未选择'}</b>。更换供应商会触发审核流程，请填写更换理由后继续选择新的供应商。
+          </div>
+          <Field label="更换理由" req>
+            <textarea
+              className="aw-input"
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+              placeholder="请输入更换供应商的原因"
+              style={{height:86,resize:'vertical',padding:'8px 10px'}}
+            />
+          </Field>
+        </div>
+        <div className="foot">
+          <Btn onClick={onClose}>取消</Btn>
+          <Btn kind="primary" onClick={() => reason.trim() && onConfirm(reason.trim())}>确定</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PrSupplierSelectModal({ onClose, onConfirm }) {
+  const [selectedId, setSelectedId] = usePrState(PR_PURCHASE_SUPPLIERS[0].id);
+  const selected = PR_PURCHASE_SUPPLIERS.find(s => s.id === selectedId);
+  return (
+    <div className="aw-modal-mask" style={{position:'fixed',inset:0,zIndex:1210,display:'flex',alignItems:'center',justifyContent:'center',padding:'28px',background:'rgba(15,23,42,.28)'}} onClick={onClose}>
+      <div className="aw-modal" style={{width:'min(760px,94vw)',maxHeight:'82vh'}} onClick={e => e.stopPropagation()}>
+        <div className="head">
+          <span>选择供应商</span>
+          <span style={{cursor:'pointer',color:'var(--aw-fg-4)'}} onClick={onClose}>✕</span>
+        </div>
+        <div className="body" style={{padding:0}}>
+          <div className="aw-doc-tbl-inner" style={{maxHeight:420}}>
+            <table className="aw-doc-tbl">
+              <thead>
+                <tr>
+                  <th style={{width:46}}></th>
+                  <th><div className="aw-th-inner">供应商名称</div></th>
+                  <th style={{width:90}}><div className="aw-th-inner">等级</div></th>
+                  <th style={{width:110}}><div className="aw-th-inner">联系人</div></th>
+                  <th style={{width:140}}><div className="aw-th-inner">联系电话</div></th>
+                </tr>
+              </thead>
+              <tbody>
+                {PR_PURCHASE_SUPPLIERS.map(s => (
+                  <tr key={s.id} onClick={() => setSelectedId(s.id)} style={{cursor:'pointer',background:selectedId === s.id ? 'var(--aw-primary-soft)' : undefined}}>
+                    <td style={{textAlign:'center',background:selectedId === s.id ? 'var(--aw-primary-soft)' : undefined}}><input type="radio" checked={selectedId === s.id} onChange={() => setSelectedId(s.id)} /></td>
+                    <td className="aw-link">{s.name}</td>
+                    <td>{s.level}</td>
+                    <td>{s.contact}</td>
+                    <td className="aw-num">{s.phone}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="foot">
+          <Btn onClick={onClose}>取消</Btn>
+          <Btn kind="primary" onClick={() => selected && onConfirm(selected)}>确定</Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PrListView({ onNew, onView }) {
   const [sel, setSel] = usePrState({});
   const [statusFilter, setStatusFilter] = usePrState('');
@@ -297,12 +400,25 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
     arrivalDate: r.date || '2026-06-25',
     remark: r.forceQuote === '是' ? '需完成询价/定价后下单' : '按请购转采购生成',
   })));
+  const [supplierReasonTarget, setSupplierReasonTarget] = usePrState(null);
+  const [supplierPickerTarget, setSupplierPickerTarget] = usePrState(null);
   const updateRow = (index, patch) => setRows(list => list.map((row, i) => i === index ? { ...row, ...patch } : row));
+  const updateRowBySource = (sourceLine, patch) => setRows(list => list.map(row => row.sourceLine === sourceLine ? { ...row, ...patch } : row));
+  const confirmSupplierReason = (reason) => {
+    updateRowBySource(supplierReasonTarget, { supplierChangeReason: reason });
+    setSupplierPickerTarget(supplierReasonTarget);
+    setSupplierReasonTarget(null);
+  };
+  const confirmSupplierPick = (supplier) => {
+    updateRowBySource(supplierPickerTarget, { supplier: supplier.name, supplierChanged: true });
+    setSupplierPickerTarget(null);
+  };
   const selectedRows = rows.filter(r => r.selected);
   const totalQty = selectedRows.reduce((sum, row) => sum + Number(row.purchaseQty || 0), 0);
   const totalAmount = selectedRows.reduce((sum, row) => sum + Number(row.purchaseQty || 0) * Number(row.price || 0), 0);
 
   return (
+    <>
     <div
       className="aw-modal-mask"
       style={{ position:'fixed', inset:0, zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', padding:'28px', background:'rgba(15,23,42,.28)' }}
@@ -354,12 +470,8 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
                       <td>{row.sourceLine}</td>
                       <td><Input value={row.orderNo} onChange={e => updateRow(i, {orderNo:e.target.value})} style={{width:'100%'}} /></td>
                       <td>
-                        <Select value={row.supplier || '海南傲为'} onChange={e => updateRow(i, {supplier:e.target.value})} style={{width:'100%'}}>
-                          <option>海南傲为</option>
-                          <option>华南铝材</option>
-                          <option>深圳精密轴承</option>
-                          <option>海南包装材料</option>
-                        </Select>
+                        <PrSupplierEditField value={row.supplier || '海南傲为'} onEdit={() => setSupplierReasonTarget(row.sourceLine)} />
+                        {row.supplierChanged && <div style={{fontSize:11,color:'var(--aw-warning)',marginTop:4}}>已触发审核</div>}
                       </td>
                       <td>{row.code}</td>
                       <td>{row.name}</td>
@@ -395,6 +507,20 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
         </div>
       </div>
     </div>
+      {supplierReasonTarget && (
+        <PrSupplierReasonModal
+          supplierName={rows.find(row => row.sourceLine === supplierReasonTarget)?.supplier}
+          onClose={() => setSupplierReasonTarget(null)}
+          onConfirm={confirmSupplierReason}
+        />
+      )}
+      {supplierPickerTarget && (
+        <PrSupplierSelectModal
+          onClose={() => setSupplierPickerTarget(null)}
+          onConfirm={confirmSupplierPick}
+        />
+      )}
+    </>
   );
 }
 
