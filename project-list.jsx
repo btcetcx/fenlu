@@ -442,8 +442,10 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
   const [hasProjectBom, setHasProjectBom] = useState(false);
   const [projectBomLocked, setProjectBomLocked] = useState(false);
   const [hasProjectProcess, setHasProjectProcess] = useState(false);
+  const [projectProcessLocked, setProjectProcessLocked] = useState(false);
   const [quoteItems, setQuoteItems] = useState([]);
   const [quoteConfirmed, setQuoteConfirmed] = useState(false);
+  const [quoteAdjustAmount, setQuoteAdjustAmount] = useState(-12000);
   const [hasProjectPurchase, setHasProjectPurchase] = useState(false);
   const [hasProjectProduction, setHasProjectProduction] = useState(false);
   const [projectCostItems, setProjectCostItems] = useState([
@@ -655,14 +657,16 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
         ],
       }) : (
         <>
-          <div style={{display:'flex',gap:8,marginBottom:12}}>
+          <div style={{display:'flex',gap:8,marginBottom:12,alignItems:'center'}}>
             <Btn onClick={()=>setProjectModal('processAdd')}>添加工艺流程</Btn>
+            <Btn kind={projectProcessLocked ? 'secondary' : 'primary'} onClick={()=>setProjectProcessLocked(true)}>{projectProcessLocked ? '已锁定' : '锁定工艺'}</Btn>
+            {projectProcessLocked && <span style={{fontSize:12,color:'var(--aw-fg-3)'}}>锁定后作为当前项目报价和生产的工艺基准。</span>}
           </div>
           <table className="aw-table">
             <thead><tr><th>序号</th><th>工艺编号</th><th>工艺名称</th><th>版本</th><th>来源</th><th>状态</th></tr></thead>
             <tbody>
               {[
-                ['1','CRAFT-2026-0012','智能输送线总装工艺','V1.0','项目工艺','编辑'],
+                ['1','CRAFT-2026-0012','智能输送线总装工艺','V1.0','项目工艺', projectProcessLocked ? '已锁定' : '编辑'],
               ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i}>{c}</td>)}</tr>)}
             </tbody>
           </table>
@@ -680,7 +684,7 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
           ...quoteItems,
         ];
         const baseAmount = rows.reduce((sum, r) => sum + Number(String(r[2]).replace(/[^\d.]/g, '') || 0), 0);
-        const adjustAmount = rows.length ? -12000 : 0;
+        const adjustAmount = Number(quoteAdjustAmount) || 0;
         const actualAmount = Math.max(baseAmount + adjustAmount, 0);
         const money = n => `¥ ${n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         if (!rows.length) return renderEmptyState({
@@ -692,16 +696,30 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
           <>
             <div style={{display:'flex',gap:8,marginBottom:12}}>
               <Btn kind="primary" onClick={()=>setProjectModal('quoteAdd')}>新增成本项</Btn>
-              <Btn kind={quoteConfirmed ? 'secondary' : 'primary'} onClick={()=>setQuoteConfirmed(true)}>{quoteConfirmed ? '已确认报价' : '确认报价'}</Btn>
+              <Btn kind={quoteConfirmed ? 'secondary' : 'primary'} onClick={()=>setQuoteConfirmed(true)}>{quoteConfirmed ? '已锁定报价' : '锁定报价'}</Btn>
             </div>
             <table className="aw-table">
               <thead><tr><th>序号</th><th>成本项</th><th>来源说明</th><th>金额</th><th>状态</th></tr></thead>
               <tbody>{rows.map((r,i)=><tr key={`${r[0]}-${i}`}><td>{i + 1}</td><td>{r[0]}</td><td>{r[1]}</td><td className="aw-num">{r[2]}</td><td>{i < 2 ? '系统生成' : '手动新增'}</td></tr>)}</tbody>
             </table>
             <div style={{display:'grid',gridTemplateColumns:'repeat(3, minmax(160px, 1fr))',gap:12,marginTop:12}}>
+              <div style={{border:'1px solid var(--aw-border)',borderRadius:6,padding:'12px 14px',background:'#fff'}}>
+                <div style={{fontSize:12,color:'var(--aw-fg-3)',marginBottom:6}}>当前报价金额</div>
+                <div className="aw-num" style={{fontSize:18,fontWeight:700,color:'var(--aw-fg-1)'}}>{money(baseAmount)}</div>
+              </div>
+              <div style={{border:'1px solid var(--aw-border)',borderRadius:6,padding:'12px 14px',background:'#fff'}}>
+                <div style={{fontSize:12,color:'var(--aw-fg-3)',marginBottom:6}}>调整金额</div>
+                <input
+                  className="aw-input aw-num"
+                  type="text"
+                  inputMode="decimal"
+                  value={quoteAdjustAmount}
+                  disabled={quoteConfirmed}
+                  onChange={e => setQuoteAdjustAmount(e.target.value)}
+                  style={{fontSize:18,fontWeight:700,height:32,padding:'4px 8px',maxWidth:180}}
+                />
+              </div>
               {[
-                ['当前报价金额', money(baseAmount)],
-                ['调整金额', money(adjustAmount)],
                 ['实际报价金额', money(actualAmount)],
               ].map(([label, value]) => (
                 <div key={label} style={{border:'1px solid var(--aw-border)',borderRadius:6,padding:'12px 14px',background:'#fff'}}>
@@ -733,7 +751,7 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
           <tbody><tr><td>1</td><td>PO-2026-PRJ-001</td><td>项目物料清单</td><td className="aw-num">¥ 420,000.00</td><td>待审核</td><td>已发起</td></tr></tbody>
         </table>
       )}
-      {!quoteConfirmed && <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>确认报价后才可以发起采购。</div>}
+      {!quoteConfirmed && <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>锁定报价后才可以发起采购。</div>}
     </div>
   );
 
@@ -754,7 +772,7 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
           <tbody><tr><td>1</td><td>MRP-2026-PRJ-001</td><td>项目报价确认</td><td className="aw-num">1 套</td><td>待排产</td><td>已下单</td></tr></tbody>
         </table>
       )}
-      {!quoteConfirmed && <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>确认报价后才可以下单生产需求。</div>}
+      {!quoteConfirmed && <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>锁定报价后才可以下单生产需求。</div>}
     </div>
   );
 
