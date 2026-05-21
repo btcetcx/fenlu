@@ -77,6 +77,96 @@ const PROJECT_CAT_MAP = {
   coop_partner: '合作项目',
 };
 
+const PROJECT_SOURCE_ROWS = {
+  客户: [
+    { type:'客户', code:'CUST-2026-001', title:'海南微为智造产业有限公司', subject:'客户定制研发项目', owner:'夏经理', amount:'-', date:'2026-06-01' },
+    { type:'客户', code:'CUST-2026-002', title:'广州明德贸易有限公司', subject:'年度合作项目', owner:'陈经理', amount:'-', date:'2026-06-03' },
+    { type:'客户', code:'CUST-2026-003', title:'深圳鑫达电子科技有限公司', subject:'工程交付项目', owner:'丁昌容', amount:'-', date:'2026-06-05' },
+  ],
+  合同: [
+    { type:'合同', code:'CT-2026-0089', title:'智能产线升级合同', subject:'海南微为智造产业有限公司', owner:'夏经理', amount:'¥ 850,000.00', date:'2026-06-10' },
+    { type:'合同', code:'CT-2026-0096', title:'仓储系统改造合同', subject:'广州明德贸易有限公司', owner:'陈经理', amount:'¥ 620,000.00', date:'2026-06-18' },
+    { type:'合同', code:'CT-2026-0102', title:'控制系统联合研发合同', subject:'深圳鑫达电子科技有限公司', owner:'丁昌容', amount:'¥ 1,200,000.00', date:'2026-06-25' },
+  ],
+};
+
+function ProjectSourceField({ value, onPick }) {
+  return (
+    <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+      <Input
+        placeholder="请选择客户或关联合同"
+        value={value ? `${value.type} / ${value.code} / ${value.title}` : ''}
+        readOnly
+        onClick={onPick}
+        style={{ flex:1, cursor:'pointer' }}
+      />
+      <Btn onClick={onPick}>关联</Btn>
+    </div>
+  );
+}
+
+function ProjectSourcePickerModal({ onClose, onConfirm }) {
+  const [active, setActive] = useState('客户');
+  const [selectedCode, setSelectedCode] = useState('');
+  const rows = PROJECT_SOURCE_ROWS[active] || [];
+  const selected = rows.find(r => r.code === selectedCode) || rows[0];
+  return (
+    <StandardModal
+      title="选择来源主体"
+      size="lg"
+      onClose={onClose}
+      footer={<><Btn onClick={onClose}>取消</Btn><Btn kind="primary" onClick={() => selected && onConfirm(selected)}>确定</Btn></>}
+    >
+      <div style={{display:'grid',gridTemplateColumns:'170px 1fr',minHeight:420}}>
+        <div style={{borderRight:'1px solid var(--aw-border)',padding:8,background:'var(--aw-surface-2)'}}>
+          {['客户','合同'].map(t => (
+            <div
+              key={t}
+              className={'aw-tree-row aw-tree-l2' + (active === t ? ' on' : '')}
+              onClick={() => { setActive(t); setSelectedCode(''); }}
+            >
+              <span className="aw-tree-caret">{active === t ? '▾' : ''}</span>
+              <TileIcon name={t === '客户' ? 'user' : 'doc'} size={14} />
+              <span>{t}列表</span>
+            </div>
+          ))}
+        </div>
+        <div style={{minWidth:0,padding:'0 0 0 14px'}}>
+          <PurchaseListToolbar searchPlaceholder={`搜索${active}编号、名称、负责人`} hideNew />
+          <table className="aw-table">
+            <thead>
+              <tr>
+                <th style={{width:46}}></th>
+                <th style={{width:60}}>序号</th>
+                <th>{active}编号</th>
+                <th>{active === '客户' ? '客户名称' : '合同名称'}</th>
+                <th>{active === '客户' ? '项目主题' : '关联客户'}</th>
+                <th>负责人</th>
+                <th>金额</th>
+                <th>日期</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={r.code} onClick={() => setSelectedCode(r.code)} style={{cursor:'pointer',background:(selectedCode || rows[0]?.code) === r.code ? 'var(--aw-primary-soft)' : undefined}}>
+                  <td><input type="radio" checked={(selectedCode || rows[0]?.code) === r.code} onChange={() => setSelectedCode(r.code)} /></td>
+                  <td>{i + 1}</td>
+                  <td className="aw-link">{r.code}</td>
+                  <td>{r.title}</td>
+                  <td>{r.subject}</td>
+                  <td>{r.owner}</td>
+                  <td className="aw-num">{r.amount}</td>
+                  <td className="aw-num">{r.date}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </StandardModal>
+  );
+}
+
 function ProjectTree({ picked, setPicked, rows }) {
   const countByKey = (k) => {
     const label = PROJECT_CAT_MAP[k];
@@ -225,11 +315,9 @@ function ProjectListView({ onNew, onView, onEdit, rows = PROJECT_ROWS }) {
 // ═══════════════════════════════════════════════════════════════
 function ProjectNewView({ onBack }) {
   const [showPersonPicker, setShowPersonPicker] = useState(false);
-  const [showOrderPicker, setShowOrderPicker] = useState(false);
-  const [showCustomerPicker, setShowCustomerPicker] = useState(false);
+  const [showSourcePicker, setShowSourcePicker] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedSource, setSelectedSource] = useState(null);
   const [catLevel1, setCatLevel1] = useState('');
   const [catLevel2, setCatLevel2] = useState('');
 
@@ -294,35 +382,8 @@ function ProjectNewView({ onBack }) {
             <Field label="计划完成日期" req>
               <Input placeholder="请选择" />
             </Field>
-          </div>
-        </Card>
-
-        {/* Card 2: 关联信息 */}
-        <Card title="关联信息">
-          <div className="aw-doc-grid">
-            <Field label={<span>关联客户<HelpTip text="客户定制项目建议必填；关联客户后，项目报价、合同、生产需求和后续订单可按客户追踪。" /></span>}>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <Input placeholder="请选择关联客户" value={selectedCustomer ? selectedCustomer.name : ''} readOnly onClick={() => setShowCustomerPicker(true)} style={{ flex: 1, cursor:'pointer' }} />
-                <Btn onClick={() => setShowCustomerPicker(true)}>选择</Btn>
-              </div>
-            </Field>
-            <Field label="关联合同">
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <Input placeholder="请选择关联合同" value={selectedOrder ? selectedOrder.code : ''} readOnly style={{ flex: 1 }} />
-                <Btn onClick={() => setShowOrderPicker(true)}>选择</Btn>
-              </div>
-            </Field>
-            <Field label="合同金额">
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 10, top: 8, fontSize: 13, color: 'var(--aw-fg-2)', zIndex: 1 }}>¥</span>
-                <Input placeholder="请输入合同金额" style={{ paddingLeft: 22 }} />
-              </div>
-            </Field>
-            <Field label="项目预算">
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 10, top: 8, fontSize: 13, color: 'var(--aw-fg-2)', zIndex: 1 }}>¥</span>
-                <Input placeholder="请输入项目预算" style={{ paddingLeft: 22 }} />
-              </div>
+            <Field label="来源主体">
+              <ProjectSourceField value={selectedSource} onPick={() => setShowSourcePicker(true)} />
             </Field>
           </div>
         </Card>
@@ -360,21 +421,12 @@ function ProjectNewView({ onBack }) {
           }}
         />
       )}
-      {showOrderPicker && (
-        <OrderPickerModal
-          onClose={() => setShowOrderPicker(false)}
-          onConfirm={(order) => {
-            setSelectedOrder(order);
-            setShowOrderPicker(false);
-          }}
-        />
-      )}
-      {showCustomerPicker && (
-        <SimpleCustomerPickerModal
-          onClose={() => setShowCustomerPicker(false)}
-          onConfirm={(customer) => {
-            setSelectedCustomer(customer);
-            setShowCustomerPicker(false);
+      {showSourcePicker && (
+        <ProjectSourcePickerModal
+          onClose={() => setShowSourcePicker(false)}
+          onConfirm={(source) => {
+            setSelectedSource(source);
+            setShowSourcePicker(false);
           }}
         />
       )}
