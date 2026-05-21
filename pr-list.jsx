@@ -148,9 +148,6 @@ function PrNewView({ onBack }) {
             <Field label="需求日期"><Input placeholder="请选择" /></Field>
             <Field label={<span>流程状态<HelpTip text="新建请购默认待提交；审批中、已批准、待询价、已转询价、已转采购、部分采购和关闭由审批、转询价、转采购等动作推进。" /></span>}><Input value="待提交" readOnly /></Field>
           </div>
-          <div style={{marginTop:10,fontSize:12,color:'var(--aw-fg-3)',lineHeight:1.7}}>
-            预计金额由请购明细的预计单价 × 请购数量汇总生成，用于低金额请购、预算和审批流程判断。
-          </div>
         </PurchaseSection>
 
         <PurchaseSection title="请购明细">
@@ -160,7 +157,7 @@ function PrNewView({ onBack }) {
             columns={[
               {k:'image',label:'图片',w:90},{k:'name',label:'产品名称',w:150},{k:'no',label:'产品编号',w:130},
               {k:'model',label:'产品型号',w:130},{k:'cat',label:'产品分类',w:130},{k:'unit',label:'产品单位',w:90},
-              {k:'qty',label:'请购数量',w:110},{k:'wait',label:'待采购',w:100},{k:'quote',label:'是否强制询价',w:130},{k:'skip',label:'跳过询价原因',w:140},{k:'date',label:'交货日期',w:120},{k:'supplier',label:'建议供应商',w:150}
+              {k:'qty',label:'请购数量',w:110},{k:'date',label:'交货日期',w:120},{k:'supplier',label:'建议供应商',w:150},{k:'usage',label:'用途说明',w:150}
             ]}
             renderRow={(row, idx) => (
                   <tr key={row.id}>
@@ -172,11 +169,9 @@ function PrNewView({ onBack }) {
                     <td><Input placeholder="产品分类" defaultValue={row.categoryName || ''} style={{width:'100%'}} /></td>
                     <td><Input placeholder="KG" defaultValue={row.unit || ''} style={{width:'100%'}} /></td>
                     <td><Input placeholder="0" type="number" style={{width:'100%'}} /></td>
-                    <td><Input value="自动计算" readOnly style={{width:'100%',background:'#F5F6FA'}} /></td>
-                    <td><Select style={{width:'100%'}}><option>是</option><option>否</option></Select></td>
-                    <td><Select style={{width:'100%'}}><option>请选择</option><option>已有有效报价</option><option>长期协议价</option><option>低金额快速采购</option><option>紧急采购</option><option>指定供应商</option></Select></td>
                     <td><Input placeholder="请选择" style={{width:'100%'}} /></td>
                     <td><div style={{display:'flex',gap:6}}><Input value={row.supplier || ''} readOnly placeholder="请选择供应商" onClick={() => setSupplierPickerTarget(row.id)} style={{width:'100%',cursor:'pointer'}} /><Btn onClick={() => setSupplierPickerTarget(row.id)} style={{padding:'4px 8px',fontSize:12}}>选</Btn></div></td>
+                    <td><Input placeholder="填写用途说明" style={{width:'100%'}} /></td>
                     <PurchaseDetailActions onDelete={() => removeDetail(row.id)} />
                   </tr>
             )}
@@ -341,7 +336,7 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
                     <th style={{width:130}}><div className="aw-th-inner">物料名称</div></th>
                     <th style={{width:120}}><div className="aw-th-inner">规格型号</div></th>
                     <th style={{width:80}}><div className="aw-th-inner">单位</div></th>
-                    <th style={{width:100}}><div className="aw-th-inner">待采购</div></th>
+                    <th style={{width:100}}><div className="aw-th-inner">请购数量</div></th>
                     <th style={{width:120}}><div className="aw-th-inner">采购数量</div></th>
                     <th style={{width:110}}><div className="aw-th-inner">采购单价</div></th>
                     <th style={{width:120}}><div className="aw-th-inner">采购金额</div></th>
@@ -370,7 +365,7 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
                       <td>{row.name}</td>
                       <td>{row.spec}</td>
                       <td>{row.unit}</td>
-                      <td>{row.wait}</td>
+                      <td>{row.qty}</td>
                       <td><Input type="number" value={row.purchaseQty} onChange={e => updateRow(i, {purchaseQty:e.target.value})} style={{width:'100%'}} /></td>
                       <td><Input value={row.price} onChange={e => updateRow(i, {price:e.target.value})} style={{width:'100%'}} /></td>
                       <td className="aw-num">{(Number(row.purchaseQty || 0) * Number(row.price || 0)).toFixed(2)}</td>
@@ -391,7 +386,7 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
             />
           </div>
           <div style={{marginTop:12,fontSize:12,color:'var(--aw-fg-3)',lineHeight:1.7}}>
-            生成后按供应商拆分采购订单，并回写请购明细的已采购数量、待采购数量和来源记录。
+            生成后按供应商拆分采购订单，并保留来源请购单与来源明细记录。
           </div>
         </div>
         <div className="foot">
@@ -456,12 +451,6 @@ function PrDetailView({ onBack, data }) {
                   <th style={{width:120}}><div className="aw-th-inner">规格型号</div></th>
                   <th style={{width:80}}><div className="aw-th-inner">单位</div></th>
                   <th style={{width:100}}><div className="aw-th-inner">请购数量</div></th>
-                  <th style={{width:100}}><div className="aw-th-inner">预计单价</div></th>
-                  <th style={{width:110}}><div className="aw-th-inner">预计金额</div></th>
-                  <th style={{width:90}}><div className="aw-th-inner">已采购</div></th>
-                  <th style={{width:90}}><div className="aw-th-inner">待采购</div></th>
-                  <th style={{width:120}}><div className="aw-th-inner">强制询价</div></th>
-                  <th style={{width:140}}><div className="aw-th-inner">跳过询价原因</div></th>
                   <th style={{width:120}}><div className="aw-th-inner">期望交付日期</div></th>
                   <th style={{width:110}}><div className="aw-th-inner">用途</div></th>
                   <th style={{width:80}}><div className="aw-th-inner">操作</div></th>
@@ -470,7 +459,7 @@ function PrDetailView({ onBack, data }) {
               <tbody>
                 {PR_DETAIL_ROWS.map((r, i) => (
                   <tr key={r.code}>
-                    <td>{i + 1}</td><td>{r.sourceLine}</td><td className="aw-num">{r.code}</td><td>{r.name}</td><td>{r.spec}</td><td>{r.unit}</td><td>{r.qty}</td><td>{r.price}</td><td>{r.amount}</td><td>{r.bought}</td><td>{r.wait}</td><td>{r.forceQuote}</td><td>{r.skipReason}</td><td>{r.date}</td><td>{r.usage}</td><td><span className="aw-link" onClick={() => openPurchaseModal([r])}>采购</span></td>
+                    <td>{i + 1}</td><td>{r.sourceLine}</td><td className="aw-num">{r.code}</td><td>{r.name}</td><td>{r.spec}</td><td>{r.unit}</td><td>{r.qty}</td><td>{r.date}</td><td>{r.usage}</td><td><span className="aw-link" onClick={() => openPurchaseModal([r])}>采购</span></td>
                   </tr>
                 ))}
               </tbody>
@@ -479,7 +468,6 @@ function PrDetailView({ onBack, data }) {
           <PrFixedSummaryBar
             items={[
               ['请购总数量', PR_DETAIL_ROWS.reduce((sum, row) => sum + Number(row.qty || 0), 0)],
-              ['预计请购总金额', PR_DETAIL_ROWS.reduce((sum, row) => sum + Number(row.amount || 0), 0).toFixed(2)],
             ]}
           />
 
@@ -619,8 +607,6 @@ function PrDetailSummaryView({ onBack }) {
               { label:'规格型号', value:selected.spec },
               { label:'标准单位', value:selected.unit },
               { label:'请购总量', value:selected.requestQty },
-              { label:'已采购数量', value:selected.purchasedQty },
-              { label:'待采购数量', value:selected.waitQty },
               { label:'交货日期', value:selected.delivery },
               { label:'请购状态', value:<span className={'aw-state aw-state-' + selected.tone}>{selected.status}</span> },
             ]} />
@@ -629,15 +615,15 @@ function PrDetailSummaryView({ onBack }) {
             </div>
             <table className="aw-table">
               <thead>
-                <tr>{['序号','请购单号','请购来源','来源对象','来源明细','请购数量','已采购','待采购','是否强制询价','跳过询价原因','交货日期','流程状态','操作'].map(h => <th key={h}>{h}</th>)}</tr>
+                <tr>{['序号','请购单号','请购来源','来源对象','来源明细','请购数量','交货日期','流程状态','操作'].map(h => <th key={h}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {selected.sources.map((r, i) => (
                   <tr key={r[0] + r[3]}>
                     <td>{i + 1}</td>
-                    {r.map((c, idx) => (
-                      <td key={idx} className={idx >= 4 && idx <= 6 ? 'aw-num' : ''}>
-                        {idx === 0 ? <span className="aw-link">{c}</span> : idx === 10 ? <span className={'aw-state aw-state-' + (c.includes('转') || c.includes('批准') ? 'g' : c.includes('审批') ? 'b' : 'y')}>{c}</span> : c}
+                    {[0,1,2,3,4,9,10].map(idx => (
+                      <td key={idx} className={idx === 4 ? 'aw-num' : ''}>
+                        {idx === 0 ? <span className="aw-link">{r[idx]}</span> : idx === 10 ? <span className={'aw-state aw-state-' + (r[idx].includes('转') || r[idx].includes('批准') ? 'g' : r[idx].includes('审批') ? 'b' : 'y')}>{r[idx]}</span> : r[idx]}
                       </td>
                     ))}
                     <td><span className="aw-link" onClick={() => openSummaryPurchase([r])}>采购</span></td>
@@ -667,9 +653,6 @@ function PrDetailSummaryView({ onBack }) {
                 <th style={{width:90}}><div className="aw-th-inner">标准单位</div></th>
                 <th style={{width:110}}><div className="aw-th-inner">来源数量</div></th>
                 <th style={{width:110}}><div className="aw-th-inner">请购总量</div></th>
-                <th style={{width:110}}><div className="aw-th-inner">已采购</div></th>
-                <th style={{width:110}}><div className="aw-th-inner">待采购</div></th>
-                <th style={{width:120}}><div className="aw-th-inner">是否强制询价</div></th>
                 <th style={{width:120}}><div className="aw-th-inner">交货日期</div></th>
                 <PurchaseStatusFilterHeader label="状态" options={['待询价','待采购','部分采购','已完成']} />
                 <th style={{width:90}}><div className="aw-th-inner">操作</div></th>
@@ -685,9 +668,6 @@ function PrDetailSummaryView({ onBack }) {
                   <td>{r.unit}</td>
                   <td className="aw-num">{r.sourceCount}</td>
                   <td className="aw-num">{r.requestQty}</td>
-                  <td className="aw-num">{r.purchasedQty}</td>
-                  <td className="aw-num" style={{color:r.waitQty ? 'var(--aw-danger)' : 'var(--aw-success)'}}>{r.waitQty}</td>
-                  <td>{r.forceQuote}</td>
                   <td className="aw-num">{r.delivery}</td>
                   <td><span className={'aw-state aw-state-' + r.tone}>{r.status}</span></td>
                   <td><span className="aw-link" onClick={() => setSelected(r)}>查看</span></td>
