@@ -73,13 +73,14 @@ function PurchaseStatusFilterHeader({ label = '状态', value, onChange, options
   );
 }
 
-function PurchaseListFooter({ total, selectedCount, allChecked, someChecked, onToggleAll, pages = 3 }) {
+function PurchaseListFooter({ total, selectedCount, allChecked, someChecked, onToggleAll, pages = 3, bulkActions = null }) {
   return (
     <div className="aw-doc-footer">
       <div className="aw-doc-footer-l">
         <span className={'aw-chk' + (allChecked ? ' on' : someChecked ? ' indet' : '')} onClick={onToggleAll} />
         <span>已选 {selectedCount} / {total} 项</span>
         <button className="aw-btn" style={{ fontSize: 12, padding: '4px 10px' }}>批量操作</button>
+        {bulkActions}
       </div>
       <div className="aw-doc-footer-r">
         <span>共 {total} 条</span>

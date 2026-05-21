@@ -150,15 +150,25 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
     { no:'1.2', level:'2', code:'P-210', name:'包装纸箱', spec:'8L专用', type:'包装', qty:'1', unit:'个', loss:'0%', alt:'—', op:'包装' },
   ];
   const bomDetailText = '本物料清单适用于智能温控锅 AW-H8 系列产品，覆盖机身子装配、温控传感器、包装纸箱等关键物料。清单按量产版本维护父子件层级、标准用量、损耗率、替代料和关联工序，提交审批后作为采购、生产领料和成本核算的基准。';
-  const flattenBomTreeRows = (nodes, prefix = [], result = []) => {
+  const bomModelActive = (node, model, parentActive = true) => {
+    if (!parentActive) return false;
+    const picked = node.variants && node.variants.model;
+    if (!picked || picked.includes('全部型号') || picked.includes('任意')) return true;
+    return picked.includes(model);
+  };
+  const flattenBomTreeRows = (nodes, model = '17', prefix = [], result = [], parentActive = true) => {
     (nodes || []).forEach((node, idx) => {
+      const active = bomModelActive(node, model, parentActive);
+      if (!active) return;
       const path = [...prefix, idx + 1];
+      const picked = node.variants && node.variants.model;
       result.push({
         no: path.join('.'),
         level: String(path.length),
         code: node.code || '待选择',
         name: node.name || '未命名物料',
         spec: node.spec || '—',
+        model: picked ? (picked.includes('全部型号') || picked.includes('任意') ? '全部型号' : picked.join('、')) : '全部型号',
         type: node.type || '—',
         qty: String(node.qty || 0),
         unit: node.unit || '—',
@@ -166,7 +176,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
         alt: node.alts && node.alts.length ? node.alts.map(a => a.code || a.name).join('、') : '—',
         op: node.processOp || '未关联',
       });
-      flattenBomTreeRows(node.children || [], path, result);
+      flattenBomTreeRows(node.children || [], model, path, result, active);
     });
     return result;
   };
@@ -195,6 +205,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
       detailText: payload.detailText,
       tree: payload.tree || [],
       baseInfo: base,
+      spec: payload.spec,
     };
   };
   const upsertBomPayload = (payload) => {
@@ -216,8 +227,10 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
     },
     tree: row.tree || [],
     detailText: row.detailText || bomDetailText,
+    spec: row.spec || { model:'17' },
   });
-  const currentBomDetailRows = currentDetail && currentDetail.tree && currentDetail.tree.length ? flattenBomTreeRows(currentDetail.tree) : bomDetailRows;
+  const currentBomModel = currentDetail?.spec?.model || '17';
+  const currentBomDetailRows = currentDetail && currentDetail.tree && currentDetail.tree.length ? flattenBomTreeRows(currentDetail.tree, currentBomModel) : bomDetailRows;
   const currentBomDetailText = currentDetail?.detailText || bomDetailText;
 
   return (
@@ -377,9 +390,9 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
                     <div className="section-title">物料清单结构</div>
                     <div className="aw-table-scroll" style={{ marginTop:12 }}>
                       <table className="aw-table">
-                        <thead><tr>{['序号','层级','物料编号','物料名称','规格型号','物料类型','用量','标准单位','损耗率','替代料','关联工序'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+                        <thead><tr>{['序号','层级','物料编号','物料名称','适用型号','物料类型','用量','标准单位','损耗率','替代料','关联工序'].map(h => <th key={h}>{h}</th>)}</tr></thead>
                         <tbody>
-                          {currentBomDetailRows.map(r => <tr key={r.no}><td>{r.no}</td><td>{r.level}</td><td className="aw-num aw-link">{r.code}</td><td>{r.name}</td><td>{r.spec}</td><td>{r.type}</td><td>{r.qty}</td><td>{r.unit}</td><td>{r.loss}</td><td>{r.alt}</td><td>{r.op}</td></tr>)}
+                          {currentBomDetailRows.map(r => <tr key={r.no}><td>{r.no}</td><td>{r.level}</td><td className="aw-num aw-link">{r.code}</td><td>{r.name}</td><td>{r.model || '全部型号'}</td><td>{r.type}</td><td>{r.qty}</td><td>{r.unit}</td><td>{r.loss}</td><td>{r.alt}</td><td>{r.op}</td></tr>)}
                           <tr><td colSpan={6}>合计</td><td className="aw-num">{currentBomDetailRows.length}</td><td colSpan={4}>物料数：{currentDetail.materials}，单件成本：¥ {currentDetail.cost}</td></tr>
                         </tbody>
                       </table>

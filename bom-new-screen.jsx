@@ -13,8 +13,7 @@ const BN_PROCESS_OPS = [
 ];
 
 const BN_VARIANTS = {
-  color: { label:'颜色', values:['黑色','白色','灰色'] },
-  capacity: { label:'容量', values:['8L','12L','16L'] },
+  model: { label:'型号', all:'全部型号', values:['17','17Pro','17PM'] },
 };
 
 const BN_TYPE_OPTIONS = ['自制','外购','委外','子装配','原材料','虚拟件','包装'];
@@ -29,7 +28,6 @@ const BN_TYPE_TONE = {
 };
 
 const BN_ATTR_PRESETS = [
-  { key:'color', label:'颜色', fieldType:'下拉', defaultValue:'白色', showInTable:true, required:false, options:['黑色','白色','灰色'] },
   { key:'material', label:'材质', fieldType:'文本', defaultValue:'ABS', showInTable:true, required:false },
   { key:'surface', label:'表面处理', fieldType:'文本', defaultValue:'哑光', showInTable:false, required:false },
   { key:'length', label:'长度', fieldType:'数字', defaultValue:'120', showInTable:true, required:false },
@@ -46,21 +44,20 @@ const BN_ATTR_PRESETS = [
 ];
 
 const BN_MATERIAL_POOL = [
-  { code:'M-100', name:'温控锅总成', spec:'8L/12L/16L 通用', type:'自制', unit:'套', price:0 },
-  { code:'M-110', name:'机身子装配', spec:'AW-HT-Body', type:'子装配', unit:'套', price:0 },
-  { code:'M-111', name:'内胆不锈钢件', spec:'SUS304 拉伸件', type:'自制', unit:'件', price:42 },
-  { code:'M-112', name:'外壳注塑件', spec:'ABS V0', type:'外购', unit:'件', price:28 },
-  { code:'M-113', name:'隔热棉', spec:'12mm 阻燃', type:'原材料', unit:'片', price:4.5 },
-  { code:'M-114', name:'喷涂加工', spec:'白色/黑色/灰色', type:'委外', unit:'次', price:6 },
-  { code:'M-120', name:'控制模组', spec:'AW-CTRL-V3', type:'子装配', unit:'套', price:0 },
-  { code:'M-121', name:'主控 PCB', spec:'ESP32-4R', type:'外购', unit:'片', price:55 },
-  { code:'M-122', name:'温度传感器', spec:'NTC 100K', type:'外购', unit:'个', price:7.8 },
-  { code:'M-123', name:'线束组件', spec:'6PIN 180mm', type:'外购', unit:'根', price:5.2 },
-  { code:'M-124', name:'固件烧录虚拟件', spec:'FW-AW-3.1', type:'虚拟件', unit:'项', price:0 },
-  { code:'M-130', name:'加热系统', spec:'1500W', type:'子装配', unit:'套', price:0 },
-  { code:'M-131', name:'发热盘', spec:'8L 1500W', type:'自制', unit:'件', price:36 },
-  { code:'M-132', name:'温控保险丝', spec:'216℃', type:'外购', unit:'个', price:3.5 },
-  { code:'M-140', name:'包装套件', spec:'彩盒+说明书+泡棉', type:'包装', unit:'套', price:8.6 },
+  { code:'IP17-000', name:'iPhone17 整机总成', spec:'17/17Pro/17PM 通用', type:'自制', unit:'台', price:0 },
+  { code:'IP17-110', name:'机身结构组件', spec:'标准/Pro/PM', type:'子装配', unit:'套', price:0 },
+  { code:'IP17-111', name:'17 标准中框', spec:'铝合金 6.1寸', type:'自制', unit:'件', price:42 },
+  { code:'IP17-112', name:'17Pro 钛合金中框', spec:'Pro 6.3寸', type:'外购', unit:'件', price:88 },
+  { code:'IP17-113', name:'17PM 大尺寸后盖', spec:'PM 6.9寸', type:'外购', unit:'片', price:96 },
+  { code:'IP17-120', name:'主板模组', spec:'A系列主板', type:'子装配', unit:'套', price:0 },
+  { code:'IP17-121', name:'标准版主控 PCB', spec:'17 专用', type:'外购', unit:'片', price:155 },
+  { code:'IP17-122', name:'Pro 主控 PCB', spec:'17Pro/17PM', type:'外购', unit:'片', price:228 },
+  { code:'IP17-123', name:'摄像头模组', spec:'标准/Pro/PM', type:'外购', unit:'套', price:180 },
+  { code:'IP17-124', name:'Pro 长焦镜头', spec:'17Pro/17PM 专用', type:'外购', unit:'个', price:95 },
+  { code:'IP17-130', name:'电池模组', spec:'按型号容量', type:'子装配', unit:'套', price:0 },
+  { code:'IP17-131', name:'标准电池', spec:'17 专用', type:'外购', unit:'件', price:46 },
+  { code:'IP17-132', name:'大容量电池', spec:'17Pro/17PM', type:'外购', unit:'件', price:63 },
+  { code:'IP17-140', name:'包装套件', spec:'彩盒+说明书+数据线', type:'包装', unit:'套', price:8.6 },
 ];
 
 const bnNode = (data) => ({ children: [], alts: [], customAttrs: {}, variants: {}, logs: [], ...data });
@@ -79,7 +76,7 @@ function bnDraftNode(patch = {}) {
     price:0,
     processOp:'',
     customAttrs:{},
-    variants:{ color:['任意'], capacity:['任意'] },
+    variants:{ model:['全部型号'] },
     logs:[],
     ...patch,
   });
@@ -147,11 +144,11 @@ const BN_COMPARE_RIGHT = [
   { no:'1.2.4', code:'M-124', name:'固件烧录虚拟件', qty:'1', price:'0', status:'add' },
 ];
 
-const BOM_DETAIL_TEXT = `本物料清单适用于智能温控锅 AW-H8 系列产品的研发试制与量产导入，覆盖整机总成、机身子装配、控制模块、加热系统与包装套件等层级。
+const BOM_DETAIL_TEXT = `本物料清单适用于 iPhone17 主产品的研发试制与量产导入，覆盖 17、17Pro、17PM 三个型号的结构件、主板模组、摄像头模组、电池模组与包装套件等层级。
 
-清单结构按父子件层级维护用量、损耗、替代料、适用规格和工序关联。自制件需要关联对应工序与工作中心，外购件需要维护供应商、单价和替代优先级；虚拟件仅用于工艺和成本归集，不参与实际库存扣减。
+清单结构按父子件层级维护用量、损耗、替代料、适用型号和工序关联。自制件需要关联对应工序与工作中心，外购件需要维护供应商、单价和替代优先级；虚拟件仅用于工艺和成本归集，不参与实际库存扣减。
 
-执行时需重点校验关键物料版本、替代料可用性、用量损耗、适用规格和成本汇总。若发生物料替换、图纸变更或工艺路线调整，应通过版本对比确认新增、删除和用量变化，再提交审批。`;
+执行时需重点校验不同型号的专用物料、替代料可用性、用量损耗、适用型号和成本汇总。销售下单选择 17、17Pro 或 17PM 后，生产展开 BOM 时只带出通用物料和该型号专用物料。`;
 
 function BomRichTextEditor({ value = BOM_DETAIL_TEXT, onChange }) {
   return (
@@ -186,9 +183,68 @@ function bnVariantActive(node, selected) {
   const variants = node.variants || {};
   return Object.keys(BN_VARIANTS).every(key => {
     const allowed = variants[key];
-    if (!allowed || allowed.length === 0 || allowed.includes('任意')) return true;
+    const allValue = BN_VARIANTS[key].all || '任意';
+    if (!allowed || allowed.length === 0 || allowed.includes(allValue) || allowed.includes('任意')) return true;
     return allowed.includes(selected[key]);
   });
+}
+
+function bnVariantLabel(node, key = 'model') {
+  const allValue = BN_VARIANTS[key]?.all || '任意';
+  const picked = (node.variants && node.variants[key]) || [allValue];
+  return picked.includes(allValue) || picked.includes('任意') ? allValue : picked.join('、');
+}
+
+function bnNormalizeVariants(variants = {}) {
+  const allValue = BN_VARIANTS.model.all;
+  const picked = variants.model || [allValue];
+  const clean = picked.includes(allValue) || picked.includes('任意')
+    ? [allValue]
+    : picked.filter(v => BN_VARIANTS.model.values.includes(v));
+  return { model: clean.length ? clean : [allValue] };
+}
+
+function bnNormalizeTree(nodes = []) {
+  return nodes.map(node => ({
+    ...node,
+    variants: bnNormalizeVariants(node.variants),
+    children: bnNormalizeTree(node.children || []),
+  }));
+}
+
+function bnToggleVariantValue(current = {}, key = 'model', value) {
+  const allValue = BN_VARIANTS[key]?.all || '任意';
+  const picked = current[key] || [allValue];
+  let next;
+  if (value === allValue || value === '任意') {
+    next = [allValue];
+  } else {
+    const specific = picked.filter(v => v !== allValue && v !== '任意');
+    next = specific.includes(value) ? specific.filter(v => v !== value) : [...specific, value];
+    if (!next.length) next = [allValue];
+  }
+  return { [key]: next };
+}
+
+function BomModelMultiSelect({ variants = {}, onChange, compact = false }) {
+  const key = 'model';
+  const cfg = BN_VARIANTS[key];
+  const allValue = cfg.all || '任意';
+  const picked = variants[key] || [allValue];
+  const isAll = picked.includes(allValue) || picked.includes('任意');
+  const toggle = (value, e) => {
+    e && e.stopPropagation();
+    onChange && onChange(bnToggleVariantValue(variants, key, value));
+  };
+  const chipClass = (on) => 'bn-chip' + (compact ? ' tiny' : '') + (on ? ' on' : '');
+  return (
+    <div className={'bn-model-multi' + (compact ? ' compact' : '')}>
+      <span className={chipClass(isAll)} onClick={(e) => toggle(allValue, e)}>{allValue}</span>
+      {cfg.values.map(value => (
+        <span key={value} className={chipClass(!isAll && picked.includes(value))} onClick={(e) => toggle(value, e)}>{value}</span>
+      ))}
+    </div>
+  );
 }
 
 function bnSubtotal(node, selected, multiplier = 1) {
@@ -198,10 +254,11 @@ function bnSubtotal(node, selected, multiplier = 1) {
   return own + (node.children || []).reduce((sum, child) => sum + bnSubtotal(child, selected, currentQty), 0);
 }
 
-function bnWalk(nodes, cb, depth = 1) {
+function bnWalk(nodes, cb, depth = 1, selected = null, parentActive = true) {
   nodes.forEach(node => {
-    cb(node, depth);
-    if (node.children && node.children.length) bnWalk(node.children, cb, depth + 1);
+    const active = parentActive && (!selected || bnVariantActive(node, selected));
+    if (active) cb(node, depth);
+    if (node.children && node.children.length) bnWalk(node.children, cb, depth + 1, selected, active);
   });
 }
 
@@ -272,8 +329,10 @@ function bnMoveNode(tree, sourceId, targetId, mode) {
   return bnInsertNode(removed.nodes, targetId, removed.removed, mode);
 }
 
-function bnFlatten(nodes, collapsed, selected, prefix = [], rows = []) {
+function bnFlatten(nodes, collapsed, selected, prefix = [], rows = [], parentActive = true) {
   nodes.forEach((node, idx) => {
+    const active = parentActive && bnVariantActive(node, selected);
+    if (!active) return;
     const path = [...prefix, idx + 1];
     const hasChildren = !!(node.children && node.children.length);
     rows.push({
@@ -282,10 +341,10 @@ function bnFlatten(nodes, collapsed, selected, prefix = [], rows = []) {
       no: path.join('.'),
       level: path.length - 1,
       hasChildren,
-      active: bnVariantActive(node, selected),
+      active,
       collapsed: !!collapsed[node.id],
     });
-    if (hasChildren && !collapsed[node.id]) bnFlatten(node.children, collapsed, selected, path, rows);
+    if (hasChildren && !collapsed[node.id]) bnFlatten(node.children, collapsed, selected, path, rows, active);
   });
   return rows;
 }
@@ -293,13 +352,12 @@ function bnFlatten(nodes, collapsed, selected, prefix = [], rows = []) {
 function bnStats(tree, selected) {
   const result = { levels:0, materials:0, self:0, buy:0, cost:0, hours:0 };
   bnWalk(tree, (node, depth) => {
-    if (!bnVariantActive(node, selected)) return;
     result.levels = Math.max(result.levels, depth);
     result.materials += 1;
     if (node.type === '自制') result.self += 1;
     if (node.type === '外购') result.buy += 1;
     result.hours += bnToNumber(node.customAttrs && node.customAttrs.workTime);
-  });
+  }, 1, selected);
   result.cost = tree.reduce((sum, node) => sum + bnSubtotal(node, selected), 0);
   return result;
 }
@@ -324,9 +382,9 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
     workflow:'',
   };
   const [baseInfo, setBaseInfo] = useBnState(initialValue?.baseInfo || emptyBaseInfo);
-  const [tree, setTree] = useBnState(initialValue?.tree || []);
+  const [tree, setTree] = useBnState(initialValue?.tree ? bnNormalizeTree(initialValue.tree) : []);
   const [detailText, setDetailText] = useBnState(initialValue?.detailText || BOM_DETAIL_TEXT);
-  const [spec, setSpec] = useBnState({ color:'白色', capacity:'8L' });
+  const [spec, setSpec] = useBnState(initialValue?.spec || { model:'17' });
   const [collapsed, setCollapsed] = useBnState({});
   const [selectedId, setSelectedId] = useBnState(null);
   const [checked, setChecked] = useBnState({});
@@ -334,7 +392,7 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
   const [altOpen, setAltOpen] = useBnState(null);
   const [dragRowId, setDragRowId] = useBnState(null);
   const [dragOver, setDragOver] = useBnState(null);
-  const [attrs, setAttrs] = useBnState(BN_ATTR_PRESETS.filter(a => ['color','material','length','weight','workTime'].includes(a.key)));
+  const [attrs, setAttrs] = useBnState(BN_ATTR_PRESETS.filter(a => ['material','length','weight','workTime'].includes(a.key)));
   const [drawerOpen, setDrawerOpen] = useBnState(false);
   const [materialPicker, setMaterialPicker] = useBnState(null);
   const [compare, setCompare] = useBnState(false);
@@ -351,7 +409,7 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
   const buildPayload = (state) => ({
     code: initialValue?.code || ('BOM-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + String(Date.now()).slice(-3)),
     baseInfo: { ...baseInfo },
-    tree,
+    tree: bnNormalizeTree(tree),
     detailText,
     state,
     spec,
@@ -511,9 +569,9 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
     const stamp = Date.now();
     const imported = bnNode({
       id:'n-import-root-' + stamp,
-      code:'M-100',
-      name:'智能温控锅总成',
-      spec:'Excel 导入草稿',
+      code:'IP17-000',
+      name:'iPhone17 整机总成',
+      spec:'17/17Pro/17PM',
       type:'自制',
       unit:'套',
       qty:1,
@@ -521,13 +579,13 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
       price:0,
       processOp:'OP1040',
       customAttrs:{ material:'导入草稿', workTime:'0.8' },
-      variants:{ color:['任意'], capacity:['任意'] },
+      variants:{ model:['全部型号'] },
       children:[
         bnNode({
           id:'n-import-child-' + stamp,
-          code:'M-110',
-          name:'机身子装配',
-          spec:'AW-HT',
+          code:'IP17-110',
+          name:'机身结构组件',
+          spec:'标准/Pro/PM',
           type:'子装配',
           unit:'套',
           qty:1,
@@ -535,10 +593,10 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
           price:0,
           processOp:'OP1040',
           customAttrs:{ material:'导入草稿', workTime:'0.45' },
-          variants:{ color:['任意'], capacity:['任意'] },
+          variants:{ model:['全部型号'] },
           children:[
-            bnNode({ id:'n-import-leaf-a-' + stamp, code:'M-111', name:'内胆不锈钢件', spec:'SUS304', type:'自制', unit:'件', qty:1, loss:2, price:42, processOp:'OP1020', customAttrs:{ material:'SUS304', workTime:'0.25' }, variants:{ color:['任意'], capacity:['8L','12L'] } }),
-            bnNode({ id:'n-import-leaf-b-' + stamp, code:'M-150', name:'Excel 导入测试件', spec:'导入识别层级', type:'外购', unit:'件', qty:1, loss:1, price:12.8, processOp:'OP1010', customAttrs:{ material:'导入', workTime:'0.03' }, variants:{ color:['任意'], capacity:['任意'] } }),
+            bnNode({ id:'n-import-leaf-a-' + stamp, code:'IP17-111', name:'17 / 17Pro 通用中框', spec:'铝合金中框', type:'自制', unit:'件', qty:1, loss:2, price:42, processOp:'OP1020', customAttrs:{ material:'铝合金', workTime:'0.25' }, variants:{ model:['17','17Pro'] } }),
+            bnNode({ id:'n-import-leaf-b-' + stamp, code:'IP17-113', name:'17PM 专用后盖组件', spec:'大尺寸后盖', type:'外购', unit:'件', qty:1, loss:1, price:96, processOp:'OP1010', customAttrs:{ material:'玻璃', workTime:'0.03' }, variants:{ model:['17PM'] } }),
           ],
         }),
       ],
@@ -558,7 +616,7 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
     <div className="bn-variant-card">
       {Object.keys(BN_VARIANTS).map(key => (
         <div className="bn-variant-group" key={key}>
-          <span className="bn-variant-label">{BN_VARIANTS[key].label}：</span>
+          <span className="bn-variant-label">当前预览{BN_VARIANTS[key].label}：</span>
           {BN_VARIANTS[key].values.map(value => (
             <span key={value} className={'bn-chip' + (spec[key] === value ? ' on' : '')} onClick={() => setSpec(prev => ({ ...prev, [key]: value }))}>
               <span>{spec[key] === value ? '●' : '○'}</span>{value}
@@ -587,7 +645,7 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
         <Card style={{padding:0,overflow:'hidden',marginTop:14}}>
           <div className="bn-card-head">
             <div className="section-title">BOM 结构</div>
-            <span className="meta">树表行内编辑、变体过滤、替代料与工艺关联</span>
+            <span className="meta">按销售下单型号过滤用料，维护替代料与工艺关联</span>
             <div className="actions">
               <Btn onClick={addRootNode}>＋ 根物料</Btn>
               <Btn onClick={() => addChildNode(selectedId)}>＋ 子项</Btn>
@@ -664,12 +722,21 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
           <div className="bn-base-grid">
             <Field label="BOM 编号"><Input value="自动生成" disabled /></Field>
             <Field label="BOM 名称" req><Input value={baseInfo.name} placeholder="请输入 BOM 名称" onChange={e => updateBaseInfo('name', e.target.value)} /></Field>
-            <Field label="适用产品" req><Select value={baseInfo.product} onChange={e => updateBaseInfo('product', e.target.value)}><option value="">请选择适用产品</option><option>智能温控锅 AW-H8</option><option>智能温控锅 AW-H12</option><option>智能温控锅 AW-H16</option></Select></Field>
+            <Field label="适用产品" req><Select value={baseInfo.product} onChange={e => updateBaseInfo('product', e.target.value)}><option value="">请选择适用产品</option><option>iPhone17</option><option>智能温控锅 AW-H8</option><option>智能温控锅 AW-H12</option><option>智能温控锅 AW-H16</option></Select></Field>
             <Field label="版本号"><Input value={baseInfo.version} placeholder="如 V 1.0" onChange={e => updateBaseInfo('version', e.target.value)} /></Field>
             <Field label="BOM 类型"><Select value={baseInfo.type} onChange={e => updateBaseInfo('type', e.target.value)}><option value="">请选择</option><option>生产</option><option>销售</option><option>工程</option></Select></Field>
             <Field label="编制人"><Input value={baseInfo.author} placeholder="请输入编制人" onChange={e => updateBaseInfo('author', e.target.value)} /></Field>
             <Field label="生效日期"><Input type="date" value={baseInfo.effectiveDate} onChange={e => updateBaseInfo('effectiveDate', e.target.value)} /></Field>
             <Field label="审批流程"><Select value={baseInfo.workflow} onChange={e => updateBaseInfo('workflow', e.target.value)}><option value="">请选择审批流程</option><option>研发 BOM 默认流程</option><option>简化审批</option><option>变更委员会审批</option></Select></Field>
+          </div>
+          <div className="bn-model-config">
+            <div>
+              <div className="bn-model-title">产品型号配置</div>
+              <div className="bn-model-sub">适用产品选择 iPhone17 后，销售下单可选择 17 / 17Pro / 17PM，生产展开 BOM 时按下单型号过滤适用物料。</div>
+            </div>
+            <div className="bn-model-list">
+              {BN_VARIANTS.model.values.map(value => <span key={value} className="bn-chip on">{value}</span>)}
+            </div>
           </div>
         </Card>
 
@@ -723,7 +790,7 @@ function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit
             <div className="bn-config-modal-head">
               <div>
                 <div className="bn-config-modal-title">配置物料清单</div>
-                <div className="bn-config-modal-sub">维护父子件层级、用量、损耗、替代料、适用规格和工序关联。</div>
+                <div className="bn-config-modal-sub">维护父子件层级、用量、损耗、替代料、适用型号和工序关联。</div>
               </div>
               <span className="bn-config-modal-close" onClick={() => setStructureModalOpen(false)}>×</span>
             </div>
@@ -799,7 +866,7 @@ function BomTreeTable(props) {
     { key:'check', label:'☐ 选', w:44 },
     { key:'no', label:'行号', w:112 },
     { key:'material', label:'物料', w:220 },
-    { key:'spec', label:'规格型号', w:150 },
+    { key:'model', label:'适用型号', w:220 },
     { key:'qty', label:'用量', w:88 },
     { key:'unit', label:'单位', w:80 },
     { key:'type', label:'物料类型', w:100 },
@@ -901,7 +968,13 @@ function BomTreeTable(props) {
                   </div>
                 </div>
               </td>
-              <td title={node.spec}>{node.spec}</td>
+              <td>
+                <BomModelMultiSelect
+                  compact
+                  variants={node.variants}
+                  onChange={variants => onUpdate(row.id, { variants })}
+                />
+              </td>
               <td>{renderEditCell(row, 'qty')}</td>
               <td>
                 {editing && editing.id === row.id && editing.field === 'unit' ? (
@@ -967,18 +1040,6 @@ function BomPropertyPanel({ node, attrs, spec, onChange, onChangeAttr, onRemove,
     { k:'logs', label:'变更记录' },
   ];
 
-  const updateVariant = (key, value) => {
-    const current = (node.variants && node.variants[key]) || ['任意'];
-    let next;
-    if (value === '任意') next = ['任意'];
-    else {
-      const withoutAny = current.filter(v => v !== '任意');
-      next = withoutAny.includes(value) ? withoutAny.filter(v => v !== value) : [...withoutAny, value];
-      if (!next.length) next = ['任意'];
-    }
-    onChange({ variants: { ...(node.variants || {}), [key]: next } });
-  };
-
   const changeAlt = (idx, patch) => {
     const alts = [...(node.alts || [])];
     alts[idx] = { ...alts[idx], ...patch };
@@ -1005,7 +1066,6 @@ function BomPropertyPanel({ node, attrs, spec, onChange, onChangeAttr, onRemove,
           <div className="bn-prop-grid">
             <div className="bn-prop-row"><label>物料编码</label><input value={node.code} onChange={e => onChange({ code:e.target.value })} /></div>
             <div className="bn-prop-row"><label className="req">名称</label><input value={node.name} onChange={e => onChange({ name:e.target.value })} /></div>
-            <div className="bn-prop-row"><label>规格型号</label><input value={node.spec} onChange={e => onChange({ spec:e.target.value })} /></div>
             <div className="bn-prop-row"><label>物料类型</label><select value={node.type} onChange={e => onChange({ type:e.target.value })}>{BN_TYPE_OPTIONS.map(t => <option key={t}>{t}</option>)}</select></div>
             <div className="bn-prop-row"><label>单位</label><input value={node.unit} onChange={e => onChange({ unit:e.target.value })} /></div>
             <div className="bn-prop-row"><label>用量</label><input type="number" value={node.qty} onChange={e => onChange({ qty:e.target.value })} /></div>
@@ -1015,19 +1075,8 @@ function BomPropertyPanel({ node, attrs, spec, onChange, onChangeAttr, onRemove,
             <div className="bn-prop-row"><label>单价</label><input type="number" value={node.price} onChange={e => onChange({ price:e.target.value })} /></div>
             <div className="bn-prop-row"><label>备注</label><textarea value={node.remark || ''} onChange={e => onChange({ remark:e.target.value })} /></div>
             <div className="bn-prop-row">
-              <label>适用规格</label>
-              <div className="bn-chip-row">
-                {Object.keys(BN_VARIANTS).map(key => (
-                  <React.Fragment key={key}>
-                    <span style={{fontSize:12,color:'var(--aw-fg-3)',width:'100%',marginTop:4}}>{BN_VARIANTS[key].label}</span>
-                    <span className={'bn-chip tiny' + (((node.variants && node.variants[key]) || ['任意']).includes('任意') ? ' on' : '')} onClick={() => updateVariant(key, '任意')}>任意</span>
-                    {BN_VARIANTS[key].values.map(value => {
-                      const on = ((node.variants && node.variants[key]) || ['任意']).includes(value);
-                      return <span key={value} className={'bn-chip tiny' + (on ? ' on' : '')} onClick={() => updateVariant(key, value)}>{value}</span>;
-                    })}
-                  </React.Fragment>
-                ))}
-              </div>
+              <label>适用型号</label>
+              <BomModelMultiSelect variants={node.variants} onChange={variants => onChange({ variants })} />
             </div>
           </div>
         )}

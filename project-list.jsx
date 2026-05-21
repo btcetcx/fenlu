@@ -217,7 +217,7 @@ function ProgressBar({ pct }) {
 // ═══════════════════════════════════════════════════════════════
 //  List View — Toolbar + Table
 // ═══════════════════════════════════════════════════════════════
-function ProjectListView({ onNew, onView, onEdit, rows = PROJECT_ROWS }) {
+function ProjectListView({ onNew, onView, rows = PROJECT_ROWS }) {
   const [drawer, setDrawer] = useState(null);
   const [sel, setSel] = useState({});
   const allChecked = rows.length > 0 && rows.every((_, i) => sel[i]);
@@ -289,8 +289,6 @@ function ProjectListView({ onNew, onView, onEdit, rows = PROJECT_ROWS }) {
                   <td>
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                       <span className="aw-link" onClick={(e) => { e.stopPropagation(); onView(i); }}>查看</span>
-                      <span className="aw-link" onClick={(e) => { e.stopPropagation(); onEdit && onEdit(i); }}>编辑</span>
-                      <span className="aw-link" style={{ fontSize: 12, color: 'var(--aw-fg-3)' }}>▾</span>
                     </div>
                   </td>
                 </tr>
@@ -321,9 +319,9 @@ function ProjectNewView({ onBack }) {
 
   // 联动分类树选项
   const catTree = {
-    '研发项目': ['内部研发', '合作研发'],
-    '工程项目': ['基建工程', '技术改造'],
-    '合作项目': ['校企合作', '企业合作'],
+    '研发项目': ['内部研发', '产品研发'],
+    '工程项目': ['系统改造', '自动化工程'],
+    '合作项目': ['校企合作', '联合创新'],
   };
 
   return (
@@ -1071,7 +1069,6 @@ function ProjectListScreen({ module: mod, initialAction, onActionConsumed }) {
   }, [initialAction]);
 
   const handleView = (idx) => { setDetailIdx(idx); setView('detail'); };
-  const handleEdit = (idx) => { setDetailIdx(idx); /* could navigate to edit mode */ };
   const pickedCategory = PROJECT_CAT_MAP[picked];
   const rows = pickedCategory ? PROJECT_ROWS.filter(r => r.category === pickedCategory) : PROJECT_ROWS;
 
@@ -1079,7 +1076,7 @@ function ProjectListScreen({ module: mod, initialAction, onActionConsumed }) {
     <div className="aw-doc-page">
       {view === 'list' && <ProjectTree picked={picked} setPicked={setPicked} rows={PROJECT_ROWS} />}
       <div className="aw-doc-main">
-        {view === 'list'   && <ProjectListView rows={rows} onNew={() => setView('new')} onView={(idx) => handleView(PROJECT_ROWS.indexOf(rows[idx]))} onEdit={(idx) => handleEdit(PROJECT_ROWS.indexOf(rows[idx]))} />}
+        {view === 'list'   && <ProjectListView rows={rows} onNew={() => setView('new')} onView={(idx) => handleView(PROJECT_ROWS.indexOf(rows[idx]))} />}
         {view === 'new'    && <ProjectNewView    onBack={() => setView('list')} />}
         {view === 'detail' && <ProjectDetailView onBack={() => setView('list')} projectIndex={detailIdx} />}
       </div>

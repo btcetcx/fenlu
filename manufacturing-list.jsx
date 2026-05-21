@@ -425,6 +425,7 @@ function MfgScheduleModal({ type, data, onClose }) {
   const teamMembers = data?.name ? MFG_SCHEDULE_EMPLOYEES.filter(e => e.team === data.name) : MFG_SCHEDULE_EMPLOYEES.slice(0,4);
   return (
     <StandardModal title={titleMap[type] || '生产排班'} size={(type && type.includes('Detail')) || type === 'conflicts' ? 'lg' : 'md'} onClose={onClose} footer={<><Btn onClick={onClose}>取消</Btn><Btn kind="primary" onClick={onClose}>{(type && type.includes('Detail')) || type === 'conflicts' ? '关闭' : '保存'}</Btn></>}>
+      <div className="aw-mfg-detail-scope aw-mfg-modal-body">
       {(type === 'shift' || type === 'shiftEdit') && <FormGrid columns={2}><Field label="班次编码" req><Input defaultValue={data?.code || 'F'} /></Field><Field label="班次名称" req><Input defaultValue={data?.name || '培训'} /></Field><Field label="开始时间" req><Input defaultValue={(data?.time || '09:00-12:00').split('-')[0]} /></Field><Field label="结束时间" req><Input defaultValue={(data?.time || '09:00-12:00').split('-')[1]} /></Field><Field label="标准工时"><Input defaultValue={`${data?.hours ?? 3}h`} /></Field><Field label="休息时长"><Input defaultValue={data?.rest || '0分钟'} /></Field><Field label="工时倍率"><Input defaultValue={data?.ratio || '1.0x'} /></Field><Field label="打卡窗口"><Input defaultValue="上班前30分钟 / 下班后30分钟" /></Field><Field label="是否跨天"><Select defaultValue={data?.cross ? '是' : '否'}><option>否</option><option>是</option></Select></Field><Field label="状态"><Select defaultValue={data?.status || '启用'}><option>启用</option><option>停用</option></Select></Field></FormGrid>}
       {type === 'calendar' && <><FormGrid columns={2}><Field label="日历名称" req><Input defaultValue="2026标准工作日历" /></Field><Field label="适用范围" req><Select defaultValue="全公司"><option>全公司</option><option>总装车间</option><option>焊接车间</option></Select></Field><Field label="工作制"><Select defaultValue="双休"><option>双休</option><option>单休</option><option>大小周</option></Select></Field><Field label="继承来源"><Input defaultValue="集团标准日历" /></Field><Field label="节假日规则"><Input defaultValue="同步国务院法定节假日" /></Field><Field label="调班规则"><Input defaultValue="调班日若循环为R自动改A" /></Field></FormGrid><PurchaseSection title="例外日规则"><table className="aw-table"><thead><tr><th>日期</th><th>类型</th><th>规则</th><th>说明</th></tr></thead><tbody>{MFG_SCHEDULE_CALENDAR_EXCEPTIONS.map(x=><tr key={x.day}><td>{x.day}</td><td>{x.type}</td><td>{x.rule}</td><td>{x.note}</td></tr>)}</tbody></table></PurchaseSection></>}
       {type === 'team' && <FormGrid columns={2}><Field label="班组名称" req><Input defaultValue="总装二班" /></Field><Field label="所属车间" req><Select defaultValue="总装车间"><option>总装车间</option><option>焊接车间</option></Select></Field><Field label="适用产线" req><Input defaultValue="总装产线B" /></Field><Field label="班组长" req><Input defaultValue="陈思源" /></Field><Field label="班次模式" req><Select defaultValue="三班两运转"><option>常白</option><option>两班倒</option><option>三班两运转</option><option>四班三倒</option><option>自定义</option></Select></Field><Field label="技能方向"><Input defaultValue="总装、包装" /></Field><Field label="岗位编制"><Input defaultValue="班组长1 / 技工12 / 质检1" /></Field><Field label="替补规则"><Input defaultValue="同技能同车间优先补位" /></Field></FormGrid>}
@@ -434,6 +435,7 @@ function MfgScheduleModal({ type, data, onClose }) {
       {type === 'planDetail' && <><PurchaseSection title="基础信息"><FormGrid columns={3}><Field label="计划编号"><Input value={data?.code || ''} readOnly /></Field><Field label="计划名称"><Input value={data?.name || ''} readOnly /></Field><Field label="适用班组"><Input value={data?.team || ''} readOnly /></Field><Field label="计划周期"><Input value={data ? `${data.start} 至 ${data.end}` : ''} readOnly /></Field><Field label="覆盖率"><Input value={data?.coverage || ''} readOnly /></Field><Field label="状态"><Input value={data?.status || ''} readOnly /></Field></FormGrid></PurchaseSection><PurchaseSection title="循环模式预览"><div style={{display:'flex',gap:6,flexWrap:'wrap'}}>{Array.from({length:14},(_,i)=>planPattern[i % planPattern.length]).map((c,i)=><MfgScheduleShiftChip key={i} code={c} compact />)}</div></PurchaseSection><PurchaseSection title="校验结果"><table className="aw-table"><thead><tr><th>等级</th><th>对象</th><th>问题</th><th>建议</th></tr></thead><tbody>{MFG_SCHEDULE_CONFLICTS.slice(0, data?.conflicts || 1).map(c=><tr key={c.target}><td><Badge tone={c.level === '高' ? 'r' : 'y'}>{c.level}</Badge></td><td>{c.target}</td><td>{c.issue}</td><td>{c.fix}</td></tr>)}</tbody></table></PurchaseSection><PurchaseSection title="本期排班网格预览"><MfgRosterList readOnly plan={data} /></PurchaseSection></>}
       {type === 'conflicts' && <table className="aw-table"><thead><tr><th>等级</th><th>定位</th><th>冲突规则</th><th>处理建议</th></tr></thead><tbody>{MFG_SCHEDULE_CONFLICTS.map(c=><tr key={c.target}><td><Badge tone={c.level === '高' ? 'r' : 'y'}>{c.level}</Badge></td><td>{c.target}</td><td>{c.issue}</td><td>{c.fix}</td></tr>)}</tbody></table>}
       {type === 'policy' && <><FormGrid columns={2}><Field label="排班策略"><Select defaultValue="均衡工时优先"><option>均衡工时优先</option><option>产能优先</option><option>技能优先</option></Select></Field><Field label="最小休息间隔"><Input defaultValue="夜班后至少 12 小时" /></Field><Field label="连续出勤上限"><Input defaultValue="6 天" /></Field><Field label="周工时上限"><Input defaultValue="48 小时" /></Field><Field label="节假日排班"><Select defaultValue="需加班审批"><option>需加班审批</option><option>禁止排班</option><option>允许排班并预警</option></Select></Field><Field label="发布后调整"><Select defaultValue="记录原因并审批"><option>记录原因并审批</option><option>仅记录原因</option></Select></Field></FormGrid><PurchaseSection title="校验规则"><table className="aw-table"><thead><tr><th>规则</th><th>处理方式</th><th>说明</th></tr></thead><tbody><tr><td>同日重叠班次</td><td>阻断发布</td><td>人员不可在同一时间窗重复排班</td></tr><tr><td>资质不匹配</td><td>阻断发布</td><td>关键工序需满足技能和证书要求</td></tr><tr><td>产能不足</td><td>预警</td><td>计划工时低于工单需求时给出补位建议</td></tr></tbody></table></PurchaseSection></>}
+      </div>
     </StandardModal>
   );
 }
@@ -450,7 +452,7 @@ function MfgScheduleScreen({ initialAction, onActionConsumed }) {
   }, [initialAction]);
   const showNew = () => setModal({ type: page === '班次管理' ? 'shift' : page === '工作日历' ? 'calendar' : page === '生产班组' ? 'team' : page === '排班计划' ? 'plan' : 'roster' });
   return (
-    <div style={{display:'flex',flexDirection:'column',gap:12,height:'100%'}}>
+    <div className="aw-mfg-detail-scope aw-mfg-schedule-page" style={{display:'flex',flexDirection:'column',gap:12,height:'100%'}}>
       <MfgScheduleTopStats onConflicts={()=>setModal({ type:'conflicts' })} />
       <Card>
         <MfgScheduleNavTabs page={page} setPage={setPage} />
@@ -508,13 +510,13 @@ function MfgPlanScheduleRecords() {
 }
 
 function MfgGeneratedPlanView({ row, product, onBack }) {
-  return <PurchaseFormPage onBack={onBack} submitText="生成生产计划"><PurchaseSection title="基础信息"><FormGrid><Field label="计划主题" req><Input defaultValue={`${product.name} 生产计划`} /></Field><Field label="计划编号"><Input value="自动生成" readOnly /></Field><Field label="来源需求"><Input value={row.code} readOnly /></Field><Field label="来源明细"><Input value={product.sourceLine} readOnly /></Field><Field label="来源客户/项目"><Input value={row.source || '手动创建'} readOnly /></Field><Field label="计划产品"><Input value={product.name} readOnly /></Field><Field label="计划数量" req><Input defaultValue={product.qty} /></Field><Field label="计划开始"><Input defaultValue={product.start || row.date || '2026-05-18'} /></Field><Field label="计划完成"><Input defaultValue={product.end || row.end || '2026-05-30'} /></Field></FormGrid></PurchaseSection><PurchaseSection title="产品明细"><MfgPlanProductTable rows={[{...product, demandQty:product.qty, planQty:product.qty, sourceType:'生产需求', sourceDoc:row.code}]} setRows={()=>{}} readOnly /></PurchaseSection><PurchaseSection title="计划说明"><PurchaseRichText placeholder="填写排产、齐套、版本预锁和交付说明" /></PurchaseSection></PurchaseFormPage>;
+  return <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={onBack} submitText="生成生产计划"><PurchaseSection title="基础信息"><FormGrid><Field label="计划主题" req><Input defaultValue={`${product.name} 生产计划`} /></Field><Field label="计划编号"><Input value="自动生成" readOnly /></Field><Field label="来源需求"><Input value={row.code} readOnly /></Field><Field label="来源明细"><Input value={product.sourceLine} readOnly /></Field><Field label="来源客户/项目"><Input value={row.source || '手动创建'} readOnly /></Field><Field label="计划产品"><Input value={product.name} readOnly /></Field><Field label="计划数量" req><Input defaultValue={product.qty} /></Field><Field label="计划开始"><Input defaultValue={product.start || row.date || '2026-05-18'} /></Field><Field label="计划完成"><Input defaultValue={product.end || row.end || '2026-05-30'} /></Field></FormGrid></PurchaseSection><PurchaseSection title="产品明细"><MfgPlanProductTable rows={[{...product, demandQty:product.qty, planQty:product.qty, sourceType:'生产需求', sourceDoc:row.code}]} setRows={()=>{}} readOnly /></PurchaseSection><PurchaseSection title="计划说明"><PurchaseRichText placeholder="填写排产、齐套、版本预锁和交付说明" /></PurchaseSection></PurchaseFormPage>;
 }
 
 function MfgGeneratedOrderView({ row, product, onBack }) {
   const orderProduct = product || MFG_PRODUCTS[0];
   const workOrders = buildMfgWorkOrders(orderProduct);
-  return <PurchaseFormPage onBack={onBack} submitText="生成生产订单"><PurchaseSection title="生产订单信息"><FormGrid><Field label="生产主题" req><Input defaultValue={`${orderProduct.name} 生产订单`} /></Field><Field label="生产编号"><Input value="自动生成" readOnly /></Field><Field label="来源需求"><Input value={row.code} readOnly /></Field><Field label="来源明细"><Input value={orderProduct.sourceLine} readOnly /></Field><Field label="来源客户/项目"><Input value={row.source || '手动创建'} readOnly /></Field><Field label="生产产品"><Input value={orderProduct.name} readOnly /></Field><Field label="生产数量" req><Input defaultValue={orderProduct.qty} /></Field><Field label="BOM版本"><Input defaultValue={orderProduct.bom || 'BOM-V3.2'} /></Field><Field label="工艺路线"><Input defaultValue={orderProduct.route || 'RT-总装-01'} /></Field><Field label="生产状态"><Input value="待生产" readOnly /></Field></FormGrid></PurchaseSection><PurchaseSection title="工单明细"><div style={{fontSize:12,color:'var(--aw-fg-3)',marginBottom:12}}>一个生产订单只对应一个生产产品；这里按 BOM/工艺拆解为半成品工单、关键工序工单和成品总装工单。</div><MfgWorkOrderDetailTable editable rows={workOrders} /></PurchaseSection><PurchaseSection title="订单详情"><PurchaseRichText placeholder="填写订单生产要求、工单拆解依据、齐套和质检说明" /></PurchaseSection></PurchaseFormPage>;
+  return <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={onBack} submitText="生成生产订单"><PurchaseSection title="生产订单信息"><FormGrid><Field label="生产主题" req><Input defaultValue={`${orderProduct.name} 生产订单`} /></Field><Field label="生产编号"><Input value="自动生成" readOnly /></Field><Field label="来源需求"><Input value={row.code} readOnly /></Field><Field label="来源明细"><Input value={orderProduct.sourceLine} readOnly /></Field><Field label="来源客户/项目"><Input value={row.source || '手动创建'} readOnly /></Field><Field label="生产产品"><Input value={orderProduct.name} readOnly /></Field><Field label="生产数量" req><Input defaultValue={orderProduct.qty} /></Field><Field label="BOM版本"><Input defaultValue={orderProduct.bom || 'BOM-V3.2'} /></Field><Field label="工艺路线"><Input defaultValue={orderProduct.route || 'RT-总装-01'} /></Field><Field label="生产状态"><Input value="待生产" readOnly /></Field></FormGrid></PurchaseSection><PurchaseSection title="工单明细"><div style={{fontSize:12,color:'var(--aw-fg-3)',marginBottom:12}}>一个生产订单只对应一个生产产品；这里按 BOM/工艺拆解为半成品工单、关键工序工单和成品总装工单。</div><MfgWorkOrderDetailTable editable rows={workOrders} /></PurchaseSection><PurchaseSection title="订单详情"><PurchaseRichText placeholder="填写订单生产要求、工单拆解依据、齐套和质检说明" /></PurchaseSection></PurchaseFormPage>;
 }
 
 function MfgProductTable({ rows, setRows, mode, demandActions, onPlan, onOrder, readOnly=false }) {
@@ -1051,7 +1053,7 @@ function MfgFormView({ config, moduleKey, onBack }) {
     setToast({ type:'ok', text:`${config.title}已保存，流程状态为${initialStatus}` });
   };
   return (
-    <PurchaseFormPage onBack={onBack} submitText="提交审批">
+    <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={onBack} submitText="提交审批">
       {toast && <div style={{position:'fixed',right:28,top:76,zIndex:80,padding:'10px 14px',borderRadius:6,background:toast.type==='ok'?'#DBF3E6':'#FBDFDF',color:toast.type==='ok'?'#1F7A4E':'#D14D4D',boxShadow:'0 8px 24px rgba(16,24,40,.12)'}}>{toast.text}</div>}
       <PurchaseSection title="基础信息">
         <FormGrid>
@@ -1159,7 +1161,7 @@ function MfgDetailTable({ type }) {
     },
   };
   const data = map[type] || map.work;
-  return <table className="aw-table"><thead><tr><th>序号</th>{data.cols.map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{data.rows.map((r,i)=><tr key={r[0]}><td>{i+1}</td>{r.map(c=><td key={c}>{['齐套','已完成','已入库','合格','成功','通过','已发料','已锁版','已过账','无需'].includes(c)?<Badge tone="g">{c}</Badge>:['缺料','待复检','待审批'].includes(c)?<Badge tone="r">{c}</Badge>:['生产中','待质检','部分领料','待开工','待入库','已转计划'].includes(c)?<Badge tone="y">{c}</Badge>:c}</td>)}</tr>)}</tbody></table>;
+  return <table className="aw-table"><thead><tr><th>序号</th>{data.cols.map((h, idx)=><th key={`${h}-${idx}`}>{h}</th>)}</tr></thead><tbody>{data.rows.map((r,i)=><tr key={`${type}-${i}-${r[0]}`}><td>{i+1}</td>{r.map((c, idx)=><td key={`${type}-${i}-${idx}`}>{['齐套','已完成','已入库','合格','成功','通过','已发料','已锁版','已过账','无需'].includes(c)?<Badge tone="g">{c}</Badge>:['缺料','待复检','待审批'].includes(c)?<Badge tone="r">{c}</Badge>:['生产中','待质检','部分领料','待开工','待入库','已转计划'].includes(c)?<Badge tone="y">{c}</Badge>:c}</td>)}</tr>)}</tbody></table>;
 }
 
 function MfgMrpSuggestionModal({ onClose, onAccept }) {
@@ -1300,13 +1302,14 @@ function MfgMrpSuggestionModal({ onClose, onAccept }) {
   );
 }
 
-function MfgStartPlanConfirmModal({ onClose, onCheck, onSkip }) {
+function MfgStartPlanConfirmModal({ mode='plan', onClose, onCheck, onSkip }) {
+  const isOrder = mode === 'order';
   return (
-    <StandardModal title="启动生产计划" size="sm" onClose={onClose}
+    <StandardModal title={isOrder ? '启动生产订单' : '启动生产计划'} size="sm" onClose={onClose}
       footer={<><Btn onClick={onClose}>取消</Btn><Btn onClick={onSkip}>不检查，直接生成订单</Btn><Btn kind="primary" onClick={onCheck}>先齐套检查</Btn></>}>
       <div style={{fontSize:14,lineHeight:1.8,color:'var(--aw-fg-2)'}}>
-        启动计划前是否先进行齐套检查？<br />
-        若不检查，系统将按计划产品明细直接生成生产订单列表；生产订单确认后再拆分工单明细，后续缺料风险需在订单齐套检查中处理。
+        {isOrder ? '启动订单前是否先进行齐套检查？' : '启动计划前是否先进行齐套检查？'}<br />
+        {isOrder ? '若不检查，系统将按需求产品明细直接生成生产订单列表；生产订单确认后再拆分工单明细，后续缺料风险需在订单齐套检查中处理。' : '若不检查，系统将按计划产品明细直接生成生产订单列表；生产订单确认后再拆分工单明细，后续缺料风险需在订单齐套检查中处理。'}
       </div>
     </StandardModal>
   );
@@ -1340,7 +1343,7 @@ function MfgGeneratedProductionOrderList({ onBack }) {
     status:'待生产'
   }));
   return (
-    <PurchaseFormPage onBack={onBack} submitText="一键生成">
+    <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={onBack} submitText="一键生成">
       <PurchaseSection title="生成的生产订单列表">
         <div style={{fontSize:12,color:'var(--aw-fg-3)',marginBottom:12}}>系统按生产计划产品明细一行一生产订单生成；生产订单确认后，再由生产订单拆分生成工单明细。</div>
         <div style={{overflow:'auto'}}>
@@ -1431,24 +1434,35 @@ function MfgKitEstimateDocModal({ row, onClose }) {
 }
 
 function MfgDetailView({ config, row, moduleKey, onBack }) {
-  const tabs = moduleKey === 'mfgWorkOrder' ? ['工单信息','领工派工','领料记录','报工记录','质检记录','退料记录','入库记录','操作记录'] :
-    moduleKey === 'mfgOutsource' ? ['委外加工信息','委外发料','委外收货','质检记录','入库记录','操作记录'] :
-    moduleKey === 'mfgOrder' ? ['生产信息','来源记录','版本锁定','齐套检查','工序进度','领料记录','退料记录','成品入库记录','工单执行记录','质检记录','操作记录'] :
-    moduleKey === 'mfgPlan' ? ['计划信息','来源记录','齐套预估','排产记录','操作记录'] :
-    ['基本信息','操作记录'];
+  const tabs = moduleKey === 'mfgWorkOrder' ? ['工单信息','工艺流程','领工派工','领料记录','报工记录','质检记录','退料记录','入库记录','操作记录'] :
+    moduleKey === 'mfgOutsource' ? ['委外加工信息','委外明细','委外发料','委外收货','质检记录','入库记录','操作记录'] :
+    moduleKey === 'mfgOrder' ? ['工单信息','工单明细','来源记录','版本锁定','齐套检查','工序进度','领料记录','退料记录','成品入库记录','工单执行记录','质检记录','操作记录'] :
+    moduleKey === 'mfgPlan' ? ['计划信息','产品明细','来源记录','齐套预估','排产记录','操作记录'] :
+    ['基本信息','产品明细','操作记录'];
   const [tab, setTab] = useMfgState(tabs[0]);
   const [generateAction, setGenerateAction] = useMfgState(null);
   const [mrpModal, setMrpModal] = useMfgState(false);
   const [startPlanModal, setStartPlanModal] = useMfgState(false);
+  const [startPlanModalMode, setStartPlanModalMode] = useMfgState('plan');
   const [generatedWorkOrders, setGeneratedWorkOrders] = useMfgState(false);
   const [startPlanFlow, setStartPlanFlow] = useMfgState(false);
   const [kitAcceptedRows, setKitAcceptedRows] = useMfgState([]);
   const [issueStep, setIssueStep] = useMfgState(null);
+  const startOrderFlowWithCheck = () => {
+    setStartPlanModal(false);
+    setStartPlanFlow(true);
+    if (moduleKey === 'mfgPlan') setTab('齐套预估');
+    setMrpModal(true);
+  };
+  const openStartFlowModal = (mode='plan') => {
+    setStartPlanModalMode(mode);
+    setStartPlanModal(true);
+  };
   if (generateAction?.type === 'plan') return <MfgGeneratedPlanView row={row} product={generateAction.product} onBack={()=>setGenerateAction(null)} />;
   if (generateAction?.type === 'order') return <MfgGeneratedOrderView row={row} product={generateAction.product} onBack={()=>setGenerateAction(null)} />;
   if (generatedWorkOrders) return <MfgGeneratedProductionOrderList onBack={()=>setGeneratedWorkOrders(false)} />;
   return (
-    <div className="aw-doc-form"><div className="aw-doc-form-body">
+    <div className="aw-doc-form aw-mfg-detail-scope aw-mfg-main-detail"><div className="aw-doc-form-body">
       <DetailHeaderCard
         title={`${row.subject} ${row.code}`}
         status={row.status}
@@ -1457,6 +1471,7 @@ function MfgDetailView({ config, row, moduleKey, onBack }) {
         createdAt="2026-05-17 10:25"
         modifier="生产主管"
         modifiedAt="2026-05-17 15:30"
+        beforeActions={moduleKey === 'mfgPlan' ? <button className="aw-btn primary" onClick={()=>openStartFlowModal('plan')}>启动计划</button> : null}
         detailItems={[
           [config.codeLabel, row.code],
           ['来源单据', row.source],
@@ -1467,7 +1482,7 @@ function MfgDetailView({ config, row, moduleKey, onBack }) {
           ['打印状态', '未打印'],
         ]}
       />
-      <Card>
+      <Card style={{ overflow:'hidden' }}>
         <div className="aw-tabs" style={{marginBottom:14}}>{tabs.map(t=><span key={t} className={'aw-tab '+(tab===t?'on':'')} onClick={()=>setTab(t)}>{t}</span>)}</div>
         {(tab.includes('信息') || tab === '基本信息') && <><PurchaseSection title="基础信息"><InfoGrid items={[
           {label:config.subjectLabel, value:row.subject},{label:config.codeLabel,value:row.code},
@@ -1476,7 +1491,11 @@ function MfgDetailView({ config, row, moduleKey, onBack }) {
           ] : [
             {label:'来源单据',value:row.source},{label:'生产产品',value:row.product},{label:'计划数量',value:row.qty},{label:config.statusLabel,value:<MfgTone status={row.status}/>},{label:'责任部门',value:row.owner},{label:'计划周期',value:`${row.date} 至 ${row.end}`},{label:'齐套状态',value:<MfgTone status="齐套"/>}
           ])
-        ]}/></PurchaseSection>{moduleKey === 'mfgOrder' ? <PurchaseSection title="工单明细"><div style={{fontSize:12,color:'var(--aw-fg-3)',marginBottom:12}}>一个生产订单只对应一个产品；以下工单是该订单产品下的半成品工单、关键工序工单和成品总装工单。</div><MfgWorkOrderDetailTable rows={buildMfgWorkOrders(MFG_PRODUCTS[0])} /></PurchaseSection> : moduleKey === 'mfgWorkOrder' ? <PurchaseSection title="工艺流程"><MfgProcessFlowTable rows={getMfgProcessSteps(MFG_PRODUCTS[0])} showExecution onIssue={setIssueStep} /></PurchaseSection> : <PurchaseSection title={moduleKey === 'mfgOutsource' ? '委外明细' : '产品明细'}>{moduleKey === 'mfgDemand' ? <MfgDemandProductTable rows={MFG_PRODUCTS.map(p=>({...p, sourceType:p.sourceLine?.startsWith('SO')?'销售订单':'手动需求', sourceDoc:p.sourceLine?.split('-').slice(0,3).join('-')}))} setRows={()=>{}} readOnly onPlan={product=>setGenerateAction({type:'plan',product})} onOrder={product=>setGenerateAction({type:'order',product})} /> : moduleKey === 'mfgPlan' ? <MfgPlanProductTable rows={MFG_PRODUCTS.map(p=>({...p, sourceType:'生产需求', sourceDoc:p.sourceLine?.split('-').slice(0,3).join('-'), demandQty:p.qty, planQty:p.qty}))} setRows={()=>{}} readOnly /> : moduleKey === 'mfgOutsource' ? <MfgOutsourceDetailTable rows={MFG_PRODUCTS.map(p=>({...p, sourceDoc:row.source, sourceQty:p.qty, outsourceQty:p.qty, cost:'12.00', delivery:row.end, remark:'委外加工'}))} setRows={()=>{}} scope="整单委外" readOnly /> : <MfgProductTable rows={MFG_PRODUCTS} setRows={()=>{}} mode="normal" readOnly />}</PurchaseSection>}</>}
+        ]}/></PurchaseSection><PurchaseSection title="详情"><div className="aw-mfg-readonly-detail">生产要求：按当前确认的需求数量组织排产，优先保障交付日期；工艺说明：执行已锁定的 BOM 与工艺路线，关键工序需按检验标准留痕；齐套要求：开工前完成物料齐套确认，异常缺料需提交处理意见；交付约束：按计划周期跟踪进度，影响交付时及时预警并记录原因。</div></PurchaseSection><PurchaseSection title="附件"><AttachmentGrid uploadHint="支持图纸、工艺卡、生产说明、委外协议等附件" /></PurchaseSection></>}
+        {tab === '产品明细' && <PurchaseSection title="产品明细">{moduleKey === 'mfgDemand' ? <MfgDemandProductTable rows={MFG_PRODUCTS.map(p=>({...p, sourceType:p.sourceLine?.startsWith('SO')?'销售订单':'手动需求', sourceDoc:p.sourceLine?.split('-').slice(0,3).join('-')}))} setRows={()=>{}} readOnly onPlan={product=>setGenerateAction({type:'plan',product})} onOrder={()=>openStartFlowModal('order')} /> : <MfgPlanProductTable rows={MFG_PRODUCTS.map(p=>({...p, sourceType:'生产需求', sourceDoc:p.sourceLine?.split('-').slice(0,3).join('-'), demandQty:p.qty, planQty:p.qty}))} setRows={()=>{}} readOnly />}</PurchaseSection>}
+        {tab === '工单明细' && <PurchaseSection title="工单明细"><div style={{fontSize:12,color:'var(--aw-fg-3)',marginBottom:12}}>一个生产订单只对应一个产品；以下工单是该订单产品下的半成品工单、关键工序工单和成品总装工单。</div><MfgWorkOrderDetailTable rows={buildMfgWorkOrders(MFG_PRODUCTS[0])} /></PurchaseSection>}
+        {tab === '委外明细' && <PurchaseSection title="委外明细"><MfgOutsourceDetailTable rows={MFG_PRODUCTS.map(p=>({...p, sourceDoc:row.source, sourceQty:p.qty, outsourceQty:p.qty, cost:'12.00', delivery:row.end, remark:'委外加工'}))} setRows={()=>{}} scope="整单委外" readOnly /></PurchaseSection>}
+        {tab === '工艺流程' && <PurchaseSection title="工艺流程"><MfgProcessFlowTable rows={getMfgProcessSteps(MFG_PRODUCTS[0])} showExecution onIssue={setIssueStep} /></PurchaseSection>}
         {tab.includes('领工派工') && <MfgWorkOrderDispatchDetail />}
         {tab.includes('领料') && <MfgDetailTable type="material" />}
         {tab.includes('退料') && <MfgDetailTable type="return" />}
@@ -1494,7 +1513,7 @@ function MfgDetailView({ config, row, moduleKey, onBack }) {
         {tab.includes('委外收货') && <MfgDetailTable type="outsourceReceive" />}
         {tab.includes('操作') && <MfgDetailTable type="op" />}
       </Card>
-      {startPlanModal && <MfgStartPlanConfirmModal onClose={()=>setStartPlanModal(false)} onCheck={()=>{setStartPlanModal(false); setStartPlanFlow(true); setTab('齐套预估'); setMrpModal(true);}} onSkip={()=>{setStartPlanModal(false); setStartPlanFlow(false); setGeneratedWorkOrders(true);}} />}
+      {startPlanModal && <MfgStartPlanConfirmModal mode={startPlanModalMode} onClose={()=>setStartPlanModal(false)} onCheck={startOrderFlowWithCheck} onSkip={()=>{setStartPlanModal(false); setStartPlanFlow(false); setGeneratedWorkOrders(true);}} />}
       {mrpModal && <MfgMrpSuggestionModal onClose={()=>{setMrpModal(false); setStartPlanFlow(false);}} onAccept={rows=>{setKitAcceptedRows(rows); setMrpModal(false); if (startPlanFlow) { setStartPlanFlow(false); setGeneratedWorkOrders(true); } else { setTab('齐套预估'); }}} />}
       {issueStep && <MfgMaterialIssueModal step={issueStep} product={MFG_PRODUCTS[0]} onClose={()=>setIssueStep(null)} />}
     </div></div>
@@ -1519,7 +1538,7 @@ function MfgDemandDetailView({ onBack }) {
   const [selected, setSelected] = useMfgState(null);
   if (selected) {
     return (
-      <PurchaseFormPage onBack={()=>setSelected(null)} submitText="导出来源">
+      <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={()=>setSelected(null)} submitText="导出来源">
         <PurchaseSection title={`${selected.product} 需求数量与来源列表`}>
           <InfoGrid items={[
             {label:'产品编号', value:selected.code},{label:'产品名称', value:selected.product},{label:'规格型号', value:selected.model},{label:'单位', value:selected.unit},{label:'需求数量', value:selected.plan},{label:'已生产数量', value:selected.done},{label:'还需生产数量', value:selected.left},{label:'交付日期', value:selected.date},{label:'需求状态', value:<MfgTone status={selected.status}/>}
@@ -1572,7 +1591,7 @@ function MfgActionView({ config, action, onBack }) {
   if (action === '委外发料') return <MfgOutsourceRecordList type="send" />;
   if (action === '委外入库') return <MfgOutsourceRecordList type="inbound" />;
   return (
-    <PurchaseFormPage onBack={onBack} submitText="保存设置">
+    <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={onBack} submitText="保存设置">
       <PurchaseSection title={action || `${config.title}设置`}>
         <FormGrid>
           <Field label="规则名称" req><Input placeholder={`填写${action || config.title}规则名称`} /></Field>
@@ -1613,7 +1632,7 @@ function MfgPlanPolicyView({ onBack }) {
   const [autoOrder, setAutoOrder] = useMfgState('n');
   const Row = MfgPolicyRow;
   return (
-    <PurchaseFormPage onBack={onBack} submitText="保存策略">
+    <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={onBack} submitText="保存策略">
       <PurchaseSection title="生产计划策略设置">
         <div className="aw-tabs" style={{marginBottom:14}}>
           {[['kit','齐套策略'],['version','版本控制策略'],['order','下达策略']].map(([k,label])=><span key={k} className={'aw-tab '+(tab===k?'on':'')} onClick={()=>setTab(k)}>{label}</span>)}
@@ -1769,7 +1788,7 @@ function MfgOutsourcePolicyView({ onBack }) {
 
 function MfgActionTable({ title, type, onBack }) {
   return (
-    <PurchaseFormPage onBack={onBack} submitText="导出">
+    <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={onBack} submitText="导出">
       <PurchaseSection title={title}>
         <MfgDetailTable type={type} />
       </PurchaseSection>
@@ -2053,7 +2072,7 @@ function MfgReportActionView({ onBack }) {
   const submit = () => setToast({ type:'ok', text:'报工提交成功，已生成待质检记录' });
   const isFree = sourceMode === '自由模式';
   return (
-    <PurchaseFormPage onBack={onBack} submitText="提交报工">
+    <PurchaseFormPage className="aw-mfg-detail-scope aw-mfg-action-page" onBack={onBack} submitText="提交报工">
       {toast && <div style={{position:'fixed',right:28,top:76,zIndex:80,padding:'10px 14px',borderRadius:6,background:'#DBF3E6',color:'#1F7A4E',boxShadow:'0 8px 24px rgba(16,24,40,.12)'}}>{toast.text}</div>}
       <PurchaseSection title="报工信息">
         <FormGrid>

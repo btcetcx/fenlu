@@ -1,9 +1,9 @@
 // ui_kits/erp-console/purchase-form-kit.jsx
 // 采购中心表单标准组件：表单壳 / 分区 / 明细表 / 富文本
 
-function PurchaseFormPage({ onBack, children, submitText = '提交审批' }) {
+function PurchaseFormPage({ onBack, children, submitText = '提交审批', className = '' }) {
   return (
-    <div className="aw-doc-form">
+    <div className={'aw-doc-form' + (className ? ' ' + className : '')}>
       <div className="aw-doc-form-head">
         <span className="aw-link" onClick={onBack}>← 返回列表</span>
         <span style={{ flex: 1 }} />

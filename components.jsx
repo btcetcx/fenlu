@@ -65,7 +65,8 @@ const MODULES = {
   qcItem:{ name:'检验项目', code:'qcitem', hasPrint:true, hasPolicy:true },
   qcGroup:{ name:'检验资源', code:'qcgrp', hasPrint:true, hasPolicy:true },
   qcReport:{ name:'质量分析', code:'qcrpt', hasPrint:true, hasPolicy:false },
-  asService:{ name:'售后工单', code:'asvc', hasPrint:true, hasPolicy:true },
+  asService:{ name:'售后单', code:'asvc', hasPrint:true, hasPolicy:true },
+  asTask:{ name:'处理任务', code:'astask', hasPrint:true, hasPolicy:true },
   asRefundExchange:{ name:'退换退款', code:'arx', hasPrint:true, hasPolicy:true },
   asRefundReturn:{ name:'退款退货', code:'arr', hasPrint:true, hasPolicy:true },
   asRefundOnly:{ name:'仅退款', code:'aro', hasPrint:true, hasPolicy:true },
@@ -517,30 +518,22 @@ const DEPT_CONFIG = {
     title: '售后中心',
     sideItems: [
       {k:'workbench', label:'工作台'},
-      {k:'asService', label:'售后工单'},
-      {k:'asRefundExchange', label:'退换退款'},
-      {k:'asDispatch', label:'服务派工'},
+      {k:'asService', label:'售后单'},
+      {k:'asTask', label:'处理任务'},
       {k:'asQuality', label:'质量闭环'},
-      {k:'asConfig', label:'基础设置'},
     ],
     flyouts: {
-      asService:{sections:[{title:'售后工单',items:['新增售后','售后列表','售后详情','售后统计']},{title:'工单规则',items:['售后自定义字段','售后自定义编号','售后审批设置','售后策略设置','设置售后打印模板']}]},
-      asRefundExchange:{sections:[{title:'退换退款',items:['新增退换货','退换货列表','退换货审核']},{title:'处理类型',items:['退款退货','仅退款','换货','仅退货']}]},
-      asRefundReturn:{sections:[{title:'退款退货',items:['新增退款退货','退款退货列表','处理流程-仓库','处理流程-财务']},{title:'退款退货设置',items:['退换货自定义字段','退换货自定义编号','退换货审批设置','退换货策略设置','设置退换货打印模板']}]},
-      asRefundOnly:{sections:[{title:'仅退款',items:['新增仅退款','仅退款列表','处理流程-财务']},{title:'仅退款设置',items:['退换货自定义字段','退换货自定义编号','退换货审批设置','退换货策略设置','设置退换货打印模板']}]},
-      asExchange:{sections:[{title:'换货',items:['新增换货','换货列表','处理流程-仓库-入库','处理流程-仓库-出库']},{title:'换货设置',items:['退换货自定义字段','退换货自定义编号','退换货审批设置','退换货策略设置','设置退换货打印模板']}]},
-      asReturnOnly:{sections:[{title:'仅退货',items:['新增仅退货','仅退货列表','处理流程-仓库','处理流程-财务']},{title:'仅退货设置',items:['退换货自定义字段','退换货自定义编号','退换货审批设置','退换货策略设置','设置退换货打印模板']}]},
-      asDispatch:{sections:[{title:'服务派工',items:['新增售后派单','售后派单','售后处理','派单信息']},{title:'服务规则',items:['售后自定义字段','售后自定义编号','售后审批设置','售后策略设置','设置售后打印模板']}]},
-      asConfig:{sections:[{title:'基础设置',items:['售后原因','投诉问题','售后类型','问题类型','处理方式']},{title:'规则设置',items:['售后配置自定义字段','售后配置自定义编号','售后配置审批设置','售后配置策略设置','设置售后配置打印模板']}]},
+      asService:{sections:[{title:'售后单',items:['新增售后','售后列表','待受理','处理中','已关闭']},{title:'售后设置',items:['售后原因','投诉问题','售后类型','问题类型','处理方式']}]},
+      asTask:{sections:[{title:'处理任务',items:['退货入库','换货出库','退款处理','维修派工','现场服务','客户确认']},{title:'任务规则',items:['任务自定义字段','任务自定义编号','任务审批设置','任务策略设置','设置任务打印模板']}]},
       asQuality:{sections:[{title:'质量闭环',items:['新增质量改进','质量改进列表','问题追踪','改善验证']},{title:'质改规则',items:['质量改进自定义字段','质量改进自定义编号','质量改进审批设置','质量改进策略设置','设置质量改进打印模板']}]},
     },
     workbench: {
       kpis: [
-        {tone:'peach',key:'asService',label:'待处理工单',value:18,ic:'doc'},
-        {tone:'mint',key:'asRefundExchange',label:'待审核退换退款',value:9,ic:'flow'},
-        {tone:'sky',key:'asDispatch',label:'待派单',value:12,ic:'user'},
-        {tone:'rose',key:'asRefundReturn',label:'待财务退款',value:5,ic:'cart'},
-        {tone:'lilac',key:'asExchange',label:'待仓库换货',value:7,ic:'list'},
+        {tone:'peach',key:'asService',label:'待受理售后单',value:18,ic:'doc'},
+        {tone:'mint',key:'asTask',label:'待处理任务',value:9,ic:'flow'},
+        {tone:'sky',key:'asTask',label:'待维修派工',value:12,ic:'user'},
+        {tone:'rose',key:'asTask',label:'待财务退款',value:5,ic:'cart'},
+        {tone:'lilac',key:'asTask',label:'待仓库换货',value:7,ic:'list'},
         {tone:'sand',key:'asQuality',label:'待质量闭环',value:4,ic:'check'},
       ],
       moreKpis: [
@@ -552,18 +545,17 @@ const DEPT_CONFIG = {
         {tone:'sand',key:'reason',label:'待完善原因',value:1,ic:'search'},
       ],
       navTiles: [
-        {label:'工单',sub:'受理、SLA、关闭',n:128,tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},
-        {label:'退换退款',sub:'退货、退款、换货',n:26,tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},
-        {label:'派工',sub:'上门、维修、回访',n:12,tint:'#DBF3E6',fg:'#10B981',ic:'user'},
-        {label:'质量',sub:'8D、CAPA、验证',n:4,tint:'#F6EFD9',fg:'#6D5818',ic:'check'},
-        {label:'设置',sub:'原因、类型、策略',n:5,tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},
+        {label:'售后单',sub:'受理、SLA、关闭',n:128,tint:'#DCE7FB',fg:'#5677FC',ic:'doc',moduleKey:'asService',action:'售后列表'},
+        {label:'处理任务',sub:'退货、退款、维修',n:26,tint:'#DCE7FB',fg:'#5677FC',ic:'flow',moduleKey:'asTask',action:'退货入库'},
+        {label:'维修派工',sub:'上门、维修、回访',n:12,tint:'#DBF3E6',fg:'#10B981',ic:'user',moduleKey:'asTask',action:'维修派工'},
+        {label:'质量',sub:'8D、CAPA、验证',n:4,tint:'#F6EFD9',fg:'#6D5818',ic:'check',moduleKey:'asQuality',action:'质量改进列表'},
       ],
       entries: [
-        {label:'新增售后',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},
-        {label:'发起退换退款',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},
-        {label:'售后派单',tint:'#DCE7FB',fg:'#5677FC',ic:'user'},
-        {label:'退款审核',tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},
-        {label:'质量闭环',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},
+        {label:'新增售后',moduleKey:'asService',action:'新增售后',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},
+        {label:'处理任务',moduleKey:'asTask',action:'退货入库',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},
+        {label:'维修派工',moduleKey:'asTask',action:'维修派工',tint:'#DCE7FB',fg:'#5677FC',ic:'user'},
+        {label:'退款处理',moduleKey:'asTask',action:'退款处理',tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},
+        {label:'质量闭环',moduleKey:'asQuality',action:'质量改进列表',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},
       ],
     },
   },
@@ -745,20 +737,21 @@ const DEPT_CONFIG = {
       entries:[{label:'实时监测',tint:'#DCE7FB',fg:'#5677FC',ic:'search'},{label:'异常处理',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},{label:'能耗分析',tint:'#DCE7FB',fg:'#5677FC',ic:'edit'},{label:'节能方案',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},{label:'查看报表',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'}]}},
   set: {
     title: '设置中心',
-    sideItems: [{k:'workbench',label:'工作台'},{k:'system',label:'系统设置'},{k:'user',label:'用户管理'},{k:'role',label:'角色权限'},{k:'dict',label:'数据字典'},{k:'guide',label:'引导'},{k:'code',label:'编码规则'},{k:'approval',label:'审批流程'}],
+    sideItems: [{k:'workbench',label:'工作台'},{k:'system',label:'系统基础'},{k:'business',label:'业务参数'},{k:'user',label:'用户管理'},{k:'role',label:'角色权限'},{k:'dict',label:'基础数据'},{k:'code',label:'编码规则'},{k:'approval',label:'审批流程'},{k:'guide',label:'初始化引导'}],
     flyouts: {
-      system:{sections:[{title:'系统设置',items:['基础信息','系统参数','界面配置']},{title:'系统维护',items:['系统日志','数据备份','版本管理']}]},
+      system:{sections:[{title:'系统基础',items:['基础信息','系统参数','界面配置']},{title:'运维审计',items:['系统日志','数据备份','版本管理']}]},
+      business:{sections:[{title:'财务基础参数',items:['多币种配置','汇率规则','税率配置','会计期间']},{title:'价格与精度',items:['价格精度','金额精度']}]},
       user:{sections:[{title:'用户管理',items:['用户列表','新增用户','部门管理']},{title:'用户设置',items:['密码策略','登录设置']}]},
       role:{sections:[{title:'角色权限',items:['角色管理','权限分配','数据权限']},{title:'权限设置',items:['菜单权限','操作权限','字段权限']}]},
-      dict:{sections:[{title:'数据字典',items:['字典管理','字典项管理']},{title:'字典设置',items:['字典分类','编码规则']}]},
+      dict:{sections:[{title:'基础数据',items:['字典管理','字典项管理']},{title:'字典设置',items:['字典分类']}]},
       guide:{sections:[{title:'模块引导',items:['引导总览','配置任务','引导模板','进度校验']},{title:'引导设置',items:['新增引导','发布校验','操作记录']}]},
       code:{sections:[{title:'编码规则',items:['规则管理','编码预览']},{title:'规则设置',items:['规则模板','流水号设置']}]},
       approval:{sections:[{title:'审批流程',items:['流程管理','节点配置','审批策略']},{title:'流程设置',items:['流程模板','条件设置','通知设置']}]}},
     workbench:{
       kpis:[{tone:'peach',key:'user',label:'待审核用户',value:3,ic:'user'},{tone:'mint',key:'role',label:'待配置角色',value:2,ic:'check'},{tone:'sky',key:'log',label:'异常日志',value:8,ic:'list'},{tone:'rose',key:'alert',label:'系统告警',value:1,ic:'flow'},{tone:'lilac',key:'dict',label:'字典变更',value:5,ic:'edit'},{tone:'sand',key:'backup',label:'待备份数据',value:1,ic:'folder'}],
       moreKpis:[{tone:'sky',key:'license',label:'许可证到期',value:1,ic:'doc'},{tone:'mint',key:'online',label:'当前在线用户',value:86,ic:'user'},{tone:'peach',key:'task',label:'定时任务',value:12,ic:'list'},{tone:'rose',key:'error',label:'接口异常',value:2,ic:'flow'},{tone:'lilac',key:'update',label:'待升级模块',value:3,ic:'cube'},{tone:'sand',key:'audit',label:'待审计日志',value:156,ic:'search'}],
-      navTiles:[{label:'系统',sub:'系统设置',n:0,tint:'#DCE7FB',fg:'#5677FC',ic:'folder',moduleKey:'system'},{label:'用户',sub:'用户管理',n:320,tint:'#DCE7FB',fg:'#5677FC',ic:'user',moduleKey:'user'},{label:'角色',sub:'角色权限',n:28,tint:'#DCE7FB',fg:'#5677FC',ic:'check',moduleKey:'role'},{label:'字典',sub:'数据字典',n:64,tint:'#DBF3E6',fg:'#10B981',ic:'edit',moduleKey:'dict'},{label:'引导',sub:'模块引导',n:8,tint:'#FEF3CD',fg:'#B26A24',ic:'flow',moduleKey:'guide',action:'引导总览'},{label:'编码',sub:'编码规则',n:18,tint:'#E8DEFB',fg:'#8957D8',ic:'list',moduleKey:'code'},{label:'审批',sub:'审批流程',n:12,tint:'#FBDFDF',fg:'#D14D4D',ic:'flow',moduleKey:'approval'},{label:'安全',sub:'安全设置',n:0,tint:'#F6EFD9',fg:'#6D5818',ic:'search',moduleKey:'system',action:'登录设置'}],
-      entries:[{label:'用户管理',tint:'#DCE7FB',fg:'#5677FC',ic:'user',moduleKey:'user'},{label:'权限配置',tint:'#DCE7FB',fg:'#5677FC',ic:'check',moduleKey:'role'},{label:'模块引导',tint:'#DCE7FB',fg:'#5677FC',ic:'flow',moduleKey:'guide',action:'引导总览'},{label:'编码规则',tint:'#DCE7FB',fg:'#5677FC',ic:'list',moduleKey:'code'},{label:'审批流程',tint:'#DCE7FB',fg:'#5677FC',ic:'flow',moduleKey:'approval'}]}}
+      navTiles:[{label:'系统',sub:'系统基础',n:0,tint:'#DCE7FB',fg:'#5677FC',ic:'folder',moduleKey:'system',action:'基础信息'},{label:'业务',sub:'业务参数',n:4,tint:'#DBF3E6',fg:'#10B981',ic:'edit',moduleKey:'business',action:'多币种配置'},{label:'用户',sub:'用户管理',n:320,tint:'#DCE7FB',fg:'#5677FC',ic:'user',moduleKey:'user'},{label:'角色',sub:'角色权限',n:28,tint:'#DCE7FB',fg:'#5677FC',ic:'check',moduleKey:'role'},{label:'字典',sub:'基础数据',n:64,tint:'#DBF3E6',fg:'#10B981',ic:'edit',moduleKey:'dict'},{label:'编码',sub:'编码规则',n:18,tint:'#E8DEFB',fg:'#8957D8',ic:'list',moduleKey:'code'},{label:'审批',sub:'审批流程',n:12,tint:'#FBDFDF',fg:'#D14D4D',ic:'flow',moduleKey:'approval'},{label:'引导',sub:'初始化引导',n:8,tint:'#FEF3CD',fg:'#B26A24',ic:'flow',moduleKey:'guide',action:'引导总览'}],
+      entries:[{label:'多币种配置',tint:'#DCE7FB',fg:'#5677FC',ic:'edit',moduleKey:'business',action:'多币种配置'},{label:'用户管理',tint:'#DCE7FB',fg:'#5677FC',ic:'user',moduleKey:'user'},{label:'权限配置',tint:'#DCE7FB',fg:'#5677FC',ic:'check',moduleKey:'role'},{label:'编码规则',tint:'#DCE7FB',fg:'#5677FC',ic:'list',moduleKey:'code'},{label:'审批流程',tint:'#DCE7FB',fg:'#5677FC',ic:'flow',moduleKey:'approval'}]}}
 };
 
 const HELP_CENTER_ITEMS = [
@@ -938,6 +931,7 @@ function DetailHeaderCard({
   onExport,
   onPrint,
   onDisable,
+  beforeActions,
   creator = 'XXX',
   createdAt = '2024-06-07 19:49:12',
   modifier = 'XXX',
@@ -955,6 +949,7 @@ function DetailHeaderCard({
       <div style={{ display:'flex', alignItems:'center', gap:8, padding:'16px 18px', background:'#fff', border:'1px solid var(--aw-border)', borderRadius:8, marginBottom:14 }}>
         <span className="aw-link" onClick={onBack}>← 返回列表</span>
         <span style={{ flex:1 }} />
+        {beforeActions}
         <button className="aw-btn" onClick={onEdit}>修改</button>
         <button className="aw-btn" onClick={onDelete}>删除</button>
         <button className="aw-btn" onClick={onPrint}>打印</button>
@@ -1035,6 +1030,7 @@ function RefreshAction({ label = '刷新数据', compact = false, style }) {
     </span>
   );
 }
+
 function Field({ label, req, children }) {
   return (
     <div className={'aw-field' + (req?' req':'')}>

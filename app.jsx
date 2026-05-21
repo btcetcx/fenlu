@@ -57,7 +57,7 @@ function App() {
     if (subView === 'field')    return '设置自定义字段';
     if (subView === 'policy')   return `${mod?.name || ''}策略设置`;
     if (subView === 'print')    return '设置打印模板';
-    if (topActive === 'set' && side === 'guide') return '设置中心引导';
+    if (topActive === 'set' && side === 'guide') return '初始化引导';
     if (topActive === 'set' && listAction) return listAction;
     if (listAction && listAction.includes('策略设置')) return '策略设置';
     if (sideItem) return sideItem.label;
@@ -96,7 +96,11 @@ function App() {
 
           {topActive === 'prd' && <PrdScreen moduleKey={side} />}
 
-          {topActive !== 'prd' && side === 'workbench' && <WorkbenchScreen key={topActive} dept={topActive} onNavigate={handleWorkbenchNavigate} />}
+          {topActive === 'set' && side === 'workbench' && (
+            <SettingsCenterScreen section="workbench" action={listAction} onActionConsumed={() => setListAction(null)} onNavigate={handleWorkbenchNavigate} />
+          )}
+
+          {topActive !== 'prd' && topActive !== 'set' && side === 'workbench' && <WorkbenchScreen key={topActive} dept={topActive} onNavigate={handleWorkbenchNavigate} />}
 
           {topActive === 'set' && side !== 'workbench' && (
             <SettingsCenterScreen section={side} action={listAction} onActionConsumed={() => setListAction(null)} />

@@ -46,6 +46,13 @@ const PRODUCTS = [
     safeStock:5000, minStock:1000, maxStock:10000, replenish:7, storage:'C-04-30',
     desc:'0402封装电阻电容基础套装，含常用阻值/容值各50种，适用于SMT产线备料。',
     creator:'李文涛', createdAt:'2025-02-10 16:20', modifier:'老夏', modifiedAt:'2025-05-01 11:00' },
+  { id:7, code:'CP-20260521001', name:'iPhone17', model:'17 / 17Pro / 17PM', cat:'成品', subCat:'智能终端', parentCat:'fin', subCatKey:'cat-a',
+    unit:'台', source:'自制件', state:'研发', stateTone:'b', alias:'IPHONE17',
+    spec:'主产品档案，型号规格在产品规格选项中维护', modelOptions:['17','17Pro','17PM'], salesCtrl:'审批销售', minQty:1, price:'¥ 5999.00',
+    qcPlan:'终端整机质检方案', execStd:'企业标准 IP17-2026', channel:'全渠道',
+    safeStock:100, minStock:20, maxStock:500, replenish:14, storage:'FG-17-01',
+    desc:'iPhone17 主产品档案，销售下单按 17 / 17Pro / 17PM 选择型号，生产展开对应型号 BOM。',
+    creator:'老夏', createdAt:'2026-05-21 10:00', modifier:'老夏', modifiedAt:'2026-05-21 10:00' },
 ];
 
 const SALES_RECORDS = [
@@ -93,7 +100,7 @@ function ProductTree({ picked, setPicked }) {
 
   return (
     <div className="aw-doc-tree">
-      <div className="aw-doc-tree-h">产品分类 <span className="aw-doc-tree-n">(6)</span></div>
+      <div className="aw-doc-tree-h">产品分类 <span className="aw-doc-tree-n">({PRODUCTS.length})</span></div>
       <div className="aw-doc-tree-list">
         {/* 成品 */}
         <div className={'aw-tree-row aw-tree-l2' + (picked === 'fin' ? ' on' : '')}
@@ -373,9 +380,36 @@ function ProductNewView({ onBack }) {
   const [standardUnit, setStandardUnit] = useState('个');
   const [linkedCustomer, setLinkedCustomer] = useState('');
   const [customerPicker, setCustomerPicker] = useState(false);
+  const [catLevel1, setCatLevel1] = useState('');
+  const [catLevel2, setCatLevel2] = useState('');
+  const productCatTree = {
+    '成品': ['类别A', '类别B'],
+    '半成品': ['控制板组件'],
+    '原材料': ['结构原料'],
+  };
+  const [productSpecs, setProductSpecs] = useState([
+    { id:1, model:'17', spec:'标准版', remark:'标准尺寸和基础配置', enabled:true },
+    { id:2, model:'17Pro', spec:'Pro 版', remark:'Pro 结构件和主板配置', enabled:true },
+    { id:3, model:'17PM', spec:'Pro Max 版', remark:'大尺寸结构件和电池配置', enabled:true },
+  ]);
   const [salesUnits, setSalesUnits] = useState([
     { id:1, unit:'个', qty:1, barcode:'' },
   ]);
+
+  const addProductSpec = () => {
+    setProductSpecs(prev => [
+      ...prev,
+      { id:Date.now(), model:'', spec:'', remark:'', enabled:true },
+    ]);
+  };
+
+  const updateProductSpec = (id, field, value) => {
+    setProductSpecs(prev => prev.map(row => row.id === id ? { ...row, [field]: value } : row));
+  };
+
+  const removeProductSpec = (id) => {
+    setProductSpecs(prev => prev.length > 1 ? prev.filter(row => row.id !== id) : prev);
+  };
 
   const addSalesUnit = () => {
     setSalesUnits(prev => [...prev, { id:Date.now(), unit:'个', qty:1, barcode:'' }]);
@@ -407,9 +441,19 @@ function ProductNewView({ onBack }) {
             <Field label="别名码" req><Input placeholder="请输入别名码" /></Field>
             <Field label="产品编号"><Input defaultValue="自动生成" disabled /></Field>
             <Field label="产品分类" req>
-              <Select><option>请选择</option><option>成品</option><option>半成品</option><option>原材料</option></Select>
+              <Select value={catLevel1} onChange={e => { setCatLevel1(e.target.value); setCatLevel2(''); }}>
+                <option value="">请选择</option>
+                {Object.keys(productCatTree).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              </Select>
             </Field>
-            <Field label="产品规格"><Input placeholder="型号规格描述" /></Field>
+            {catLevel1 && (
+              <Field label="二级分类" req>
+                <Select value={catLevel2} onChange={e => setCatLevel2(e.target.value)}>
+                  <option value="">请选择</option>
+                  {(productCatTree[catLevel1] || []).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </Select>
+              </Field>
+            )}
             <Field label={<span>获取方式<HelpTip text="自制件走 BOM、工艺和生产流程；外购件走采购流程。该字段会影响生产计划和成本归集。" /></span>}>
               <div style={{ display:'flex', gap:0 }}>
                 <Radio on={true} onClick={() => {}}>自制件</Radio>
@@ -425,6 +469,59 @@ function ProductNewView({ onBack }) {
             <Field label={<span>产品状态<HelpTip text="研发：允许打样和生产，禁止销售下单；在售：允许全业务；停产：只允许销售现货，禁止采购/生产；停用：仅保留历史与财务调用。" /></span>}>
               <Select><option>研发</option><option>在售</option><option>停产</option><option>停用</option></Select>
             </Field>
+          </div>
+
+          <div style={{ marginTop:16, border:'1px solid #E5E7EB', borderRadius:8, overflow:'hidden', background:'#fff' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, padding:'12px 14px', borderBottom:'1px solid #E5E7EB', background:'#FAFBFC' }}>
+              <div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#111827' }}>产品型号规格选项</div>
+                <div style={{ fontSize:12, color:'#6B7280', marginTop:4 }}>销售下单选择这里维护的型号，生产再匹配对应型号的 BOM 用料。</div>
+              </div>
+              <button className="aw-btn" type="button" onClick={addProductSpec} style={{ whiteSpace:'nowrap' }}>+ 新增型号</button>
+            </div>
+            <table className="aw-table" style={{ borderRadius:0 }}>
+              <thead>
+                <tr>
+                  <th style={{ width:'22%' }}>型号编码</th>
+                  <th style={{ width:'24%' }}>规格名称</th>
+                  <th>备注</th>
+                  <th style={{ width:90 }}>启用</th>
+                  <th style={{ width:80 }}>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {productSpecs.map(row => (
+                  <tr key={row.id}>
+                    <td>
+                      <Input value={row.model} placeholder="如 17Pro"
+                        onChange={e => updateProductSpec(row.id, 'model', e.target.value)} />
+                    </td>
+                    <td>
+                      <Input value={row.spec} placeholder="如 Pro 版"
+                        onChange={e => updateProductSpec(row.id, 'spec', e.target.value)} />
+                    </td>
+                    <td>
+                      <Input value={row.remark} placeholder="结构、容量、屏幕等关键差异说明"
+                        onChange={e => updateProductSpec(row.id, 'remark', e.target.value)} />
+                    </td>
+                    <td>
+                      <label style={{ display:'inline-flex', alignItems:'center', gap:6, fontSize:12, color:'#4B5563' }}>
+                        <input type="checkbox" checked={row.enabled}
+                          onChange={e => updateProductSpec(row.id, 'enabled', e.target.checked)} />
+                        启用
+                      </label>
+                    </td>
+                    <td>
+                      {productSpecs.length > 1 && (
+                        <span className="aw-link" onClick={() => removeProductSpec(row.id)} style={{ color:'#F5222D', fontSize:12 }}>
+                          删除
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </Card>
 
@@ -628,6 +725,9 @@ function ProductDetailView({ product, onBack }) {
     { k:'pricing', label:'客户价格表' },
     { k:'log', label:'操作记录' },
   ];
+  const productModelOptions = Array.isArray(product.modelOptions) && product.modelOptions.length
+    ? product.modelOptions
+    : (product.model ? [product.model] : []);
 
   return (
     <div className="aw-doc-form">
@@ -639,7 +739,7 @@ function ProductDetailView({ product, onBack }) {
           detailItems={[
             ['产品编号', product.code],
             ['分类', `${product.cat}${product.subCat ? ' / ' + product.subCat : ''}`],
-            ['型号', product.model],
+            ['型号选项', productModelOptions.join(' / ')],
             ['规格', product.spec],
             ['创建人', product.creator],
             ['创建时间', product.createdAt],
@@ -663,6 +763,7 @@ function ProductDetailView({ product, onBack }) {
                 <KV k="别名码" v={product.alias} />
                 <KV k="产品分类"><CatBadge cat={product.cat} /></KV>
                 <KV k="产品型号" v={product.model} />
+                <KV k="规格型号选项" v={productModelOptions.join(' / ')} />
                 <KV k="产品规格" v={product.spec} />
                 <KV k="产品单位" v={product.unit} />
                 <KV k="获取方式" v={product.source} />
@@ -679,6 +780,32 @@ function ProductDetailView({ product, onBack }) {
                 <KV k="补货周期" v={product.replenish + ' 天'} />
                 <KV k="存储位置" v={product.storage} />
               </div>
+
+              {productModelOptions.length > 0 && (
+                <div style={{ marginTop:18 }}>
+                  <div className="aw-section-title">型号规格选项</div>
+                  <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ width:160 }}>型号编码</th>
+                        <th style={{ width:180 }}>规格名称</th>
+                        <th>业务说明</th>
+                        <th style={{ width:90 }}>状态</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productModelOptions.map(model => (
+                        <tr key={model}>
+                          <td className="aw-num">{model}</td>
+                          <td>{model === '17' ? '标准版' : model === '17Pro' ? 'Pro 版' : model === '17PM' ? 'Pro Max 版' : '默认规格'}</td>
+                          <td>{model === '17PM' ? '大尺寸结构件、电池与后盖组件独立匹配。' : model === '17Pro' ? 'Pro 结构件、主板和关键功能组件独立匹配。' : '销售下单选择该型号后，生产按对应型号 BOM 展开用料。'}</td>
+                          <td><Badge tone="g">启用</Badge></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
               {/* Product images */}
               <div style={{ marginTop:18 }}>

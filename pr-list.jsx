@@ -526,6 +526,7 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
 
 function PrDetailView({ onBack, data }) {
   const pr = data || PR_ROWS[0];
+  const [tab, setTab] = usePrState('info');
   const [purchaseRows, setPurchaseRows] = usePrState(null);
   const [generatedOrders, setGeneratedOrders] = usePrState(null);
   const openPurchaseModal = (rows) => setPurchaseRows(rows.filter(row => Number(row.wait || row.qty || 0) > 0));
@@ -552,65 +553,72 @@ function PrDetailView({ onBack, data }) {
         />
 
         <Card>
-          <Tabs items={[{k:'info',label:'请购信息'},{k:'log',label:'操作记录'}]} active="info" onChange={() => {}} />
-          <div className="section-title">基础信息</div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',rowGap:16,columnGap:80,fontSize:13,marginBottom:22}}>
-            <PrKV label="请购单号" value={pr.code} />
-            <PrKV label="请购编号" value={pr.code} />
-            <PrKV label="请购日期" value={pr.date} />
-            <PrKV label="请购人" value={pr.starter} />
-            <PrKV label="请购来源" value={pr.source} />
-            <PrKV label="关联单据" value={pr.ref} />
-            <PrKV label="流程状态" value={pr.state} />
-            <PrKV label="打印状态" value={pr.printState || '未打印'} />
-          </div>
-
-          <div className="section-title">请购明细</div>
-          <div style={{overflow:'auto'}}>
-            <table className="aw-doc-tbl">
-              <thead>
-                <tr>
-                  <th style={{width:50}}><div className="aw-th-inner">序号</div></th>
-                  <th style={{width:150}}><div className="aw-th-inner">来源明细</div></th>
-                  <th style={{width:110}}><div className="aw-th-inner">物料编码</div></th>
-                  <th style={{width:120}}><div className="aw-th-inner">物料名称</div></th>
-                  <th style={{width:120}}><div className="aw-th-inner">规格型号</div></th>
-                  <th style={{width:80}}><div className="aw-th-inner">单位</div></th>
-                  <th style={{width:100}}><div className="aw-th-inner">请购数量</div></th>
-                  <th style={{width:120}}><div className="aw-th-inner">期望交付日期</div></th>
-                  <th style={{width:110}}><div className="aw-th-inner">用途</div></th>
-                  <th style={{width:80}}><div className="aw-th-inner">操作</div></th>
-                </tr>
-              </thead>
-              <tbody>
-                {PR_DETAIL_ROWS.map((r, i) => (
-                  <tr key={r.code}>
-                    <td>{i + 1}</td><td>{r.sourceLine}</td><td className="aw-num">{r.code}</td><td>{r.name}</td><td>{r.spec}</td><td>{r.unit}</td><td>{r.qty}</td><td>{r.date}</td><td>{r.usage}</td><td><span className="aw-link" onClick={() => openPurchaseModal([r])}>采购</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <PrFixedSummaryBar
-            items={[
-              ['请购总数量', PR_DETAIL_ROWS.reduce((sum, row) => sum + Number(row.qty || 0), 0)],
-            ]}
-          />
-
-          <div className="section-title" style={{marginTop:18}}>请购备注</div>
-          <div style={{fontSize:13,color:'var(--aw-fg-3)',lineHeight:1.7,marginBottom:16}}>用于生产线急需物料补充，请优先安排采购询价。</div>
-
-          <div className="section-title">附件</div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
-            {[1,2,3].map(i => (
-              <div key={i} style={{border:'1px dashed var(--aw-border-strong)',borderRadius:6,padding:'12px 14px',background:'#fff'}}>
-                <div style={{fontSize:13,fontWeight:500,marginBottom:6}}>新建文本文档.PDF</div>
-                <div style={{fontSize:11,color:'var(--aw-fg-4)'}}>文件大小：0 Bytes</div>
-                <div style={{fontSize:11,color:'var(--aw-fg-4)',marginTop:2}}>上传日期：2024-08-1 17:45:27</div>
-                <div style={{display:'flex',gap:14,marginTop:14,fontSize:12}}><span className="aw-link">查看</span><span className="aw-link">下载</span></div>
+          <Tabs items={[{k:'info',label:'请购信息'},{k:'detail',label:'请购明细'},{k:'log',label:'操作记录'}]} active={tab} onChange={setTab} />
+          {tab === 'info' && (
+            <>
+              <div className="section-title">基础信息</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',rowGap:16,columnGap:80,fontSize:13,marginBottom:22}}>
+                <PrKV label="请购单号" value={pr.code} />
+                <PrKV label="请购编号" value={pr.code} />
+                <PrKV label="请购日期" value={pr.date} />
+                <PrKV label="请购人" value={pr.starter} />
+                <PrKV label="请购来源" value={pr.source} />
+                <PrKV label="关联单据" value={pr.ref} />
+                <PrKV label="流程状态" value={pr.state} />
+                <PrKV label="打印状态" value={pr.printState || '未打印'} />
               </div>
-            ))}
-          </div>
+
+              <div className="section-title" style={{marginTop:18}}>请购备注</div>
+              <div style={{fontSize:13,color:'var(--aw-fg-3)',lineHeight:1.7,marginBottom:16}}>用于生产线急需物料补充，请优先安排采购询价。</div>
+
+              <div className="section-title">附件</div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
+                {[1,2,3].map(i => (
+                  <div key={i} style={{border:'1px dashed var(--aw-border-strong)',borderRadius:6,padding:'12px 14px',background:'#fff'}}>
+                    <div style={{fontSize:13,fontWeight:500,marginBottom:6}}>新建文本文档.PDF</div>
+                    <div style={{fontSize:11,color:'var(--aw-fg-4)'}}>文件大小：0 Bytes</div>
+                    <div style={{fontSize:11,color:'var(--aw-fg-4)',marginTop:2}}>上传日期：2024-08-1 17:45:27</div>
+                    <div style={{display:'flex',gap:14,marginTop:14,fontSize:12}}><span className="aw-link">查看</span><span className="aw-link">下载</span></div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {tab === 'detail' && (
+            <>
+              <div style={{overflow:'auto', paddingTop:18}}>
+                <table className="aw-doc-tbl">
+                  <thead>
+                    <tr>
+                      <th style={{width:50}}><div className="aw-th-inner">序号</div></th>
+                      <th style={{width:150}}><div className="aw-th-inner">来源明细</div></th>
+                      <th style={{width:110}}><div className="aw-th-inner">物料编码</div></th>
+                      <th style={{width:120}}><div className="aw-th-inner">物料名称</div></th>
+                      <th style={{width:120}}><div className="aw-th-inner">规格型号</div></th>
+                      <th style={{width:80}}><div className="aw-th-inner">单位</div></th>
+                      <th style={{width:100}}><div className="aw-th-inner">请购数量</div></th>
+                      <th style={{width:120}}><div className="aw-th-inner">期望交付日期</div></th>
+                      <th style={{width:110}}><div className="aw-th-inner">用途</div></th>
+                      <th style={{width:80}}><div className="aw-th-inner">操作</div></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {PR_DETAIL_ROWS.map((r, i) => (
+                      <tr key={r.code}>
+                        <td>{i + 1}</td><td>{r.sourceLine}</td><td className="aw-num">{r.code}</td><td>{r.name}</td><td>{r.spec}</td><td>{r.unit}</td><td>{r.qty}</td><td>{r.date}</td><td>{r.usage}</td><td><span className="aw-link" onClick={() => openPurchaseModal([r])}>采购</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <PrFixedSummaryBar
+                items={[
+                  ['请购总数量', PR_DETAIL_ROWS.reduce((sum, row) => sum + Number(row.qty || 0), 0)],
+                ]}
+              />
+            </>
+          )}
+          {tab === 'log' && <div style={{fontSize:13,color:'var(--aw-fg-3)',textAlign:'center',padding:'34px 0'}}>暂无操作记录</div>}
         </Card>
       </div>
       {purchaseRows && purchaseRows.length > 0 && <PrPurchaseCreateModal pr={pr} sourceRows={purchaseRows} onClose={() => setPurchaseRows(null)} onConfirm={handlePurchaseGenerate} />}

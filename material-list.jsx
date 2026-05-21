@@ -309,6 +309,8 @@ function MaterialNewView({ onBack }) {
   const [standardUnit, setStandardUnit] = useState('个');
   const [mainSupplier, setMainSupplier] = useState('');
   const [showSupplierPicker, setShowSupplierPicker] = useState(false);
+  const [catLevel1, setCatLevel1] = useState('');
+  const [catLevel2, setCatLevel2] = useState('');
   const [unitRows, setUnitRows] = useState([
     { unit: '个', factor: '1', barcode: '' },
     { unit: '箱', factor: '100', barcode: '' },
@@ -345,13 +347,19 @@ function MaterialNewView({ onBack }) {
               <Input defaultValue="自动生成" disabled />
             </Field>
             <Field label="物料分类" req>
-              <Select>
+              <Select value={catLevel1} onChange={e => { setCatLevel1(e.target.value); setCatLevel2(''); }}>
                 <option value="">请选择分类</option>
-                <option>电子物料</option>
-                <option>机械物料</option>
-                <option>包装物料</option>
+                {Object.keys(CAT_SUB_CAT).map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </Select>
             </Field>
+            {catLevel1 && (
+              <Field label="二级分类" req>
+                <Select value={catLevel2} onChange={e => setCatLevel2(e.target.value)}>
+                  <option value="">请选择</option>
+                  {Object.keys(CAT_SUB_CAT[catLevel1] || {}).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                </Select>
+              </Field>
+            )}
             <Field label="物料规格">
               <Input placeholder="请输入规格" />
             </Field>

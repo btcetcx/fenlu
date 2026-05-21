@@ -204,7 +204,7 @@ function InquiryListView({ onNew, onView }) {
                 <th style={{width:120}}><div className="aw-th-inner">询价日期</div></th>
                 <th style={{width:120}}><div className="aw-th-inner">截止日期</div></th>
                 <PurchaseStatusFilterHeader label="询价状态" value={statusFilter} onChange={setStatusFilter} options={['询价中','询价完毕','待定价','已定价','作废']} />
-                <th style={{width:150}}><div className="aw-th-inner">操作</div></th>
+                <th style={{width:70}}><div className="aw-th-inner">操作</div></th>
               </tr>
             </thead>
             <tbody>
@@ -219,7 +219,7 @@ function InquiryListView({ onNew, onView }) {
                   <td className="aw-num">{r.date}</td>
                   <td className="aw-num">{r.deadline}</td>
                   <td><span className={'aw-state aw-state-' + r.tone}>{r.state}</span></td>
-                  <td><span className="aw-link" onClick={e => { e.stopPropagation(); onView(r); }}>查看</span>{r.state === '询价完毕' && <><span style={{margin:'0 8px',color:'var(--aw-divider)'}}>|</span><span className="aw-link" onClick={e => { e.stopPropagation(); onView(r); }}>定价</span><span style={{margin:'0 8px',color:'var(--aw-divider)'}}>|</span><span className="aw-link">终止</span><span style={{margin:'0 8px',color:'var(--aw-divider)'}}>|</span><span className="aw-link">修改</span></>}</td>
+                  <td><span className="aw-link" onClick={e => { e.stopPropagation(); onView(r); }}>查看</span></td>
                 </tr>
               ))}
             </tbody>
@@ -395,6 +395,7 @@ function InquiryKV({ label, value }) {
 
 function InquiryDetailView({ onBack, data }) {
   const inq = data || INQUIRY_ROWS[0];
+  const [tab, setTab] = useInquiryState('info');
   const [status, setStatus] = useInquiryState(inq.state);
   const [pricedQuote, setPricedQuote] = useInquiryState('');
   const finishInquiry = (quoteId) => {
@@ -416,83 +417,83 @@ function InquiryDetailView({ onBack, data }) {
           ]}
         />
         <Card>
-          <Tabs items={[{k:'info',label:'询价信息'},{k:'log',label:'操作记录'}]} active="info" onChange={() => {}} />
-          <div className="section-title">基础信息</div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',rowGap:16,columnGap:80,fontSize:13,marginBottom:22}}><InquiryKV label="询价主题" value={inq.topic} /><InquiryKV label="询价编号" value={inq.code} /><InquiryKV label="询价日期" value={inq.date} /><InquiryKV label="截止日期" value={inq.deadline} /><InquiryKV label="询价产品" value={inq.product} /><InquiryKV label="询价状态" value={status} /></div>
-          <div className="section-title">询价明细</div>
-          <div style={{overflow:'auto'}}>
-            <table className="aw-doc-tbl">
-              <thead>
-                <tr>
-                  <th style={{width:54}}><div className="aw-th-inner">序号</div></th>
-                  <th style={{width:110}}><div className="aw-th-inner">产品编号</div></th>
-                  <th style={{width:130}}><div className="aw-th-inner">产品名称</div></th>
-                  <th style={{width:110}}><div className="aw-th-inner">产品型号</div></th>
-                  <th style={{width:100}}><div className="aw-th-inner">分类</div></th>
-                  <th style={{width:90}}><div className="aw-th-inner">标准单位</div></th>
-                  <th style={{width:80}}><div className="aw-th-inner">数量</div></th>
-                  <th style={{width:150}}><div className="aw-th-inner">来源明细</div></th>
-                  <th style={{width:190}}><div className="aw-th-inner">供应商</div></th>
-                  <th style={{width:110}}><div className="aw-th-inner">供应商类型</div></th>
-                  <th style={{width:90}}><div className="aw-th-inner">报价版本</div></th>
-                  <th style={{width:90}}><div className="aw-th-inner">单价</div></th>
-                  <th style={{width:90}}><div className="aw-th-inner">是否含税</div></th>
-                  <th style={{width:80}}><div className="aw-th-inner">折扣</div></th>
-                  <th style={{width:90}}><div className="aw-th-inner">金额</div></th>
-                  <th style={{width:80}}><div className="aw-th-inner">税额</div></th>
-                  <th style={{width:110}}><div className="aw-th-inner">交货期</div></th>
-                  <th style={{width:110}}><div className="aw-th-inner">最小采购量</div></th>
-                  <th style={{width:120}}><div className="aw-th-inner">采购生成</div></th>
-                  <th style={{width:90}}><div className="aw-th-inner">操作</div></th>
-                </tr>
-              </thead>
-              <tbody>
-                {INQUIRY_DETAIL_ROWS.map((r, i) => (
-                  <React.Fragment key={r.id}>
-                    <tr style={{background:'var(--aw-surface-2)'}}>
-                      <td colSpan={20}>
-                        <div style={{display:'flex',alignItems:'center',gap:18,flexWrap:'wrap'}}>
-                          <span className="aw-num">{i + 1}</span>
-                          <span>产品编号：<span className="aw-num">{r.code}</span></span>
-                          <span>产品名称：{r.name}</span>
-                          <span>产品型号：{r.model}</span>
-                          <span>分类：{r.category}</span>
-                          <span>标准单位：{r.unit}</span>
-                          <span>数量：<span className="aw-num">{r.qty}</span></span>
-                        </div>
-                      </td>
-                    </tr>
-                    {r.suppliers.map((s, si) => (
-                      <tr key={s.id}>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>{getInquirySourceLabel(s, si)}</td>
-                        <td>{s.supplier}</td>
-                        <td>{s.temp ? <span className="aw-state aw-state-b">临时</span> : <span className="aw-state aw-state-g">正式</span>}</td>
-                        <td>{s.quoteVersion}</td>
-                        <td className="aw-num">{s.price}</td>
-                        <td>{s.taxed}</td>
-                        <td>{s.discount}</td>
-                        <td className="aw-num">{s.amount}</td>
-                        <td className="aw-num">{s.tax}</td>
-                        <td className="aw-num">{s.delivery}</td>
-                        <td className="aw-num">{s.minQty}</td>
-                        <td>{pricedQuote === s.id ? <span className="aw-state aw-state-y">{s.temp ? '待转正供应商' : '待生成采购'}</span> : s.purchaseState}</td>
-                        <td>{pricedQuote === s.id ? <span className="aw-state aw-state-g">已定价</span> : <span className="aw-link" onClick={() => finishInquiry(s.id)}>定价</span>}</td>
+          <Tabs items={[{k:'info',label:'询价信息'},{k:'detail',label:'询价明细'},{k:'log',label:'操作记录'}]} active={tab} onChange={setTab} />
+          {tab === 'info' && (
+            <>
+              <div className="section-title">基础信息</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',rowGap:16,columnGap:80,fontSize:13,marginBottom:22}}><InquiryKV label="询价主题" value={inq.topic} /><InquiryKV label="询价编号" value={inq.code} /><InquiryKV label="询价日期" value={inq.date} /><InquiryKV label="截止日期" value={inq.deadline} /><InquiryKV label="询价产品" value={inq.product} /><InquiryKV label="询价状态" value={status} /></div>
+              <div className="section-title" style={{marginTop:18}}>询价备注</div><div style={{fontSize:13,color:'var(--aw-fg-3)',lineHeight:1.7,marginBottom:16}}>请供应商在截止日期前反馈含税价、交期和最小采购量。完成定价后，系统保存来源明细、供应商类型、报价版本和采购生成状态；临时供应商必须转正后才允许设为主供应商或长期默认供应商。</div>
+              <div className="section-title">附件</div><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>{[1,2,3].map(i=><div key={i} style={{border:'1px dashed var(--aw-border-strong)',borderRadius:6,padding:'12px 14px',background:'#fff'}}><div style={{fontSize:13,fontWeight:500,marginBottom:6}}>新建文本文档.PDF</div><div style={{fontSize:11,color:'var(--aw-fg-4)'}}>文件大小：0 Bytes</div><div style={{fontSize:11,color:'var(--aw-fg-4)',marginTop:2}}>上传日期：2024-08-1 17:45:27</div><div style={{display:'flex',gap:14,marginTop:14,fontSize:12}}><span className="aw-link">查看</span><span className="aw-link">下载</span></div></div>)}</div>
+            </>
+          )}
+          {tab === 'detail' && (
+            <div style={{overflow:'auto', paddingTop:18}}>
+              <table className="aw-doc-tbl">
+                <thead>
+                  <tr>
+                    <th style={{width:54}}><div className="aw-th-inner">序号</div></th>
+                    <th style={{width:110}}><div className="aw-th-inner">产品编号</div></th>
+                    <th style={{width:130}}><div className="aw-th-inner">产品名称</div></th>
+                    <th style={{width:110}}><div className="aw-th-inner">产品型号</div></th>
+                    <th style={{width:100}}><div className="aw-th-inner">分类</div></th>
+                    <th style={{width:90}}><div className="aw-th-inner">标准单位</div></th>
+                    <th style={{width:80}}><div className="aw-th-inner">数量</div></th>
+                    <th style={{width:150}}><div className="aw-th-inner">来源明细</div></th>
+                    <th style={{width:190}}><div className="aw-th-inner">供应商</div></th>
+                    <th style={{width:110}}><div className="aw-th-inner">供应商类型</div></th>
+                    <th style={{width:90}}><div className="aw-th-inner">报价版本</div></th>
+                    <th style={{width:90}}><div className="aw-th-inner">单价</div></th>
+                    <th style={{width:90}}><div className="aw-th-inner">是否含税</div></th>
+                    <th style={{width:80}}><div className="aw-th-inner">折扣</div></th>
+                    <th style={{width:90}}><div className="aw-th-inner">金额</div></th>
+                    <th style={{width:80}}><div className="aw-th-inner">税额</div></th>
+                    <th style={{width:110}}><div className="aw-th-inner">交货期</div></th>
+                    <th style={{width:110}}><div className="aw-th-inner">最小采购量</div></th>
+                    <th style={{width:120}}><div className="aw-th-inner">采购生成</div></th>
+                    <th style={{width:90}}><div className="aw-th-inner">操作</div></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {INQUIRY_DETAIL_ROWS.map((r, i) => (
+                    <React.Fragment key={r.id}>
+                      <tr style={{background:'var(--aw-surface-2)'}}>
+                        <td colSpan={20}>
+                          <div style={{display:'flex',alignItems:'center',gap:18,flexWrap:'wrap'}}>
+                            <span className="aw-num">{i + 1}</span>
+                            <span>产品编号：<span className="aw-num">{r.code}</span></span>
+                            <span>产品名称：{r.name}</span>
+                            <span>产品型号：{r.model}</span>
+                            <span>分类：{r.category}</span>
+                            <span>标准单位：{r.unit}</span>
+                            <span>数量：<span className="aw-num">{r.qty}</span></span>
+                          </div>
+                        </td>
                       </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="section-title" style={{marginTop:18}}>询价备注</div><div style={{fontSize:13,color:'var(--aw-fg-3)',lineHeight:1.7,marginBottom:16}}>请供应商在截止日期前反馈含税价、交期和最小采购量。完成定价后，系统保存来源明细、供应商类型、报价版本和采购生成状态；临时供应商必须转正后才允许设为主供应商或长期默认供应商。</div>
-          <div className="section-title">附件</div><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>{[1,2,3].map(i=><div key={i} style={{border:'1px dashed var(--aw-border-strong)',borderRadius:6,padding:'12px 14px',background:'#fff'}}><div style={{fontSize:13,fontWeight:500,marginBottom:6}}>新建文本文档.PDF</div><div style={{fontSize:11,color:'var(--aw-fg-4)'}}>文件大小：0 Bytes</div><div style={{fontSize:11,color:'var(--aw-fg-4)',marginTop:2}}>上传日期：2024-08-1 17:45:27</div><div style={{display:'flex',gap:14,marginTop:14,fontSize:12}}><span className="aw-link">查看</span><span className="aw-link">下载</span></div></div>)}</div>
+                      {r.suppliers.map((s, si) => (
+                        <tr key={s.id}>
+                          <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                          <td>{getInquirySourceLabel(s, si)}</td>
+                          <td>{s.supplier}</td>
+                          <td>{s.temp ? <span className="aw-state aw-state-b">临时</span> : <span className="aw-state aw-state-g">正式</span>}</td>
+                          <td>{s.quoteVersion}</td>
+                          <td className="aw-num">{s.price}</td>
+                          <td>{s.taxed}</td>
+                          <td>{s.discount}</td>
+                          <td className="aw-num">{s.amount}</td>
+                          <td className="aw-num">{s.tax}</td>
+                          <td className="aw-num">{s.delivery}</td>
+                          <td className="aw-num">{s.minQty}</td>
+                          <td>{pricedQuote === s.id ? <span className="aw-state aw-state-y">{s.temp ? '待转正供应商' : '待生成采购'}</span> : s.purchaseState}</td>
+                          <td>{pricedQuote === s.id ? <span className="aw-state aw-state-g">已定价</span> : <span className="aw-link" onClick={() => finishInquiry(s.id)}>定价</span>}</td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {tab === 'log' && <div style={{fontSize:13,color:'var(--aw-fg-3)',textAlign:'center',padding:'34px 0'}}>暂无操作记录</div>}
         </Card>
       </div>
     </div>

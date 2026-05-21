@@ -1,6 +1,6 @@
 // PRD 文档中心：从现有原型反推给开发使用的模块说明
 const { useState: usePrdState } = React;
-const PRD_HIDE_FEEDBACK_SECTION = typeof window !== 'undefined' && window.location.pathname.split('/').includes('1');
+const PRD_HIDE_FEEDBACK_SECTION = true;
 
 const PRD_MODULES = {
   prdRd: {

@@ -247,7 +247,7 @@ function ProcOutputTab({ proc, onUpdate }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
       <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-        <span style={{ fontSize:13, color:'#374151' }}>产出物</span>
+        <span style={{ fontSize:13, color:'#374151' }}>副产品</span>
         <span className={'aw-switch'+(proc.outputEnabled?'':' off')} onClick={()=>onUpdate({outputEnabled:!proc.outputEnabled})} />
       </div>
       {proc.outputEnabled && (<>
@@ -258,7 +258,7 @@ function ProcOutputTab({ proc, onUpdate }) {
           </select>
           <button onClick={add} style={{ border:'1px solid #5677FC', color:'#5677FC', background:'none', borderRadius:4, padding:'5px 12px', fontSize:12, cursor:'pointer', whiteSpace:'nowrap' }}>添加</button>
         </div>
-        {!(proc.outputs||[]).length && <div style={{ color:'#9CA3AF', fontSize:12, textAlign:'center', padding:'16px 0' }}>暂无产出物</div>}
+        {!(proc.outputs||[]).length && <div style={{ color:'#9CA3AF', fontSize:12, textAlign:'center', padding:'16px 0' }}>暂无副产品</div>}
         {!!(proc.outputs||[]).length && (
           <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
             <thead><tr style={{ background:'#F9FAFB' }}>
@@ -289,7 +289,7 @@ function CraftProcPanel({ proc, onUpdate, onClose }) {
   const TABS = [
     {k:'base',label:'基础信息'},{k:'pos',label:'工位'},
     {k:'hours',label:'工时'},{k:'params',label:'技术参数'},
-    {k:'qc',label:'质检设置'},{k:'output',label:'产出物'},
+    {k:'qc',label:'质检设置'},{k:'output',label:'副产品'},
   ];
   const isOut = proc.type==='outsource';
   const isRework = proc.routeType==='rework';
@@ -660,7 +660,7 @@ function CraftDetailScreenLegacy({ data, onBack }) {
           {tab === 'params' && (
             <div className="aw-table-scroll" style={{ paddingTop:18 }}>
               <table className="aw-table">
-                <thead><tr>{['序号','工序编号','工序名称','工序类型','默认执行','标准工时','质检方案','产出物'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+                <thead><tr>{['序号','工序编号','工序名称','工序类型','默认执行','标准工时','质检方案','副产品'].map(h => <th key={h}>{h}</th>)}</tr></thead>
                 <tbody>
                   {paramRows.map(r => <tr key={r.seq}><td>{r.seq}</td><td className="aw-num aw-link">{r.code}</td><td>{r.name}</td><td>{r.type}</td><td>{r.work}</td><td>{r.hours}</td><td>{r.qc}</td><td>{r.output}</td></tr>)}
                 </tbody>
@@ -915,7 +915,7 @@ function CraftDetailScreenV2({ data, onBack }) {
           {tab === 'params' && (
             <div className="aw-table-scroll" style={{paddingTop:18}}>
               <table className="aw-table">
-                <thead><tr>{['序号','工序编号','工序名称','工序类型','默认执行','标准工时','质检方案','产出物'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+                <thead><tr>{['序号','工序编号','工序名称','工序类型','默认执行','标准工时','质检方案','副产品'].map(h => <th key={h}>{h}</th>)}</tr></thead>
                 <tbody>{paramRows.map(r => <tr key={r.seq}><td>{r.seq}</td><td className="aw-num aw-link">{r.code}</td><td>{r.name}</td><td>{r.type}</td><td>{r.work}</td><td>{r.hours}</td><td>{r.qc}</td><td>{r.output}</td></tr>)}</tbody>
               </table>
             </div>
@@ -933,9 +933,10 @@ function CraftDetailScreenV2({ data, onBack }) {
                   ['引用状态', '未被在制订单锁定'],
                 ].map(([label, value]) => <div className="aw-kv" key={label}><div className="aw-kv-l">{label}</div><div className="aw-kv-v">{value}</div></div>)}
               </div>
-              <Card title="工艺详情" style={{marginTop:16}}>
-                <div style={{fontSize:13,lineHeight:1.9,color:'var(--aw-fg-2)',whiteSpace:'pre-wrap'}}>{CRAFT_DETAIL_TEXT_V2}</div>
-              </Card>
+              <div style={{marginTop:18}}>
+                <div className="aw-section-title">工艺详情</div>
+                <div style={{fontSize:13,lineHeight:1.9,color:'var(--aw-fg-2)',whiteSpace:'pre-wrap',marginTop:12}}>{CRAFT_DETAIL_TEXT_V2}</div>
+              </div>
             </div>
           )}
           {tab === 'log' && <div style={{fontSize:13,color:'var(--aw-fg-3)',textAlign:'center',padding:'34px 0'}}>暂无操作记录</div>}

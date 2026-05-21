@@ -120,6 +120,32 @@ const SETTING_SYSTEM_ROWS = [
   { name: '数据备份策略', scope: '每日增量 / 每周全量', owner: '运维管理员', updated: '2026-05-15 23:00', enabled: false },
 ];
 
+const SETTING_BUSINESS_PARAMS = [
+  { name: '多币种配置', scope: '采购 / 销售 / 财务', owner: '财务管理员', updated: '2026-05-21 10:00', enabled: true, tab: 'currency' },
+  { name: '税率配置', scope: '报价 / 采购 / 发票', owner: '财务管理员', updated: '2026-05-20 15:42', enabled: true, tab: 'tax' },
+  { name: '会计期间', scope: '财务结账 / 成本核算', owner: '财务管理员', updated: '2026-05-19 17:10', enabled: true, tab: 'period' },
+  { name: '价格精度规则', scope: '销售 / 采购 / 库存成本', owner: '系统管理员', updated: '2026-05-18 11:26', enabled: true, tab: 'precision' },
+];
+
+const SETTING_CURRENCY_ROWS = [
+  { code: 'CNY', name: '人民币', symbol: '¥', rate: '1.0000', decimal: 2, rounding: '四舍五入', scope: '本位币', enabled: true, updated: '2026-05-21' },
+  { code: 'USD', name: '美元', symbol: '$', rate: '7.1800', decimal: 2, rounding: '四舍五入', scope: '采购 / 销售 / 应收应付', enabled: true, updated: '2026-05-21' },
+  { code: 'EUR', name: '欧元', symbol: '€', rate: '7.8200', decimal: 2, rounding: '四舍五入', scope: '销售 / 应收', enabled: true, updated: '2026-05-20' },
+  { code: 'HKD', name: '港币', symbol: 'HK$', rate: '0.9200', decimal: 2, rounding: '四舍五入', scope: '采购 / 付款', enabled: false, updated: '2026-05-18' },
+];
+
+const SETTING_RATE_ROWS = [
+  { scene: '销售报价', source: '交易日即期汇率', lock: '报价确认后锁定', diff: '应收结算确认汇兑损益' },
+  { scene: '采购订单', source: '单据日期汇率', lock: '订单审核后锁定', diff: '付款核销确认汇兑损益' },
+  { scene: '期末重估', source: '月末基准汇率', lock: '结账后冻结', diff: '自动生成重估凭证' },
+];
+
+const SETTING_TAX_ROWS = [
+  { name: '增值税 13%', rate: '13%', scope: '标准销售 / 标准采购', status: '启用' },
+  { name: '增值税 9%', rate: '9%', scope: '物流运输 / 特定服务', status: '启用' },
+  { name: '零税率', rate: '0%', scope: '出口 / 免税业务', status: '启用' },
+];
+
 const SETTING_USERS = [
   { id: 'U-10001', name: '老夏', dept: '研发中心', role: '系统管理员', state: '启用', last: '今天 09:34' },
   { id: 'U-10018', name: '李文涛', dept: '采购中心', role: '采购主管', state: '启用', last: '昨天 17:21' },
@@ -156,8 +182,8 @@ const SETTING_BUTTON_ACTIONS = [
 const SETTING_BUTTON_SCOPES = [
   { key: 'settings_user', module: '设置中心', page: '用户管理' },
   { key: 'settings_role', module: '设置中心', page: '角色权限' },
-  { key: 'settings_dict', module: '设置中心', page: '数据字典' },
-  { key: 'settings_guide', module: '设置中心', page: '模块引导' },
+  { key: 'settings_dict', module: '设置中心', page: '基础数据' },
+  { key: 'settings_guide', module: '设置中心', page: '初始化引导' },
   { key: 'rd_doc', module: '研发中心', page: '文档库' },
   { key: 'pur_order', module: '采购中心', page: '采购订单' },
   { key: 'sale_order', module: '销售中心', page: '销售订单' },
@@ -169,7 +195,7 @@ const SETTING_FIELD_SCOPES = [
   { key: 'settings_user_name', module: '设置中心', page: '用户管理', field: '姓名' },
   { key: 'settings_user_phone', module: '设置中心', page: '用户管理', field: '手机号' },
   { key: 'settings_role_data', module: '设置中心', page: '角色权限', field: '数据权限' },
-  { key: 'settings_dict_value', module: '设置中心', page: '数据字典', field: '字典值' },
+  { key: 'settings_dict_value', module: '设置中心', page: '基础数据', field: '字典值' },
   { key: 'rd_doc_security', module: '研发中心', page: '文档库', field: '安全策略' },
   { key: 'pur_supplier_price', module: '采购中心', page: '供应商', field: '采购价' },
   { key: 'sale_customer_credit', module: '销售中心', page: '客户管理', field: '信用额度' },
@@ -252,9 +278,11 @@ function SettingsEmptyRow({ colSpan, text = '暂无匹配数据' }) {
   return <tr><td colSpan={colSpan} style={{ padding: '46px 0', textAlign: 'center', color: 'var(--aw-fg-4)' }}>{text}</td></tr>;
 }
 
-function SettingsCenterScreen({ section = 'workbench', action = null, onActionConsumed }) {
+function SettingsCenterScreen({ section = 'workbench', action = null, onActionConsumed, onNavigate }) {
   const [systemRows, setSystemRows] = useSettingsState(SETTING_SYSTEM_ROWS);
+  const [businessRows, setBusinessRows] = useSettingsState(SETTING_BUSINESS_PARAMS);
   const [systemTab, setSystemTab] = useSettingsState('basic');
+  const [businessTab, setBusinessTab] = useSettingsState('currency');
   const [activeGuide, setActiveGuide] = useSettingsState('rd');
   const [guideMode, setGuideMode] = useSettingsState('overview');
   const [guideAction, setGuideAction] = useSettingsState(null);
@@ -278,11 +306,20 @@ function SettingsCenterScreen({ section = 'workbench', action = null, onActionCo
       if (action.includes('数据备份')) setSystemTab('backup');
       if (action.includes('版本管理')) setSystemTab('version');
     }
-    if (section !== 'system') onActionConsumed && onActionConsumed();
+    if (section === 'business') {
+      if (action.includes('多币种') || action.includes('汇率')) setBusinessTab('currency');
+      if (action.includes('税率')) setBusinessTab('tax');
+      if (action.includes('会计期间') || action.includes('结账')) setBusinessTab('period');
+      if (action.includes('价格精度') || action.includes('金额精度')) setBusinessTab('precision');
+    }
+    onActionConsumed && onActionConsumed();
   }, [action, section]);
 
   const toggleSystem = (idx) => {
     setSystemRows(prev => prev.map((row, i) => i === idx ? { ...row, enabled: !row.enabled } : row));
+  };
+  const toggleBusiness = (idx) => {
+    setBusinessRows(prev => prev.map((row, i) => i === idx ? { ...row, enabled: !row.enabled } : row));
   };
 
   if (section === 'code') return <SettingsCodeRulesPage />;
@@ -293,16 +330,25 @@ function SettingsCenterScreen({ section = 'workbench', action = null, onActionCo
   if (section === 'user') return <SettingsUserPage />;
   if (section === 'role') return <SettingsRolePage />;
   if (section === 'dict') return <SettingsDictPage />;
+  if (section === 'business') return <SettingsBusinessPage rows={businessRows} setRows={setBusinessRows} onToggle={toggleBusiness} tab={businessTab} setTab={setBusinessTab} />;
   if (section === 'system') return <SettingsSystemPage rows={systemRows} setRows={setSystemRows} onToggle={toggleSystem} tab={systemTab} setTab={setSystemTab} />;
-  return <SettingsWorkbenchPage />;
+  return <SettingsWorkbenchPage onNavigate={onNavigate} />;
 }
 
-function SettingsWorkbenchPage() {
+function SettingsWorkbenchPage({ onNavigate }) {
   const cards = [
-    { label: '模块引导', value: SETTING_MODULE_GUIDES.length, sub: '按中心推进配置', tone: '#EEF1FF', color: '#5677FC' },
-    { label: '待完善配置', value: 3, sub: '销售 / 生产 / 财务', tone: '#FDECDC', color: '#B26A24' },
+    { label: '业务参数', value: SETTING_BUSINESS_PARAMS.length, sub: '财务 / 价格 / 税务', tone: '#EEF1FF', color: '#5677FC' },
+    { label: '待完善配置', value: 2, sub: '生产 / 能耗', tone: '#FDECDC', color: '#B26A24' },
     { label: '启用用户', value: 319, sub: '含管理员账号', tone: '#DBF3E6', color: '#1F7A4E' },
     { label: '字典项', value: 64, sub: '跨模块引用', tone: '#E8DEFB', color: '#8957D8' },
+  ];
+  const quick = [
+    { label: '系统基础', sub: '企业资料 / 安全 / 界面', moduleKey: 'system', action: '基础信息' },
+    { label: '多币种配置', sub: '币种 / 汇率 / 重估', moduleKey: 'business', action: '多币种配置' },
+    { label: '税率配置', sub: '税率档案 / 适用范围', moduleKey: 'business', action: '税率配置' },
+    { label: '用户管理', sub: '账号 / 部门 / 状态', moduleKey: 'user' },
+    { label: '角色权限', sub: '菜单 / 数据 / 字段', moduleKey: 'role' },
+    { label: '编码规则', sub: '编号规则 / 预览', moduleKey: 'code' },
   ];
   return (
     <>
@@ -320,6 +366,16 @@ function SettingsWorkbenchPage() {
           ))}
         </div>
       </Card>
+      <Card title="常用配置入口">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
+          {quick.map(item => (
+            <div key={item.label} onClick={() => onNavigate && onNavigate(item.moduleKey, item.action)} style={{ border: '1px solid var(--aw-border)', borderRadius: 8, padding: 14, background: '#fff', cursor: 'pointer' }}>
+              <div style={{ fontWeight: 700 }}>{item.label}</div>
+              <div style={{ fontSize: 12, color: 'var(--aw-fg-3)', marginTop: 6 }}>{item.sub}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
       <Card title="设置中心功能地图">
         <div className="aw-doc-tbl-wrap" style={{ border: 0, borderRadius: 0 }}>
           <table className="aw-doc-tbl">
@@ -333,11 +389,13 @@ function SettingsWorkbenchPage() {
             </thead>
             <tbody>
               {[
-                ['系统设置', '企业信息、安全参数、备份维护', '启停参数、查看日志、维护备份', '已补齐'],
-                ['用户管理', '账号、部门、登录状态', '新增用户、停用账号、重置密码', '已补齐'],
-                ['角色权限', '角色、菜单、数据、字段权限', '分配权限、复制角色、查看成员', '已补齐'],
-                ['数据字典', '跨模块枚举与基础字典', '维护字典项、停启用、同步引用', '已补齐'],
-                ['模块引导', '按业务中心推进初始化配置', '查看进度、生成任务、套用模板', '新增'],
+                ['系统基础', '企业资料、登录安全、界面偏好', '维护企业信息、配置安全与界面', '已补齐'],
+                ['业务参数', '币种、汇率、税率、会计期间、价格精度', '启停参数、维护币种、保存规则', '已补齐'],
+                ['权限安全', '用户、角色、菜单、数据、字段权限', '新增用户、分配权限、复制角色', '已补齐'],
+                ['基础数据', '跨模块枚举与基础字典', '维护字典项、停启用、同步引用', '已补齐'],
+                ['流程规则', '编码规则、审批流程', '设置规则、预览编码、配置审批', '已补齐'],
+                ['运维审计', '系统日志、数据备份、版本管理', '查看日志、校验备份、版本回滚', '已补齐'],
+                ['初始化引导', '按业务中心推进初始化配置', '查看进度、生成任务、套用模板', '新增'],
               ].map(row => (
                 <tr key={row[0]}>
                   <td style={{ fontWeight: 600 }}>{row[0]}</td>
@@ -350,6 +408,212 @@ function SettingsWorkbenchPage() {
           </table>
         </div>
       </Card>
+    </>
+  );
+}
+
+function SettingsBusinessPage({ rows, setRows, onToggle, tab, setTab }) {
+  const [kw, setKw] = useSettingsState('');
+  const [modal, setModal] = useSettingsState(null);
+  const [toast, setToast] = useSettingsState('');
+  const [currencies, setCurrencies] = useSettingsState(SETTING_CURRENCY_ROWS);
+  const [currencyForm, setCurrencyForm] = useSettingsState(SETTING_CURRENCY_ROWS[0]);
+  const [currencyConfig, setCurrencyConfig] = useSettingsState({
+    enabled: true,
+    baseCurrency: 'CNY',
+    rateSource: '央行中间价',
+    rateUpdate: '每日自动更新',
+    voucherRate: '单据日期汇率',
+    priceDecimal: '2',
+    amountDecimal: '2',
+    gainAccount: '财务费用-汇兑收益',
+    lossAccount: '财务费用-汇兑损失',
+    revalue: '月末自动重估',
+    modules: { purchase: true, sale: true, receivable: true, payable: true, inventory: false },
+  });
+
+  const tabs = [
+    { k: 'overview', label: '参数总览' },
+    { k: 'currency', label: '多币种配置' },
+    { k: 'tax', label: '税率配置' },
+    { k: 'period', label: '会计期间' },
+    { k: 'precision', label: '价格精度' },
+  ];
+  const titleMap = {
+    overview: '业务参数总览',
+    currency: '多币种配置',
+    tax: '税率配置',
+    period: '会计期间',
+    precision: '价格精度',
+  };
+  const filtered = rows.filter(row => [row.name, row.scope, row.owner].join(' ').includes(kw.trim()));
+
+  const openCurrency = (row) => {
+    setCurrencyForm(row ? { ...row } : { code: '', name: '', symbol: '', rate: '1.0000', decimal: 2, rounding: '四舍五入', scope: '采购 / 销售', enabled: true, updated: settingsNow().slice(0, 10) });
+    setModal({ type: row ? 'currencyEdit' : 'currencyNew', code: row?.code });
+  };
+  const saveCurrency = () => {
+    if (!currencyForm.code.trim() || !currencyForm.name.trim()) return;
+    const next = { ...currencyForm, code: currencyForm.code.toUpperCase(), updated: settingsNow().slice(0, 10) };
+    if (modal?.type === 'currencyEdit') setCurrencies(prev => prev.map(row => row.code === modal.code ? next : row));
+    else setCurrencies(prev => [...prev, next]);
+    setModal(null);
+    setToast('币种配置已保存');
+  };
+  const saveBusinessParam = (row, idx) => {
+    setRows(prev => prev.map((item, i) => i === idx ? { ...item, updated: settingsNow() } : item));
+    setTab(row.tab || 'overview');
+    setToast(`${row.name}已打开`);
+  };
+  const saveCurrencyConfig = () => setToast('多币种配置已保存');
+  const setModule = (key, value) => setCurrencyConfig(prev => ({ ...prev, modules: { ...prev.modules, [key]: value } }));
+
+  return (
+    <>
+      <Card title={titleMap[tab] || '业务参数'}>
+        <Tabs items={tabs} active={tab} onChange={setTab} />
+        {tab === 'overview' && (
+          <>
+            <div className="aw-doc-tb" style={{ marginBottom: 12 }}>
+              <div className="aw-doc-search"><input placeholder="搜索业务参数、作用范围、负责人" value={kw} onChange={e => setKw(e.target.value)} /></div>
+            </div>
+            <table className="aw-table" style={{ width: '100%' }}>
+              <thead><tr><th>参数项</th><th>作用范围</th><th>负责人</th><th>更新时间</th><th>启用</th><th>操作</th></tr></thead>
+              <tbody>
+                {filtered.map((row) => {
+                  const idx = rows.indexOf(row);
+                  return (
+                    <tr key={row.name}>
+                      <td>{row.name}</td><td>{row.scope}</td><td>{row.owner}</td><td className="aw-num">{row.updated}</td>
+                      <td><Switch on={row.enabled} onChange={() => onToggle(idx)} /></td>
+                      <td><span className="aw-link" onClick={() => saveBusinessParam(row, idx)}>配置</span><span className="aw-link" style={{ marginLeft: 12 }} onClick={() => setModal({ type: 'paramLog', row })}>查看日志</span></td>
+                    </tr>
+                  );
+                })}
+                {filtered.length === 0 && <SettingsEmptyRow colSpan={6} />}
+              </tbody>
+            </table>
+          </>
+        )}
+        {tab === 'currency' && (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px', gap: 18, alignItems: 'start' }}>
+              <div>
+                <FormGrid columns={3}>
+                  <Field label="启用多币种"><div style={{ paddingTop: 6 }}><Switch on={currencyConfig.enabled} onChange={enabled => setCurrencyConfig(v => ({ ...v, enabled }))} /></div></Field>
+                  <Field label="本位币"><Select value={currencyConfig.baseCurrency} onChange={e => setCurrencyConfig(v => ({ ...v, baseCurrency: e.target.value }))}>{currencies.map(row => <option key={row.code}>{row.code}</option>)}</Select></Field>
+                  <Field label="汇率来源"><Select value={currencyConfig.rateSource} onChange={e => setCurrencyConfig(v => ({ ...v, rateSource: e.target.value }))}><option>央行中间价</option><option>手工维护</option><option>月末固定汇率</option><option>外部接口同步</option></Select></Field>
+                  <Field label="更新频率"><Select value={currencyConfig.rateUpdate} onChange={e => setCurrencyConfig(v => ({ ...v, rateUpdate: e.target.value }))}><option>每日自动更新</option><option>每周更新</option><option>月末更新</option><option>手工更新</option></Select></Field>
+                  <Field label="单据取值"><Select value={currencyConfig.voucherRate} onChange={e => setCurrencyConfig(v => ({ ...v, voucherRate: e.target.value }))}><option>单据日期汇率</option><option>审核日期汇率</option><option>结算日期汇率</option><option>手工指定汇率</option></Select></Field>
+                  <Field label="期末重估"><Select value={currencyConfig.revalue} onChange={e => setCurrencyConfig(v => ({ ...v, revalue: e.target.value }))}><option>月末自动重估</option><option>季度重估</option><option>手工重估</option><option>不重估</option></Select></Field>
+                  <Field label="单价小数位"><Select value={currencyConfig.priceDecimal} onChange={e => setCurrencyConfig(v => ({ ...v, priceDecimal: e.target.value }))}><option>2</option><option>4</option><option>6</option></Select></Field>
+                  <Field label="金额小数位"><Select value={currencyConfig.amountDecimal} onChange={e => setCurrencyConfig(v => ({ ...v, amountDecimal: e.target.value }))}><option>2</option><option>4</option></Select></Field>
+                  <Field label="汇兑收益科目"><Input value={currencyConfig.gainAccount} onChange={e => setCurrencyConfig(v => ({ ...v, gainAccount: e.target.value }))} /></Field>
+                  <Field label="汇兑损失科目"><Input value={currencyConfig.lossAccount} onChange={e => setCurrencyConfig(v => ({ ...v, lossAccount: e.target.value }))} /></Field>
+                </FormGrid>
+                <div style={{ marginTop: 14, borderTop: '1px solid var(--aw-divider)' }}>
+                  {[
+                    ['purchase', '采购单据', '请购、询价、采购订单、采购退货'],
+                    ['sale', '销售单据', '报价、合同、销售订单、销售退货'],
+                    ['receivable', '应收管理', '客户结算、收款核销、汇兑损益'],
+                    ['payable', '应付管理', '供应商结算、付款核销、汇兑损益'],
+                    ['inventory', '库存成本', '外币采购入库成本折算'],
+                  ].map(([key, title, sub]) => (
+                    <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--aw-divider)' }}>
+                      <div><div style={{ fontWeight: 600 }}>{title}</div><div style={{ fontSize: 12, color: 'var(--aw-fg-3)', marginTop: 4 }}>{sub}</div></div>
+                      <Switch on={currencyConfig.modules[key]} onChange={value => setModule(key, value)} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ border: '1px solid var(--aw-border)', borderRadius: 8, padding: 14, background: '#fff' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>当前策略</div>
+                <InfoGrid columns={1} items={[
+                  { label: '本位币', value: currencyConfig.baseCurrency },
+                  { label: '汇率来源', value: currencyConfig.rateSource },
+                  { label: '单据取值', value: currencyConfig.voucherRate },
+                  { label: '汇兑科目', value: `${currencyConfig.gainAccount} / ${currencyConfig.lossAccount}` },
+                ]} />
+              </div>
+            </div>
+            <div className="aw-doc-tb" style={{ marginTop: 16, marginBottom: 12 }}>
+              <span style={{ fontSize: 13, color: 'var(--aw-fg-2)' }}>币种档案</span>
+              <span style={{ flex: 1 }} />
+              <Btn onClick={() => setToast('汇率已按当前来源刷新')}>刷新汇率</Btn>
+              <Btn kind="primary" onClick={() => openCurrency(null)}>新增币种</Btn>
+            </div>
+            <table className="aw-table" style={{ width: '100%' }}>
+              <thead><tr><th>币种</th><th>名称</th><th>符号</th><th>基准汇率</th><th>小数位</th><th>舍入规则</th><th>应用范围</th><th>启用</th><th>操作</th></tr></thead>
+              <tbody>
+                {currencies.map(row => (
+                  <tr key={row.code}>
+                    <td className="aw-num">{row.code}</td><td>{row.name}</td><td>{row.symbol}</td><td className="aw-num">{row.rate}</td><td className="aw-num">{row.decimal}</td><td>{row.rounding}</td><td>{row.scope}</td>
+                    <td><Switch on={row.enabled} onChange={() => setCurrencies(prev => prev.map(item => item.code === row.code ? { ...item, enabled: !item.enabled, updated: settingsNow().slice(0, 10) } : item))} /></td>
+                    <td><span className="aw-link" onClick={() => openCurrency(row)}>编辑</span><span className="aw-link" style={{ marginLeft: 12 }} onClick={() => setToast(`${row.code}汇率历史已打开`)}>汇率历史</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="aw-doc-tb" style={{ marginTop: 16, marginBottom: 12 }}>
+              <span style={{ fontSize: 13, color: 'var(--aw-fg-2)' }}>汇率应用规则</span>
+            </div>
+            <table className="aw-table" style={{ width: '100%' }}>
+              <thead><tr><th>业务场景</th><th>汇率来源</th><th>锁定时点</th><th>差异处理</th><th>操作</th></tr></thead>
+              <tbody>{SETTING_RATE_ROWS.map(row => <tr key={row.scene}><td>{row.scene}</td><td>{row.source}</td><td>{row.lock}</td><td>{row.diff}</td><td><span className="aw-link" onClick={() => setToast(`${row.scene}规则已保存`)}>编辑</span></td></tr>)}</tbody>
+            </table>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+              <Btn onClick={() => setToast('已执行多币种配置校验')}>校验配置</Btn>
+              <Btn kind="primary" onClick={saveCurrencyConfig}>保存多币种配置</Btn>
+            </div>
+          </>
+        )}
+        {tab === 'tax' && (
+          <table className="aw-table" style={{ width: '100%' }}>
+            <thead><tr><th>税率名称</th><th>税率</th><th>适用范围</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody>{SETTING_TAX_ROWS.map(row => <tr key={row.name}><td>{row.name}</td><td className="aw-num">{row.rate}</td><td>{row.scope}</td><td><Badge tone="g">{row.status}</Badge></td><td><span className="aw-link" onClick={() => setToast(`${row.name}已保存`)}>编辑</span></td></tr>)}</tbody>
+          </table>
+        )}
+        {tab === 'period' && (
+          <>
+            <InfoGrid columns={4} items={[{ label: '当前期间', value: '2026-05' }, { label: '期间状态', value: '打开' }, { label: '结账方式', value: '按月结账' }, { label: '关账控制', value: '库存 / 应收 / 应付完成后允许' }]} />
+            <div style={{ height: 14 }} />
+            <table className="aw-table" style={{ width: '100%' }}>
+              <thead><tr><th>期间</th><th>开始日期</th><th>结束日期</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>{[['2026-05','2026-05-01','2026-05-31','打开'],['2026-04','2026-04-01','2026-04-30','已结账'],['2026-03','2026-03-01','2026-03-31','已结账']].map(row => <tr key={row[0]}><td className="aw-num">{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td><Badge tone={row[3] === '打开' ? 'g' : 'y'}>{row[3]}</Badge></td><td><span className="aw-link" onClick={() => setToast(`${row[0]}期间检查完成`)}>期间检查</span></td></tr>)}</tbody>
+            </table>
+          </>
+        )}
+        {tab === 'precision' && (
+          <FormGrid columns={3}>
+            <Field label="采购单价精度"><Select defaultValue="4"><option>2</option><option>4</option><option>6</option></Select></Field>
+            <Field label="销售单价精度"><Select defaultValue="4"><option>2</option><option>4</option><option>6</option></Select></Field>
+            <Field label="金额精度"><Select defaultValue="2"><option>2</option><option>4</option></Select></Field>
+            <Field label="数量精度"><Select defaultValue="3"><option>0</option><option>2</option><option>3</option><option>4</option></Select></Field>
+            <Field label="成本精度"><Select defaultValue="4"><option>2</option><option>4</option><option>6</option></Select></Field>
+            <Field label="尾差处理"><Select defaultValue="末行调整"><option>末行调整</option><option>最大金额行调整</option><option>单独生成尾差</option></Select></Field>
+          </FormGrid>
+        )}
+      </Card>
+      {(modal?.type === 'currencyNew' || modal?.type === 'currencyEdit') && (
+        <Modal title={modal.type === 'currencyEdit' ? '编辑币种' : '新增币种'} size="md" onClose={() => setModal(null)} footer={<><Btn onClick={() => setModal(null)}>取消</Btn><Btn kind="primary" onClick={saveCurrency}>保存</Btn></>}>
+          <FormGrid columns={2}>
+            <Field label="币种代码" req><Input value={currencyForm.code} onChange={e => setCurrencyForm(v => ({ ...v, code: e.target.value }))} placeholder="如 USD" /></Field>
+            <Field label="币种名称" req><Input value={currencyForm.name} onChange={e => setCurrencyForm(v => ({ ...v, name: e.target.value }))} placeholder="如 美元" /></Field>
+            <Field label="符号"><Input value={currencyForm.symbol} onChange={e => setCurrencyForm(v => ({ ...v, symbol: e.target.value }))} placeholder="$" /></Field>
+            <Field label="基准汇率"><Input value={currencyForm.rate} onChange={e => setCurrencyForm(v => ({ ...v, rate: e.target.value }))} /></Field>
+            <Field label="小数位"><Select value={String(currencyForm.decimal)} onChange={e => setCurrencyForm(v => ({ ...v, decimal: Number(e.target.value) }))}><option>0</option><option>2</option><option>4</option></Select></Field>
+            <Field label="舍入规则"><Select value={currencyForm.rounding} onChange={e => setCurrencyForm(v => ({ ...v, rounding: e.target.value }))}><option>四舍五入</option><option>向上取整</option><option>向下取整</option></Select></Field>
+            <Field label="应用范围"><Input value={currencyForm.scope} onChange={e => setCurrencyForm(v => ({ ...v, scope: e.target.value }))} /></Field>
+            <Field label="启用"><div style={{ paddingTop: 6 }}><Switch on={currencyForm.enabled} onChange={enabled => setCurrencyForm(v => ({ ...v, enabled }))} /></div></Field>
+          </FormGrid>
+        </Modal>
+      )}
+      {modal?.type === 'paramLog' && (
+        <Modal title="业务参数日志" subtitle={modal.row.name} size="md" onClose={() => setModal(null)} footer={<Btn kind="primary" onClick={() => setModal(null)}>关闭</Btn>}>
+          <InfoGrid columns={2} items={[{ label: '参数项', value: modal.row.name }, { label: '负责人', value: modal.row.owner }, { label: '更新时间', value: modal.row.updated }, { label: '状态', value: modal.row.enabled ? '启用' : '停用' }]} />
+        </Modal>
+      )}
+      <SettingsToast text={toast} onClose={() => setToast('')} />
     </>
   );
 }
@@ -1135,7 +1399,7 @@ function SettingsDictPage() {
 
   return (
     <>
-      <Card title="数据字典">
+      <Card title="基础数据">
         <div className="aw-doc-tb" style={{ marginBottom: 12 }}>
           <div className="aw-doc-search"><input placeholder="搜索字典编码、字典名称" value={kw} onChange={e => setKw(e.target.value)} /></div>
           <Btn onClick={() => setModal({ type: 'category' })}>字典分类</Btn>

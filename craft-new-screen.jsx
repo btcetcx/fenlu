@@ -63,6 +63,11 @@ const newOpFromTemplate = (tpl) => ({
   qcRequired: tpl.cat === '检验' || tpl.cat === '装配',
   qcPlan: tpl.cat === '检验' ? '首件 + 巡检' : '随机抽检',
   sopCode: 'SOP-' + (Math.floor(Math.random()*900)+100),
+  outputRows: [{ id:'out-' + opIdSeq, name: tpl.cat === '检验' ? '不合格隔离品' : '切削屑', qty: tpl.cat === '检验' ? '按实' : '0.02', unit: tpl.cat === '检验' ? '件' : 'kg' }],
+  techParams: [
+    { id:'tp-' + opIdSeq + '-1', name:'关键参数', value: tpl.cat==='加工' ? '尺寸公差：±0.05mm；表面粗糙度：Ra 3.2' : '外观无划伤；功能测试通过率 ≥ 99%' },
+    { id:'tp-' + opIdSeq + '-2', name:'设备参数', value: tpl.type === 'in' ? '设备点检完成；治具编号按工单带出。' : '委外参数由供应商工艺文件回传。' },
+  ],
   remark: '',
 });
 
@@ -297,10 +302,9 @@ function CraftNewScreen({ onBack }) {
             <Field label="工艺名称" req><Input defaultValue="智能控制器整机制造工艺"/></Field>
             <Field label="适用产品" req><Select defaultValue=""><option value="">请选择</option><option>智能控制器 A 型</option><option>智能控制器 B 型</option></Select></Field>
             <Field label="版本号"><Input defaultValue="V 1.0"/></Field>
-            <Field label="工艺分类"><Select defaultValue=""><option>电子装配</option><option>机加工</option><option>焊接</option></Select></Field>
+            <Field label="工艺分类"><Select defaultValue=""><option>电子装配</option><option>机加工</option><option>焊接</option><option>表面处理</option><option>包装</option></Select></Field>
             <Field label="编制人"><Input defaultValue="李文涛 / 工艺组"/></Field>
             <Field label="生效日期"><Input defaultValue="2026-06-01"/></Field>
-            <Field label="审批流程"><Select><option>默认审批流</option><option>简化审批</option></Select></Field>
           </div>
         </Card>
 
@@ -586,7 +590,31 @@ function OpCard({ op, selected, onSelect, onRemove, onDragStart }) {
    ============================================================ */
 function PropertiesPanel({ op, stage, onChange, onChangeStage, onRemove, onClose }) {
   const [tab, setTab] = useCf('basic');
+  const [showParamModal, setShowParamModal] = useCf(false);
+  const [paramDraft, setParamDraft] = useCf({ name:'', value:'' });
+  const [changingQcPlan, setChangingQcPlan] = useCf(false);
   const isIn = op.type === 'in';
+  const outputRows = Array.isArray(op.outputRows) ? op.outputRows : [{ id:'out-default', name: op.cat === '检验' ? '不合格隔离品' : '切削屑', qty: op.cat === '检验' ? '按实' : '0.02', unit: op.cat === '检验' ? '件' : 'kg' }];
+  const techParams = Array.isArray(op.techParams) ? op.techParams : [
+    { id:'tp-default-1', name:'关键参数', value: op.cat==='加工' ? '尺寸公差：±0.05mm；表面粗糙度：Ra 3.2' : '外观无划伤；功能测试通过率 ≥ 99%' },
+    { id:'tp-default-2', name:'设备参数', value: isIn ? '设备点检完成；治具编号按工单带出。' : '委外参数由供应商工艺文件回传。' },
+  ];
+  const qcPlanOptions = ['首件 + 巡检','随机抽检','全检','抽样 AQL 2.5'];
+  const addOutputRow = () => {
+    const nextIndex = outputRows.length + 1;
+    onChange({ outputRows:[...outputRows, { id:'out-' + Date.now(), name: nextIndex === 1 ? '切削屑' : '副产品' + nextIndex, qty:'0', unit:'kg' }] });
+  };
+  const patchOutputRow = (id, patch) => onChange({ outputRows: outputRows.map(row => row.id === id ? {...row, ...patch} : row) });
+  const removeOutputRow = (id) => onChange({ outputRows: outputRows.filter(row => row.id !== id) });
+  const removeTechParam = (id) => onChange({ techParams: techParams.filter(row => row.id !== id) });
+  const confirmTechParam = () => {
+    const name = paramDraft.name.trim();
+    const value = paramDraft.value.trim();
+    if (!name || !value) return;
+    onChange({ techParams:[...techParams, { id:'tp-' + Date.now(), name, value }] });
+    setParamDraft({ name:'', value:'' });
+    setShowParamModal(false);
+  };
 
   return (
     <>
@@ -598,10 +626,13 @@ function PropertiesPanel({ op, stage, onChange, onChangeStage, onRemove, onClose
       </div>
       <div className="cf-props-tabs">
         {[
-          {k:'basic',  label:'基础'},
-          {k:'time',   label:'工时与资源'},
-          {k:'qc',     label:'质量'},
-          {k:'mat',    label:'物料'},
+          {k:'basic',  label:'基础信息'},
+          {k:'station', label:'工位'},
+          {k:'time',   label:'工时'},
+          {k:'output', label:'副产品'},
+          {k:'params', label:'技术参数'},
+          {k:'qc',     label:'质检方案'},
+          {k:'note',   label:'工序说明'},
         ].map(t => (
           <span key={t.k} className={tab===t.k?'on':''} onClick={()=>setTab(t.k)}>{t.label}</span>
         ))}
@@ -612,12 +643,10 @@ function PropertiesPanel({ op, stage, onChange, onChangeStage, onRemove, onClose
           <>
             <div className="cf-prop-sec">
               <div className="cf-prop-sec-h">工序信息</div>
-              <div className="cf-prop-row"><label className="req">工序编号</label><input value={op.code} onChange={e=>onChange({code:e.target.value})}/></div>
-              <div className="cf-prop-row"><label className="req">工序名称</label><input value={op.name} onChange={e=>onChange({name:e.target.value})}/></div>
+              <div className="cf-prop-row"><label className="req">工序编号</label><input value={op.code} disabled /></div>
+              <div className="cf-prop-row"><label className="req">工序名称</label><input value={op.name} disabled /></div>
               <div className="cf-prop-row"><label>工序分类</label>
-                <select value={op.cat} onChange={e=>onChange({cat:e.target.value})}>
-                  {['加工','装配','表面','检验','包装','委外','其他'].map(c=><option key={c}>{c}</option>)}
-                </select>
+                <input value={op.cat || '未分类'} disabled />
               </div>
               <div className="cf-prop-row"><label>工序类型</label>
                 <div className={'cf-seg '+(isIn?'':'tone-out')}>
@@ -628,7 +657,7 @@ function PropertiesPanel({ op, stage, onChange, onChangeStage, onRemove, onClose
             </div>
 
             <div className="cf-prop-sec">
-              <div className="cf-prop-sec-h">排序方式 <span className="n">本节点</span></div>
+              <div className="cf-prop-sec-h">工艺节点 <span className="n">本节点</span></div>
               <div className="cf-prop-row"><label>串 / 并</label>
                 <div className={'cf-seg '+(stage.kind==='par'?'tone-par':'')}>
                   <span className={stage.kind==='seq'?'on':''} onClick={()=>onChangeStage({kind:'seq', ops:[op]})}>串序（独立步骤）</span>
@@ -642,21 +671,17 @@ function PropertiesPanel({ op, stage, onChange, onChangeStage, onRemove, onClose
           </>
         )}
 
-        {tab === 'time' && (
+        {tab === 'station' && (
           <>
             <div className="cf-prop-sec">
               <div className="cf-prop-sec-h">{isIn?'工作中心 / 设备':'委外信息'}</div>
               {isIn ? (
                 <>
                   <div className="cf-prop-row"><label className="req">工作中心</label>
-                    <select value={op.workCenter} onChange={e=>onChange({workCenter:e.target.value})}>
-                      {['一车间','二车间','三车间','质检中心','包装车间'].map(c=><option key={c}>{c}</option>)}
-                    </select>
+                    <input value={op.workCenter || '未配置'} disabled />
                   </div>
                   <div className="cf-prop-row"><label>设备</label>
-                    <select value={op.equipment} onChange={e=>onChange({equipment:e.target.value})}>
-                      {['CNC-01','CNC-02','装配台 A','装配台 B','检验台 1','包装线 A'].map(c=><option key={c}>{c}</option>)}
-                    </select>
+                    <input value={op.equipment || '未配置'} disabled />
                   </div>
                   <div className="cf-prop-row"><label>需用工人</label>
                     <div className="cf-input-suffix"><input type="number" value={op.laborCount} onChange={e=>onChange({laborCount:+e.target.value})}/><span className="sfx">人</span></div>
@@ -676,7 +701,11 @@ function PropertiesPanel({ op, stage, onChange, onChangeStage, onRemove, onClose
                 </>
               )}
             </div>
+          </>
+        )}
 
+        {tab === 'time' && (
+          <>
             <div className="cf-prop-sec">
               <div className="cf-prop-sec-h">工时参数</div>
               <div className="cf-prop-row"><label>准备工时</label>
@@ -698,47 +727,91 @@ function PropertiesPanel({ op, stage, onChange, onChangeStage, onRemove, onClose
           </>
         )}
 
-        {tab === 'qc' && (
+        {tab === 'output' && (
           <div className="cf-prop-sec">
-            <div className="cf-prop-sec-h">质量控制</div>
-            <div className="cf-prop-row"><label>是否检验</label>
-              <div className="cf-seg">
-                <span className={op.qcRequired?'on':''} onClick={()=>onChange({qcRequired:true})}>需要</span>
-                <span className={!op.qcRequired?'on':''} onClick={()=>onChange({qcRequired:false})}>不需要</span>
-              </div>
-            </div>
-            <div className="cf-prop-row"><label>检验方案</label>
-              <select value={op.qcPlan} onChange={e=>onChange({qcPlan:e.target.value})}>
-                <option>首件 + 巡检</option><option>随机抽检</option><option>全检</option><option>抽样 AQL 2.5</option>
-              </select>
-            </div>
-            <div className="cf-prop-row"><label>SOP 编号</label><input value={op.sopCode} onChange={e=>onChange({sopCode:e.target.value})}/></div>
-            <div className="cf-prop-row"><label>关键参数</label>
-              <textarea defaultValue={op.cat==='加工'?'尺寸公差：±0.05mm\n表面粗糙度：Ra 3.2':'外观无划伤；功能测试通过率 ≥ 99%'}/>
-            </div>
-            <div className="cf-prop-row"><label>不良处理</label>
-              <select defaultValue="返修"><option>返修</option><option>报废</option><option>让步接收</option></select>
-            </div>
+            <div className="cf-prop-sec-h">副产品 / 废料</div>
+            <table className="aw-table" style={{fontSize:12}}>
+              <thead><tr><th>名称</th><th style={{width:64}}>数量</th><th style={{width:54}}>单位</th><th style={{width:52}}>操作</th></tr></thead>
+              <tbody>
+                {outputRows.map(row => (
+                  <tr key={row.id}>
+                    <td><input value={row.name} onChange={e=>patchOutputRow(row.id, {name:e.target.value})} style={{width:'100%'}} /></td>
+                    <td><input value={row.qty} onChange={e=>patchOutputRow(row.id, {qty:e.target.value})} style={{width:'100%', textAlign:'right'}} /></td>
+                    <td><input value={row.unit} onChange={e=>patchOutputRow(row.id, {unit:e.target.value})} style={{width:'100%'}} /></td>
+                    <td><span className="aw-link" style={{fontSize:12,color:'var(--aw-danger)'}} onClick={()=>removeOutputRow(row.id)}>删除</span></td>
+                  </tr>
+                ))}
+                {!outputRows.length && <tr><td colSpan={4} style={{textAlign:'center',color:'var(--aw-fg-3)',padding:'14px 0'}}>暂无副产品</td></tr>}
+                <tr><td colSpan={4} style={{textAlign:'center',padding:'8px 0'}}><span className="aw-link" style={{fontSize:12}} onClick={addOutputRow}>＋ 添加副产品</span></td></tr>
+              </tbody>
+            </table>
           </div>
         )}
 
-        {tab === 'mat' && (
+        {tab === 'params' && (
           <div className="cf-prop-sec">
-            <div className="cf-prop-sec-h">物料消耗（每件）</div>
-            <table className="aw-table" style={{fontSize:12}}>
-              <thead><tr><th style={{width:80}}>物料编码</th><th>名称</th><th style={{width:60}}>数量</th><th style={{width:50}}>单位</th></tr></thead>
+            <div className="cf-prop-sec-h">技术参数</div>
+            <div className="cf-prop-row"><label>SOP 编号</label><input value={op.sopCode} onChange={e=>onChange({sopCode:e.target.value})}/></div>
+            <table className="aw-table" style={{fontSize:12,marginTop:10}}>
+              <thead><tr><th style={{width:88}}>参数名称</th><th>参数内容</th><th style={{width:52}}>操作</th></tr></thead>
               <tbody>
-                <tr><td className="aw-num">M-001</td><td>主体材料</td><td className="aw-num">1</td><td>件</td></tr>
-                <tr><td className="aw-num">M-203</td><td>螺丝 M3×8</td><td className="aw-num">4</td><td>个</td></tr>
-                {op.cat==='喷涂' && <tr><td className="aw-num">M-501</td><td>面漆 / 哑光黑</td><td className="aw-num">15</td><td>g</td></tr>}
-                <tr><td colSpan={4} style={{textAlign:'center',padding:'8px 0'}}><span className="aw-link" style={{fontSize:12}}>＋ 添加物料</span></td></tr>
+                {techParams.map(row => (
+                  <tr key={row.id}>
+                    <td>{row.name}</td>
+                    <td>{row.value}</td>
+                    <td><span className="aw-link" style={{fontSize:12,color:'var(--aw-danger)'}} onClick={()=>removeTechParam(row.id)}>删除</span></td>
+                  </tr>
+                ))}
+                {!techParams.length && <tr><td colSpan={3} style={{textAlign:'center',color:'var(--aw-fg-3)',padding:'14px 0'}}>暂无技术参数</td></tr>}
               </tbody>
             </table>
-            <div className="cf-prop-sec-h" style={{marginTop:18}}>副产品 / 废料</div>
-            <table className="aw-table" style={{fontSize:12}}>
-              <thead><tr><th>名称</th><th style={{width:60}}>数量</th><th style={{width:50}}>单位</th></tr></thead>
-              <tbody><tr><td>切削屑</td><td className="aw-num">0.02</td><td>kg</td></tr></tbody>
-            </table>
+            <div style={{marginTop:10}}><Btn style={{fontSize:12,padding:'5px 12px'}} onClick={()=>setShowParamModal(true)}>＋ 添加参数</Btn></div>
+          </div>
+        )}
+
+        {tab === 'qc' && (
+          <div className="cf-prop-sec">
+            <div className="cf-prop-sec-h">质检方案</div>
+            <div className="cf-prop-row"><label>质检方案配置</label>
+              <div className="cf-seg">
+                <span className={op.qcRequired?'on':''} onClick={()=>onChange({qcRequired:true})}>开启</span>
+                <span className={!op.qcRequired?'on':''} onClick={()=>onChange({qcRequired:false})}>关闭</span>
+              </div>
+            </div>
+            {op.qcRequired && (
+              <>
+                <div className="cf-prop-row"><label>检验方案</label>
+                  {op.qcPlan && !changingQcPlan ? (
+                    <div style={{display:'flex',alignItems:'center',gap:8,width:'100%'}}>
+                      <input value={op.qcPlan} disabled style={{flex:1}} />
+                      <span className="aw-link" style={{fontSize:12,whiteSpace:'nowrap'}} onClick={()=>setChangingQcPlan(true)}>更换</span>
+                      <span className="aw-link" style={{fontSize:12,color:'var(--aw-danger)',whiteSpace:'nowrap'}} onClick={()=>onChange({qcPlan:''})}>删除</span>
+                    </div>
+                  ) : (
+                    <div style={{display:'flex',alignItems:'center',gap:8,width:'100%'}}>
+                      <select value={op.qcPlan || ''} onChange={e=>{onChange({qcPlan:e.target.value}); setChangingQcPlan(false);}} style={{flex:1}}>
+                        <option value="">请选择检验方案</option>
+                        {qcPlanOptions.map(plan => <option key={plan}>{plan}</option>)}
+                      </select>
+                      {op.qcPlan && <span className="aw-link" style={{fontSize:12,whiteSpace:'nowrap'}} onClick={()=>setChangingQcPlan(false)}>取消</span>}
+                    </div>
+                  )}
+                </div>
+                <div className="cf-prop-row"><label>不良处理</label>
+                  <select defaultValue="返修"><option>返修</option><option>报废</option><option>让步接收</option></select>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {tab === 'note' && (
+          <div className="cf-prop-sec">
+            <div className="cf-prop-sec-h">工序说明</div>
+            <div className="cf-prop-row"><label>关联文档</label><input defaultValue={op.sopCode || ''} placeholder="选择工艺规范 / 作业指导书" /></div>
+            <div className="cf-prop-row"><label>说明</label>
+              <textarea placeholder="填写当前工艺下该工序的执行说明、特殊要求和附件备注" defaultValue={stage.kind==='par'?'该节点为并行执行组，多个工序同时进行，时长取最大值。':''}/>
+            </div>
           </div>
         )}
       </div>
@@ -747,6 +820,31 @@ function PropertiesPanel({ op, stage, onChange, onChangeStage, onRemove, onClose
         <span className="aw-link" style={{color:'var(--aw-danger)',fontSize:12}} onClick={onRemove}>移除此工序</span>
         <Btn kind="primary" style={{fontSize:12,padding:'4px 12px'}}>应用</Btn>
       </div>
+      {showParamModal && (
+        <div className="aw-mask" style={{zIndex:260}} onClick={()=>setShowParamModal(false)}>
+          <div className="aw-modal" style={{width:420}} onClick={e=>e.stopPropagation()}>
+            <div className="head">
+              <span>新增技术参数</span>
+              <span style={{cursor:'pointer',color:'var(--aw-fg-4)'}} onClick={()=>setShowParamModal(false)}>×</span>
+            </div>
+            <div className="body" style={{display:'flex',flexDirection:'column',gap:14}}>
+              <Field label="参数名称" req><Input value={paramDraft.name} onChange={e=>setParamDraft({...paramDraft, name:e.target.value})} placeholder="如 温度范围 / 扭矩 / 压力" /></Field>
+              <Field label="参数内容" req>
+                <textarea
+                  value={paramDraft.value}
+                  onChange={e=>setParamDraft({...paramDraft, value:e.target.value})}
+                  placeholder="请输入参数值、标准或控制要求"
+                  style={{width:'100%',minHeight:96,border:'1px solid var(--aw-border)',borderRadius:6,padding:'8px 10px',fontSize:13,resize:'vertical'}}
+                />
+              </Field>
+            </div>
+            <div className="foot">
+              <Btn onClick={()=>setShowParamModal(false)}>取消</Btn>
+              <Btn kind="primary" onClick={confirmTechParam}>确认</Btn>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

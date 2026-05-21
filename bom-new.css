@@ -27,6 +27,13 @@
 .bn-variant-card{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;background:#fff;border:1px solid var(--aw-border);border-radius:8px}
 .bn-variant-group{display:flex;align-items:center;gap:8px;min-height:28px}
 .bn-variant-label{font-size:13px;color:var(--aw-fg-2);font-weight:500}
+.bn-model-config{margin-top:14px;border:1px solid var(--aw-border);border-radius:8px;background:var(--aw-surface-2);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.bn-model-title{font-size:13px;font-weight:700;color:var(--aw-fg-1);margin-bottom:4px}
+.bn-model-sub{font-size:12px;color:var(--aw-fg-3);line-height:1.6}
+.bn-model-list,.bn-model-multi{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bn-model-multi.compact{gap:5px}
+.bn-model-multi .bn-chip{cursor:pointer;user-select:none}
+.bn-model-multi.compact .bn-chip{padding:1px 6px;font-size:11px}
 .bn-chip{display:inline-flex;align-items:center;gap:5px;min-height:24px;padding:2px 10px;border:1px solid var(--aw-border);border-radius:14px;background:#fff;color:var(--aw-fg-2);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap}
 .bn-chip:hover{border-color:var(--aw-primary);color:var(--aw-primary)}
 .bn-chip.on{background:var(--aw-primary-soft);border-color:var(--aw-primary);color:var(--aw-primary);font-weight:500}

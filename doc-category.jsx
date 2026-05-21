@@ -1,48 +1,163 @@
 // Session: 260514-mild-owl
-const { useState } = React;
+const { useState, useEffect } = React;
+
+const CATEGORY_CONFIGS = {
+  doc: {
+    defaultKey: 'plan',
+    topCats: [
+      { key: 'plan', name: '工艺方案' },
+      { key: 'craft', name: '工艺文件' },
+      { key: 'tech', name: '技术文档' },
+      { key: 'spec', name: '操作规范' },
+    ],
+    subs: [
+      { id: 1, name: '控制方案', code: 'DOC_PLAN_CTRL', parent: 'plan', parentName: '工艺方案', sort: 1, enabled: true },
+      { id: 2, name: '自动化方案', code: 'DOC_PLAN_AUTO', parent: 'plan', parentName: '工艺方案', sort: 2, enabled: true },
+      { id: 3, name: '焊接作业', code: 'DOC_CRAFT_WELD', parent: 'craft', parentName: '工艺文件', sort: 1, enabled: true },
+      { id: 4, name: '技术规范', code: 'DOC_TECH_SPEC', parent: 'tech', parentName: '技术文档', sort: 1, enabled: true },
+      { id: 5, name: '安全操作', code: 'DOC_OP_SAFE', parent: 'spec', parentName: '操作规范', sort: 1, enabled: true },
+    ],
+  },
+  proj: {
+    defaultKey: 'rd',
+    topCats: [
+      { key: 'rd', name: '研发项目' },
+      { key: 'eng', name: '工程项目' },
+      { key: 'coop', name: '合作项目' },
+    ],
+    subs: [
+      { id: 1, name: '内部研发', code: 'PRJ_RD_INNER', parent: 'rd', parentName: '研发项目', sort: 1, enabled: true },
+      { id: 2, name: '产品研发', code: 'PRJ_RD_PRODUCT', parent: 'rd', parentName: '研发项目', sort: 2, enabled: true },
+      { id: 3, name: '系统改造', code: 'PRJ_ENG_IT', parent: 'eng', parentName: '工程项目', sort: 1, enabled: true },
+      { id: 4, name: '自动化工程', code: 'PRJ_ENG_AUTO', parent: 'eng', parentName: '工程项目', sort: 2, enabled: true },
+      { id: 5, name: '校企合作', code: 'PRJ_COOP_SCHOOL', parent: 'coop', parentName: '合作项目', sort: 1, enabled: true },
+      { id: 6, name: '联合创新', code: 'PRJ_COOP_PARTNER', parent: 'coop', parentName: '合作项目', sort: 2, enabled: true },
+    ],
+  },
+  prod: {
+    defaultKey: 'fin',
+    topCats: [
+      { key: 'fin', name: '成品' },
+      { key: 'semi', name: '半成品' },
+      { key: 'raw', name: '原材料' },
+    ],
+    subs: [
+      { id: 1, name: '类别A', code: 'PROD_FIN_A', parent: 'fin', parentName: '成品', sort: 1, enabled: true },
+      { id: 2, name: '类别B', code: 'PROD_FIN_B', parent: 'fin', parentName: '成品', sort: 2, enabled: true },
+      { id: 3, name: '控制板组件', code: 'PROD_SEMI_CONTROL', parent: 'semi', parentName: '半成品', sort: 1, enabled: true },
+      { id: 4, name: '结构原料', code: 'PROD_RAW_STRUCT', parent: 'raw', parentName: '原材料', sort: 1, enabled: true },
+    ],
+  },
+  mat: {
+    defaultKey: 'elec',
+    topCats: [
+      { key: 'elec', name: '电子物料' },
+      { key: 'mech', name: '机械物料' },
+      { key: 'pack', name: '包装物料' },
+    ],
+    subs: [
+      { id: 1, name: '芯片类', code: 'MAT_ELEC_CHIP', parent: 'elec', parentName: '电子物料', sort: 1, enabled: true },
+      { id: 2, name: '电容类', code: 'MAT_ELEC_CAP', parent: 'elec', parentName: '电子物料', sort: 2, enabled: true },
+      { id: 3, name: '紧固件', code: 'MAT_MECH_FASTENER', parent: 'mech', parentName: '机械物料', sort: 1, enabled: true },
+      { id: 4, name: '纸箱类', code: 'MAT_PACK_BOX', parent: 'pack', parentName: '包装物料', sort: 1, enabled: true },
+    ],
+  },
+  proc: {
+    defaultKey: 'mach',
+    topCats: [
+      { key: 'mach', name: '加工工序' },
+      { key: 'asm', name: '装配工序' },
+      { key: 'insp', name: '检验工序' },
+    ],
+    subs: [
+      { id: 1, name: '车削', code: 'PROC_MACH_TURN', parent: 'mach', parentName: '加工工序', sort: 1, enabled: true },
+      { id: 2, name: '铣削', code: 'PROC_MACH_MILL', parent: 'mach', parentName: '加工工序', sort: 2, enabled: true },
+      { id: 3, name: '总装', code: 'PROC_ASM_FINAL', parent: 'asm', parentName: '装配工序', sort: 1, enabled: true },
+      { id: 4, name: '来料检', code: 'PROC_INSP_IQC', parent: 'insp', parentName: '检验工序', sort: 1, enabled: true },
+    ],
+  },
+  craft: {
+    defaultKey: 'assembly',
+    topCats: [
+      { key: 'assembly', name: '电子装配' },
+      { key: 'machining', name: '机加工' },
+      { key: 'weld', name: '焊接' },
+      { key: 'surface', name: '表面处理' },
+      { key: 'pack', name: '包装' },
+    ],
+    subs: [
+      { id: 1, name: '总装工艺', code: 'CRAFT_ASM_FINAL', parent: 'assembly', parentName: '电子装配', sort: 1, enabled: true },
+      { id: 2, name: '控制板装配', code: 'CRAFT_ASM_PCB', parent: 'assembly', parentName: '电子装配', sort: 2, enabled: true },
+      { id: 3, name: '车铣加工', code: 'CRAFT_MACH_TURN_MILL', parent: 'machining', parentName: '机加工', sort: 1, enabled: true },
+      { id: 4, name: '焊接作业', code: 'CRAFT_WELD_WORK', parent: 'weld', parentName: '焊接', sort: 1, enabled: true },
+      { id: 5, name: '喷涂处理', code: 'CRAFT_SURFACE_COAT', parent: 'surface', parentName: '表面处理', sort: 1, enabled: true },
+      { id: 6, name: '包装工艺', code: 'CRAFT_PACK_STD', parent: 'pack', parentName: '包装', sort: 1, enabled: true },
+    ],
+  },
+  bom: {
+    defaultKey: 'finished_bom',
+    topCats: [
+      { key: 'finished_bom', name: '成品BOM' },
+      { key: 'semi_bom', name: '半成品BOM' },
+      { key: 'eng_bom', name: '工程BOM' },
+      { key: 'virt_bom', name: '虚拟BOM' },
+    ],
+    subs: [
+      { id: 1, name: '温控锅整机', code: 'BOM_FIN_COOKER', parent: 'finished_bom', parentName: '成品BOM', sort: 1, enabled: true },
+      { id: 2, name: '包装套件', code: 'BOM_FIN_PACK', parent: 'finished_bom', parentName: '成品BOM', sort: 2, enabled: true },
+      { id: 3, name: '控制板组件', code: 'BOM_SEMI_CONTROL', parent: 'semi_bom', parentName: '半成品BOM', sort: 1, enabled: true },
+      { id: 4, name: '机身子装配', code: 'BOM_SEMI_BODY', parent: 'semi_bom', parentName: '半成品BOM', sort: 2, enabled: true },
+      { id: 5, name: '温控模块', code: 'BOM_SEMI_TEMP', parent: 'semi_bom', parentName: '半成品BOM', sort: 3, enabled: true },
+      { id: 6, name: '新品试制', code: 'BOM_ENG_TRIAL', parent: 'eng_bom', parentName: '工程BOM', sort: 1, enabled: true },
+      { id: 7, name: '变更验证', code: 'BOM_ENG_CHANGE', parent: 'eng_bom', parentName: '工程BOM', sort: 2, enabled: true },
+      { id: 8, name: '通用组件', code: 'BOM_VIRT_COMMON', parent: 'virt_bom', parentName: '虚拟BOM', sort: 1, enabled: true },
+      { id: 9, name: '替代组件', code: 'BOM_VIRT_REPLACE', parent: 'virt_bom', parentName: '虚拟BOM', sort: 2, enabled: true },
+    ],
+  },
+};
 
 function CategoryScreen({ module: mod = MODULE_DOC }) {
   const m = mod || MODULE_DOC;
   const { Card, Btn, Field, Input, Select, Switch, Badge } = window;
+  const config = CATEGORY_CONFIGS[m.code] || CATEGORY_CONFIGS.doc;
 
-  // ── 一级分类 ──
-  const topCats = [
-    { key: 'all',  name: '全部',     count: 999 },
-    { key: 'plan', name: '工艺方案', count: 2 },
-    { key: 'craft',name: '工艺文件', count: 1 },
-    { key: 'tech', name: '技术文档', count: 1 },
-    { key: 'spec', name: '操作规范', count: 1 },
-  ];
-
-  // ── 子分类 mock —— 用 state 以便 Switch 切换即时反映 ──
-  const [subs, setSubs] = useState([
-    { id: 1, name: '三级分类A', code: 'SUB_CAT_A', parent: 'plan', parentName: '工艺方案', sort: 1, enabled: true },
-    { id: 2, name: '三级分类B', code: 'SUB_CAT_B', parent: 'plan', parentName: '工艺方案', sort: 2, enabled: false },
-    { id: 3, name: '焊接作业', code: 'CRAFT_WELD', parent: 'craft', parentName: '工艺文件', sort: 1, enabled: true },
-    { id: 4, name: '技术规范', code: 'TECH_SPEC', parent: 'tech', parentName: '技术文档', sort: 1, enabled: true },
-    { id: 5, name: '安全操作', code: 'OP_SAFE', parent: 'spec', parentName: '操作规范', sort: 1, enabled: true },
-  ]);
+  const [subs, setSubs] = useState(config.subs);
 
   // ── 状态 ──
-  const [activeCat, setActiveCat] = useState('plan');
+  const [activeCat, setActiveCat] = useState(config.defaultKey);
   const [formMode, setFormMode] = useState(null);   // null | 'new' | 'edit'
   const [editTarget, setEditTarget] = useState(null);
 
+  useEffect(() => {
+    setSubs(config.subs);
+    setActiveCat(config.defaultKey);
+    setFormMode(null);
+    setEditTarget(null);
+  }, [m.code]);
+
   // ── 派生 ──
+  const topCats = [
+    { key: 'all', name: '全部', count: subs.length },
+    ...config.topCats.map(cat => ({
+      ...cat,
+      count: subs.filter(s => s.parent === cat.key).length,
+    })),
+  ];
+  const defaultParent = config.defaultKey;
   const activeCatInfo = topCats.find(c => c.key === activeCat) || topCats[0];
   const filteredSubs = activeCat === 'all'
     ? subs
     : subs.filter(s => s.parent === activeCat);
 
   // ── 表单字段状态 ──
-  const emptyForm = { name: '', code: '', parent: activeCat === 'all' ? 'plan' : activeCat, sort: '0', remark: '', enabled: true };
+  const emptyForm = { name: '', code: '', parent: activeCat === 'all' ? defaultParent : activeCat, sort: '0', remark: '', enabled: true };
   const [form, setForm] = useState(emptyForm);
 
   // ── 打开新增表单 ──
   const openNew = () => {
     setFormMode('new');
     setEditTarget(null);
-    setForm({ ...emptyForm, parent: activeCat === 'all' ? 'plan' : activeCat });
+    setForm({ ...emptyForm, parent: activeCat === 'all' ? defaultParent : activeCat });
   };
 
   // ── 打开编辑表单 ──
@@ -61,6 +176,22 @@ function CategoryScreen({ module: mod = MODULE_DOC }) {
 
   // ── 保存（mock） ──
   const handleSave = () => {
+    if (formMode === 'new') {
+      const parentName = topCats.find(c => c.key === form.parent)?.name || '';
+      setSubs(prev => [
+        ...prev,
+        {
+          id: Math.max(0, ...prev.map(s => s.id)) + 1,
+          name: form.name,
+          code: form.code,
+          parent: form.parent,
+          parentName,
+          sort: Number(form.sort) || 0,
+          remark: form.remark,
+          enabled: form.enabled,
+        },
+      ]);
+    }
     if (formMode === 'edit' && editTarget) {
       setSubs(prev => prev.map(s =>
         s.id === editTarget.id
@@ -68,7 +199,6 @@ function CategoryScreen({ module: mod = MODULE_DOC }) {
           : s
       ));
     }
-    // new 模式不做真实持久化，仅收起表单
     setFormMode(null);
     setEditTarget(null);
   };
@@ -225,7 +355,7 @@ function CategoryScreen({ module: mod = MODULE_DOC }) {
                 onChange={v => setForm(f => ({ ...f, enabled: v }))}
               />
               <span style={{ fontSize: 13, color: 'var(--aw-fg-2)' }}>是否启用</span>
-              <span style={{ fontSize: 12, color: '#6B7280' }}>停用后该分类下文档不可新增</span>
+              <span style={{ fontSize: 12, color: '#6B7280' }}>停用后该分类下{m.name}不可新增</span>
             </div>
             {/* 底部按钮 */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>

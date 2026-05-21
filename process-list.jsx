@@ -61,6 +61,13 @@ const QC_ITEMS = [
   { id:3, name:'硬度检测', standard:'HRC 58-62', tool:'硬度计', freq:'每炉次抽检1件' },
 ];
 
+const IPQC_PLAN_ROWS = [
+  { code:'IPQC-PLAN-001', name:'压装过程控制计划 V2.4', scope:'压装 / 装配工序', sampling:'首件全检 + 巡检5件/2h', control:'扭矩 / 压装深度 / 工装点检', owner:'王质检', state:'启用' },
+  { code:'IPQC-PLAN-002', name:'车削过程巡检方案 V1.8', scope:'车削 / 铣削', sampling:'首件全检 + 每批抽检3件', control:'尺寸精度 / 表面粗糙度 / 刀具寿命', owner:'李质检', state:'启用' },
+  { code:'IPQC-PLAN-003', name:'装配过程质量控制方案 V1.5', scope:'装配工序', sampling:'首件确认 + 每2小时巡检', control:'紧固扭矩 / 密封性 / 功能测试', owner:'陈复检', state:'启用' },
+  { code:'IPQC-PLAN-004', name:'制程首件检验方案 V3.0', scope:'通用制程', sampling:'每班首件全检', control:'关键尺寸 / 外观 / 设备参数', owner:'质检主管', state:'待审批' },
+];
+
 // Operation logs mock
 const OP_LOGS = [
   { operator:'老夏', content:'创建工序档案', time:'2025-01-12 08:30' },
@@ -70,14 +77,20 @@ const OP_LOGS = [
   { operator:'王志强', content:'修改技术参数配置', time:'2025-05-10 16:00' },
 ];
 
-// Product outputs mock (for new form and detail)
+// 副产品 mock (for new form and detail)
 const OUTPUT_PRODUCTS = [
-  { id:1, code:'CP-001', name:'温湿度传感器', model:'IWS-TH200', cat:'成品', unit:'台', source:'自制件' },
-  { id:2, code:'CP-002', name:'显示模组', model:'DSM-070', cat:'半成品', unit:'套', source:'自制件' },
+  { id:1, code:'CP-001', name:'温湿度传感器', model:'IWS-TH200', cat:'废料', unit:'台', source:'自制件' },
+  { id:2, code:'CP-002', name:'显示模组', model:'DSM-070', cat:'其他', unit:'套', source:'自制件' },
 ];
 
 // Document options mock
 const DOC_OPTIONS = ['工艺规范 V2.1', '作业指导书 A-12', '设备操作规程', '质量标准 QS-2025'];
+const PROCESS_DOC_ROWS = [
+  { code:'DOC-202605-001', name:'工艺规范 V2.1', category:'工艺规范', version:'V2.1', owner:'陈思源', updatedAt:'2026-05-12' },
+  { code:'DOC-202605-002', name:'作业指导书 A-12', category:'作业指导书', version:'A-12', owner:'李文涛', updatedAt:'2026-05-10' },
+  { code:'DOC-202604-018', name:'设备操作规程', category:'设备规程', version:'V1.4', owner:'设备组', updatedAt:'2026-04-28' },
+  { code:'DOC-202604-009', name:'质量标准 QS-2025', category:'质量标准', version:'QS-2025', owner:'王志强', updatedAt:'2026-04-16' },
+];
 
 // ========== CATEGORY TREE ==========
 function ProcessTree({ picked, setPicked }) {
@@ -331,7 +344,7 @@ function StationPickerModal({ onClose, onConfirm }) {
   );
 }
 
-// ========== PRODUCT OUTPUT PICKER MODAL ==========
+// ========== 副产品选择弹窗 ==========
 function OutputProductPicker({ onClose, onConfirm }) {
   const [sel, setSel] = useState({});
   const selCount = Object.values(sel).filter(Boolean).length;
@@ -348,7 +361,7 @@ function OutputProductPicker({ onClose, onConfirm }) {
     <div className="aw-mask" onClick={onClose}>
       <div className="aw-modal" style={{ width:'min(700px, 94vw)' }} onClick={e => e.stopPropagation()}>
         <div className="head">
-          <span>选择产出物</span>
+          <span>选择副产品</span>
           <span style={{ cursor:'pointer', color:'var(--aw-fg-4)' }} onClick={onClose}>✕</span>
         </div>
         <div className="body" style={{ padding:0 }}>
@@ -404,8 +417,145 @@ function OutputProductPicker({ onClose, onConfirm }) {
   );
 }
 
+function ProcessDocumentPicker({ value, onClose, onConfirm }) {
+  const [selected, setSelected] = useState(
+    PROCESS_DOC_ROWS.find(row => row.name === value) || PROCESS_DOC_ROWS[0]
+  );
+  return (
+    <Modal
+      title="选择关联文档"
+      subtitle="从文档库选择工序相关文件"
+      size="lg"
+      onClose={onClose}
+      footer={<><Btn onClick={onClose}>取消</Btn><Btn kind="primary" onClick={() => onConfirm && onConfirm(selected)}>确认</Btn></>}
+    >
+      <div style={{display:'grid',gridTemplateColumns:'170px 1fr',gap:14,minHeight:360}}>
+        <div className="aw-doc-tree">
+          {['全部文档','工艺规范','作业指导书','设备规程','质量标准'].map((g,i)=>(
+            <div key={g} className={'aw-tree-row aw-tree-l2 ' + (i === 0 ? 'on' : '')}>
+              <span>{g}</span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <div style={{marginBottom:12}}>
+            <Input placeholder="搜索文档名称 / 编号 / 负责人" />
+          </div>
+          <table className="aw-table">
+            <thead>
+              <tr>
+                <th style={{width:56}}>选择</th>
+                <th style={{width:130}}>文档编号</th>
+                <th>文档名称</th>
+                <th style={{width:110}}>分类</th>
+                <th style={{width:90}}>版本</th>
+                <th style={{width:90}}>负责人</th>
+                <th style={{width:110}}>更新时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PROCESS_DOC_ROWS.map(row => (
+                <tr key={row.code} onClick={() => setSelected(row)} style={{cursor:'pointer'}}>
+                  <td><input type="radio" checked={selected.code === row.code} onChange={() => setSelected(row)} /></td>
+                  <td className="aw-num">{row.code}</td>
+                  <td>{row.name}</td>
+                  <td>{row.category}</td>
+                  <td>{row.version}</td>
+                  <td>{row.owner}</td>
+                  <td>{row.updatedAt}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function ProcessQcPlanPicker({ picked = [], onClose, onConfirm }) {
+  const [sel, setSel] = useState(() => {
+    const pickedCodes = new Set(picked.map(row => row.code));
+    const init = {};
+    IPQC_PLAN_ROWS.forEach((row, i) => { if (pickedCodes.has(row.code)) init[i] = true; });
+    return init;
+  });
+  const selCount = Object.values(sel).filter(Boolean).length;
+  const toggleRow = (i) => setSel(prev => ({ ...prev, [i]: !prev[i] }));
+  const toggleAll = () => {
+    if (selCount === IPQC_PLAN_ROWS.length) setSel({});
+    else {
+      const next = {};
+      IPQC_PLAN_ROWS.forEach((_, i) => { next[i] = true; });
+      setSel(next);
+    }
+  };
+  const headerCls = 'aw-chk' + (selCount === 0 ? '' : selCount === IPQC_PLAN_ROWS.length ? ' on' : ' indet');
+
+  return (
+    <Modal
+      title="选择 IPQC 质检方案"
+      subtitle="制程质检方案列表"
+      size="lg"
+      onClose={onClose}
+      footer={<><Btn onClick={onClose}>取消</Btn><Btn kind="primary" onClick={() => onConfirm && onConfirm(IPQC_PLAN_ROWS.filter((_, i) => sel[i]))}>确认</Btn></>}
+    >
+      <div style={{display:'grid',gridTemplateColumns:'170px 1fr',gap:14,minHeight:360}}>
+        <div className="aw-doc-tree">
+          {['全部IPQC','首件检验','巡检方案','停线处置','复检放行'].map((g,i)=>(
+            <div key={g} className={'aw-tree-row aw-tree-l2 ' + (i === 0 ? 'on' : '')}>
+              <span>{g}</span>
+            </div>
+          ))}
+        </div>
+        <div>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+            <span style={{color:'#5677FC',fontSize:13,fontWeight:500}}>已勾选 {selCount} 项</span>
+            <Input placeholder="搜索方案名称 / 编号 / 控制点" style={{marginLeft:'auto',width:240}} />
+          </div>
+          <div className="aw-doc-tbl-inner" style={{ overflowX:'auto' }}>
+          <table className="aw-doc-tbl" style={{ minWidth:760 }}>
+            <thead>
+              <tr>
+                <th style={{width:48}}><div className="aw-th-inner" style={{ justifyContent:'center' }}><span className={headerCls} onClick={toggleAll} /></div></th>
+                <th style={{width:128}}><div className="aw-th-inner">方案编号</div></th>
+                <th style={{width:190}}><div className="aw-th-inner">方案名称</div></th>
+                <th style={{width:120}}><div className="aw-th-inner">适用范围</div></th>
+                <th style={{width:150}}><div className="aw-th-inner">抽样规则</div></th>
+                <th style={{width:150}}><div className="aw-th-inner">关键控制点</div></th>
+                <th style={{width:76}}><div className="aw-th-inner">状态</div></th>
+              </tr>
+            </thead>
+            <tbody>
+              {IPQC_PLAN_ROWS.map((row, i) => (
+                <tr key={row.code} onClick={() => toggleRow(i)} style={{cursor:'pointer'}}>
+                  <td style={{ textAlign:'center' }}><span className={'aw-chk' + (sel[i] ? ' on' : '')} /></td>
+                  <td className="aw-num">{row.code}</td>
+                  <td>{row.name}</td>
+                  <td>{row.scope}</td>
+                  <td>{row.sampling}</td>
+                  <td>{row.control}</td>
+                  <td>{row.state === '启用' ? <Badge tone="g">启用</Badge> : <Badge tone="y">{row.state}</Badge>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 // ========== NEW FORM VIEW ==========
 function ProcessNewView({ onBack }) {
+  const [configTab, setConfigTab] = useState('station');
+  const [linkedDoc, setLinkedDoc] = useState('');
+  const [showDocPicker, setShowDocPicker] = useState(false);
+  const [showQcPlan, setShowQcPlan] = useState(false);
+  const [qcPlans, setQcPlans] = useState([]);
+  const [showQcPlanPicker, setShowQcPlanPicker] = useState(false);
+
   // 工位 sub-table
   const [stations, setStations] = useState([
     { code:'GW-001', name:'车削工位A', line:'生产线1', workshop:'一车间', factory:'海南傲为工厂' },
@@ -419,7 +569,7 @@ function ProcessNewView({ onBack }) {
   const [coolHours, setCoolHours] = useState('');
   const [processCost, setProcessCost] = useState('');
 
-  // 产出物 Switch
+  // 副产品 Switch
   const [showOutput, setShowOutput] = useState(false);
   const [outputProducts, setOutputProducts] = useState([]);
   const [showOutputPicker, setShowOutputPicker] = useState(false);
@@ -469,211 +619,255 @@ function ProcessNewView({ onBack }) {
               <Select><option>请选择</option><option>车削</option><option>铣削</option><option>装配工序</option><option>检验工序</option></Select>
             </Field>
           </div>
-          <div style={{ marginTop:14 }}>
-            <Field label="工序描述">
-              <textarea className="aw-input" placeholder="请输入工序描述…" style={{ minHeight:80, resize:'vertical' }} />
-            </Field>
-          </div>
-          <div style={{ marginTop:14 }}>
-            <Field label="图纸">
-              <div style={{ border:'1px dashed #D1D5DB', borderRadius:6, padding:'16px', textAlign:'center', color:'#6B7280', fontSize:13, marginBottom:10 }}>
-                <span className="aw-link">点击上传</span> / 拖拽到此区域 &nbsp;
-                <span style={{ color:'#9CA3AF', fontSize:12 }}>最多9张，单文件 ≤ 2MB，支持 jpg / png / gif / bmp</span>
-              </div>
-              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                <div style={{ width:64, height:64, borderRadius:6, background:'#F3F4F6', border:'1px solid #E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', color:'#D1D5DB', fontSize:24 }}>🖼</div>
-                <div style={{ width:64, height:64, borderRadius:6, background:'#F3F4F6', border:'1px solid #E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', color:'#D1D5DB', fontSize:24 }}>🖼</div>
-                <div style={{ width:64, height:64, borderRadius:6, border:'1px dashed #D1D5DB', display:'flex', alignItems:'center', justifyContent:'center', color:'#9CA3AF', fontSize:20, cursor:'pointer' }}>+</div>
-              </div>
-            </Field>
-          </div>
-          <div style={{ marginTop:14 }}>
-            <Field label="附件信息">
-              <div style={{ border:'1px dashed #D1D5DB', borderRadius:6, padding:'24px', textAlign:'center', color:'#6B7280', fontSize:13 }}>
-                <span className="aw-link">点击上传</span> / 拖拽到此区域 &nbsp;
-                <span style={{ color:'#9CA3AF', fontSize:12 }}>支持 PDF / Word / Excel / Txt / JPG / PNG / RAR，单文件 ≤ 20MB</span>
-              </div>
-            </Field>
-          </div>
         </Card>
 
-        {/* Section: 工位 */}
-        <Card title="工位">
-          <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
-            <thead>
-              <tr>
-                <th>工位编码</th>
-                <th>工位名称</th>
-                <th>所属生产线</th>
-                <th>所属车间</th>
-                <th>所属工厂</th>
-                <th style={{ width:80 }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stations.map((s, i) => (
-                <tr key={i}>
-                  <td className="aw-num">{s.code}</td>
-                  <td>{s.name}</td>
-                  <td>{s.line}</td>
-                  <td>{s.workshop}</td>
-                  <td>{s.factory}</td>
-                  <td>
-                    <span className="aw-link" onClick={() => removeStation(i)} style={{ color:'#F5222D', fontSize:12 }}>删除</span>
-                  </td>
-                </tr>
-              ))}
-              {stations.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign:'center', color:'var(--aw-fg-3)', padding:'24px 12px', fontSize:13 }}>暂未添加工位</td></tr>
-              )}
-            </tbody>
-          </table>
-          <div style={{ marginTop:12 }}>
-            <Btn onClick={() => setShowStationPicker(true)}>+ 添加工位</Btn>
-          </div>
-        </Card>
+        {/* Section: 工序配置 */}
+        <Card>
+          <Tabs
+            items={[
+              { k:'station', label:'工位' },
+              { k:'hours', label:'工时' },
+              { k:'output', label:'副产品' },
+              { k:'params', label:'技术参数' },
+              { k:'qc', label:'质检方案' },
+            ]}
+            active={configTab}
+            onChange={setConfigTab}
+          />
 
-        {/* Section: 工时信息 */}
-        <Card title="工时信息">
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-            <span style={{ fontSize:13, color:'var(--aw-fg-2)' }}>工时配置</span>
-            <Switch on={showHours} onChange={setShowHours} />
-            <span style={{ fontSize:12, color:'var(--aw-fg-3)' }}>{showHours ? '已开启' : '已关闭'}</span>
-          </div>
-          {showHours && (
-            <div style={{ display:'flex', gap:16 }}>
-              <div style={{ flex:1 }}>
-                <Field label="标准工时">
-                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <Input type="number" placeholder="0" value={stdHours} onChange={e => setStdHours(e.target.value)} style={{ flex:1 }} />
-                    <span style={{ fontSize:13, color:'var(--aw-fg-3)', whiteSpace:'nowrap' }}>分钟</span>
-                  </div>
-                </Field>
-              </div>
-              <div style={{ flex:1 }}>
-                <Field label="辅助工时">
-                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <Input type="number" placeholder="0" value={auxHours} onChange={e => setAuxHours(e.target.value)} style={{ flex:1 }} />
-                    <span style={{ fontSize:13, color:'var(--aw-fg-3)', whiteSpace:'nowrap' }}>分钟</span>
-                  </div>
-                </Field>
-              </div>
-              <div style={{ flex:1 }}>
-                <Field label="冷却工时">
-                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <Input type="number" placeholder="0" value={coolHours} onChange={e => setCoolHours(e.target.value)} style={{ flex:1 }} />
-                    <span style={{ fontSize:13, color:'var(--aw-fg-3)', whiteSpace:'nowrap' }}>分钟</span>
-                  </div>
-                </Field>
-              </div>
-              <div style={{ flex:1 }}>
-                <Field label="工序成本">
-                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <Input type="number" placeholder="0" value={processCost} onChange={e => setProcessCost(e.target.value)} style={{ flex:1 }} />
-                    <span style={{ fontSize:13, color:'var(--aw-fg-3)', whiteSpace:'nowrap' }}>元</span>
-                  </div>
-                </Field>
+          {configTab === 'station' && (
+            <div style={{ paddingTop:16 }}>
+              <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
+                <thead>
+                  <tr>
+                    <th>工位编码</th>
+                    <th>工位名称</th>
+                    <th>所属生产线</th>
+                    <th>所属车间</th>
+                    <th>所属工厂</th>
+                    <th style={{ width:80 }}>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stations.map((s, i) => (
+                    <tr key={i}>
+                      <td className="aw-num">{s.code}</td>
+                      <td>{s.name}</td>
+                      <td>{s.line}</td>
+                      <td>{s.workshop}</td>
+                      <td>{s.factory}</td>
+                      <td>
+                        <span className="aw-link" onClick={() => removeStation(i)} style={{ color:'#F5222D', fontSize:12 }}>删除</span>
+                      </td>
+                    </tr>
+                  ))}
+                  {stations.length === 0 && (
+                    <tr><td colSpan={6} style={{ textAlign:'center', color:'var(--aw-fg-3)', padding:'24px 12px', fontSize:13 }}>暂未添加工位</td></tr>
+                  )}
+                </tbody>
+              </table>
+              <div style={{ marginTop:12 }}>
+                <Btn onClick={() => setShowStationPicker(true)}>+ 添加工位</Btn>
               </div>
             </div>
           )}
-        </Card>
 
-        {/* Section: 产出物 */}
-        <Card title="产出物">
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-            <span style={{ fontSize:13, color:'var(--aw-fg-2)' }}>产出物配置</span>
-            <Switch on={showOutput} onChange={setShowOutput} />
-            <span style={{ fontSize:12, color:'var(--aw-fg-3)' }}>{showOutput ? '已开启' : '已关闭'}</span>
-          </div>
-          {showOutput && (
-            <div>
-              <div style={{ marginBottom:12 }}>
-                <Btn onClick={() => setShowOutputPicker(true)}>+ 选择产品</Btn>
+          {configTab === 'hours' && (
+            <div style={{ paddingTop:16 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+                <span style={{ fontSize:13, color:'var(--aw-fg-2)' }}>工时配置</span>
+                <Switch on={showHours} onChange={setShowHours} />
+                <span style={{ fontSize:12, color:'var(--aw-fg-3)' }}>{showHours ? '已开启' : '已关闭'}</span>
               </div>
-              {outputProducts.length > 0 ? (
-                <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
-                  <thead>
-                    <tr>
-                      <th style={{ width:60 }}>图片</th>
-                      <th>产品名称</th>
-                      <th>产品编号</th>
-                      <th>型号</th>
-                      <th style={{ width:80 }}>分类</th>
-                      <th style={{ width:60 }}>单位</th>
-                      <th style={{ width:80 }}>获取方式</th>
-                      <th style={{ width:80 }}>操作</th>
+              {showHours && (
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4, minmax(0, 1fr))', gap:16 }}>
+                  <Field label="标准工时">
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <Input type="number" placeholder="0" value={stdHours} onChange={e => setStdHours(e.target.value)} style={{ flex:1 }} />
+                      <span style={{ fontSize:13, color:'var(--aw-fg-3)', whiteSpace:'nowrap' }}>分钟</span>
+                    </div>
+                  </Field>
+                  <Field label="辅助工时">
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <Input type="number" placeholder="0" value={auxHours} onChange={e => setAuxHours(e.target.value)} style={{ flex:1 }} />
+                      <span style={{ fontSize:13, color:'var(--aw-fg-3)', whiteSpace:'nowrap' }}>分钟</span>
+                    </div>
+                  </Field>
+                  <Field label="冷却工时">
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <Input type="number" placeholder="0" value={coolHours} onChange={e => setCoolHours(e.target.value)} style={{ flex:1 }} />
+                      <span style={{ fontSize:13, color:'var(--aw-fg-3)', whiteSpace:'nowrap' }}>分钟</span>
+                    </div>
+                  </Field>
+                  <Field label="工序成本">
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <Input type="number" placeholder="0" value={processCost} onChange={e => setProcessCost(e.target.value)} style={{ flex:1 }} />
+                      <span style={{ fontSize:13, color:'var(--aw-fg-3)', whiteSpace:'nowrap' }}>元</span>
+                    </div>
+                  </Field>
+                </div>
+              )}
+            </div>
+          )}
+
+          {configTab === 'output' && (
+            <div style={{ paddingTop:16 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+                <span style={{ fontSize:13, color:'var(--aw-fg-2)' }}>副产品配置</span>
+                <Switch on={showOutput} onChange={setShowOutput} />
+                <span style={{ fontSize:12, color:'var(--aw-fg-3)' }}>{showOutput ? '已开启' : '已关闭'}</span>
+              </div>
+              {showOutput && (
+                <div>
+                  <div style={{ marginBottom:12 }}>
+                    <Btn onClick={() => setShowOutputPicker(true)}>+ 选择副产品</Btn>
+                  </div>
+                  {outputProducts.length > 0 ? (
+                    <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ width:60 }}>图片</th>
+                          <th>产品名称</th>
+                          <th>产品编号</th>
+                          <th>型号</th>
+                          <th style={{ width:80 }}>分类</th>
+                          <th style={{ width:60 }}>单位</th>
+                          <th style={{ width:80 }}>获取方式</th>
+                          <th style={{ width:80 }}>操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {outputProducts.map((p, i) => (
+                          <tr key={i}>
+                            <td>
+                              <div style={{ width:36, height:36, borderRadius:6, background:'#E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', color:'#9CA3AF', fontSize:16 }}>📦</div>
+                            </td>
+                            <td>{p.name}</td>
+                            <td className="aw-num">{p.code}</td>
+                            <td>{p.model}</td>
+                            <td>{p.cat}</td>
+                            <td>{p.unit}</td>
+                            <td>{p.source}</td>
+                            <td>
+                              <span className="aw-link" onClick={() => removeOutput(i)} style={{ color:'#F5222D', fontSize:12 }}>删除</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div style={{ border:'1px dashed #D1D5DB', borderRadius:6, padding:'24px', textAlign:'center', color:'#6B7280', fontSize:13 }}>
+                      暂未选择副产品，请点击上方按钮选择
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {configTab === 'params' && (
+            <div style={{ paddingTop:16 }}>
+              <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
+                <thead>
+                  <tr>
+                    <th>参数名称</th>
+                    <th>参数值</th>
+                    <th style={{ width:80 }}>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {techParams.map(p => (
+                    <tr key={p.id}>
+                      <td>
+                        <Input placeholder="请输入参数名称" value={p.name}
+                          onChange={e => updateTechParam(p.id, 'name', e.target.value)} />
+                      </td>
+                      <td>
+                        <Input placeholder="请输入参数值" value={p.value}
+                          onChange={e => updateTechParam(p.id, 'value', e.target.value)} />
+                      </td>
+                      <td>
+                        {techParams.length > 1 && (
+                          <span className="aw-link" onClick={() => removeTechParam(p.id)} style={{ color:'#F5222D', fontSize:12 }}>删除</span>
+                        )}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {outputProducts.map((p, i) => (
-                      <tr key={i}>
-                        <td>
-                          <div style={{ width:36, height:36, borderRadius:6, background:'#E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', color:'#9CA3AF', fontSize:16 }}>📦</div>
-                        </td>
-                        <td>{p.name}</td>
-                        <td className="aw-num">{p.code}</td>
-                        <td>{p.model}</td>
-                        <td>{p.cat}</td>
-                        <td>{p.unit}</td>
-                        <td>{p.source}</td>
-                        <td>
-                          <span className="aw-link" onClick={() => removeOutput(i)} style={{ color:'#F5222D', fontSize:12 }}>删除</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div style={{ border:'1px dashed #D1D5DB', borderRadius:6, padding:'24px', textAlign:'center', color:'#6B7280', fontSize:13 }}>
-                  暂未选择产出物，请点击上方按钮选择
+                  ))}
+                </tbody>
+              </table>
+              <div style={{ marginTop:12 }}>
+                <Btn onClick={addTechParam}>+ 添加参数</Btn>
+              </div>
+            </div>
+          )}
+
+          {configTab === 'qc' && (
+            <div style={{ paddingTop:16 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+                <span style={{ fontSize:13, color:'var(--aw-fg-2)' }}>质检方案配置</span>
+                <Switch on={showQcPlan} onChange={setShowQcPlan} />
+                <span style={{ fontSize:12, color:'var(--aw-fg-3)' }}>{showQcPlan ? '已开启' : '已关闭'}</span>
+              </div>
+              {showQcPlan && (
+                <div>
+                  <div style={{ fontSize:13, color:'var(--aw-fg-3)', marginBottom:12 }}>选择当前工序执行时需要带出的制程质检 IPQC 方案。</div>
+                  {qcPlans.length > 0 ? (
+                    <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
+                      <thead>
+                        <tr>
+                          <th style={{ width:150 }}>方案编号</th>
+                          <th>方案名称</th>
+                          <th style={{ width:140 }}>适用范围</th>
+                          <th style={{ width:180 }}>抽样规则</th>
+                          <th style={{ width:180 }}>关键控制点</th>
+                          <th style={{ width:80 }}>状态</th>
+                          <th style={{ width:80 }}>操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {qcPlans.map(row => (
+                          <tr key={row.code}>
+                            <td className="aw-num">{row.code}</td>
+                            <td>{row.name}</td>
+                            <td>{row.scope}</td>
+                            <td>{row.sampling}</td>
+                            <td>{row.control}</td>
+                            <td>{row.state === '启用' ? <Badge tone="g">启用</Badge> : <Badge tone="y">{row.state}</Badge>}</td>
+                            <td>
+                              <span className="aw-link" onClick={() => setQcPlans(prev => prev.filter(item => item.code !== row.code))} style={{ color:'#F5222D', fontSize:12 }}>删除</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div style={{ border:'1px dashed #D1D5DB', borderRadius:6, padding:'24px', textAlign:'center', color:'#6B7280', fontSize:13 }}>
+                      暂未选择质检方案，请点击下方按钮添加 IPQC 质检方案
+                    </div>
+                  )}
+                  <div style={{ marginTop:12 }}>
+                    <Btn onClick={() => setShowQcPlanPicker(true)}>+ 添加质检方案</Btn>
+                  </div>
                 </div>
               )}
             </div>
           )}
         </Card>
 
-        {/* Section: 技术参数 */}
-        <Card title="技术参数">
-          <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
-            <thead>
-              <tr>
-                <th>参数名称</th>
-                <th>参数值</th>
-                <th style={{ width:80 }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {techParams.map(p => (
-                <tr key={p.id}>
-                  <td>
-                    <Input placeholder="请输入参数名称" value={p.name}
-                      onChange={e => updateTechParam(p.id, 'name', e.target.value)} />
-                  </td>
-                  <td>
-                    <Input placeholder="请输入参数值" value={p.value}
-                      onChange={e => updateTechParam(p.id, 'value', e.target.value)} />
-                  </td>
-                  <td>
-                    {techParams.length > 1 && (
-                      <span className="aw-link" onClick={() => removeTechParam(p.id)} style={{ color:'#F5222D', fontSize:12 }}>删除</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{ marginTop:12 }}>
-            <Btn onClick={addTechParam}>+ 添加参数</Btn>
-          </div>
-        </Card>
-
         {/* Section: 工序说明 */}
         <Card title="工序说明">
           <div className="aw-doc-grid" style={{ marginBottom:14 }}>
             <Field label="关联文档">
-              <Select><option>请选择关联文档</option>
-                {DOC_OPTIONS.map(d => <option key={d}>{d}</option>)}
-              </Select>
+              <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                <Input
+                  value={linkedDoc}
+                  readOnly
+                  placeholder="请选择关联文档"
+                  onClick={() => setShowDocPicker(true)}
+                  style={{ flex:1, cursor:'pointer' }}
+                />
+                <button className="aw-btn" type="button" onClick={() => setShowDocPicker(true)} style={{ fontSize:12, padding:'5px 10px', whiteSpace:'nowrap' }}>选择</button>
+              </div>
             </Field>
           </div>
           <div style={{ marginTop:8 }}>
@@ -687,6 +881,14 @@ function ProcessNewView({ onBack }) {
             <div className="aw-rt-area" contentEditable suppressContentEditableWarning>
               请输入工序说明内容…
             </div>
+          </div>
+          <div style={{ marginTop:14 }}>
+            <Field label="附件信息">
+              <div style={{ border:'1px dashed #D1D5DB', borderRadius:6, padding:'24px', textAlign:'center', color:'#6B7280', fontSize:13 }}>
+                <span className="aw-link">点击上传</span> / 拖拽到此区域 &nbsp;
+                <span style={{ color:'#9CA3AF', fontSize:12 }}>支持 PDF / Word / Excel / Txt / JPG / PNG / RAR，单文件 ≤ 20MB</span>
+              </div>
+            </Field>
           </div>
         </Card>
 
@@ -708,6 +910,26 @@ function ProcessNewView({ onBack }) {
           onConfirm={(selected) => {
             setOutputProducts(prev => [...prev, ...selected]);
             setShowOutputPicker(false);
+          }}
+        />
+      )}
+      {showDocPicker && (
+        <ProcessDocumentPicker
+          value={linkedDoc}
+          onClose={() => setShowDocPicker(false)}
+          onConfirm={(doc) => {
+            setLinkedDoc(doc.name);
+            setShowDocPicker(false);
+          }}
+        />
+      )}
+      {showQcPlanPicker && (
+        <ProcessQcPlanPicker
+          picked={qcPlans}
+          onClose={() => setShowQcPlanPicker(false)}
+          onConfirm={(rows) => {
+            setQcPlans(rows);
+            setShowQcPlanPicker(false);
           }}
         />
       )}
@@ -767,11 +989,6 @@ function ProcessDetailView({ process, onBack }) {
                 <span>修改人：{process.modifier}</span>
                 <span>修改时间：{process.modifiedAt}</span>
               </div>
-              <div style={{ display:'flex', gap:8 }}>
-                <Btn onClick={() => setEditMode(!editMode)}>编辑</Btn>
-                <Btn kind="danger">删除</Btn>
-                <Btn>{process.state === '暂停' ? '启用' : '暂停'}</Btn>
-              </div>
             </div>
           </div>
         </Card>
@@ -782,6 +999,7 @@ function ProcessDetailView({ process, onBack }) {
             { k:'info', label:'工序信息' },
             { k:'station', label:'工序工位' },
             { k:'hours', label:'工序工时' },
+            { k:'output', label:'副产品' },
             { k:'params', label:'技术参数' },
             { k:'qc', label:'工序质检' },
             { k:'log', label:'操作记录' },
@@ -807,21 +1025,12 @@ function ProcessDetailView({ process, onBack }) {
                 <div style={{ fontSize:13, color:'#4B5563', lineHeight:1.7 }}>{process.desc}</div>
               </div>
 
-              {/* 图纸 */}
-              <div style={{ marginTop:18 }}>
-                <div className="aw-section-title">图纸</div>
-                <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-                  <div style={{ width:80, height:80, borderRadius:6, background:'#F3F4F6', border:'1px solid #E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', color:'#D1D5DB', fontSize:28 }}>🖼</div>
-                  <div style={{ width:80, height:80, borderRadius:6, background:'#F3F4F6', border:'1px solid #E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', color:'#D1D5DB', fontSize:28 }}>🖼</div>
-                </div>
-              </div>
-
               {/* 附件 */}
               <div style={{ marginTop:18 }}>
                 <div className="aw-section-title">附件信息</div>
                 <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
                   <div style={{ border:'1px solid #E5E7EB', borderRadius:6, padding:'8px 12px', fontSize:12, display:'flex', alignItems:'center', gap:8 }}>
-                    📄 工艺图纸_v2.pdf <span style={{ color:'#9CA3AF' }}>1.8MB</span>
+                    📄 工艺规范_v2.pdf <span style={{ color:'#9CA3AF' }}>1.8MB</span>
                     <span className="aw-link" style={{ fontSize:12 }}>下载</span>
                   </div>
                   <div style={{ border:'1px solid #E5E7EB', borderRadius:6, padding:'8px 12px', fontSize:12, display:'flex', alignItems:'center', gap:8 }}>
@@ -908,6 +1117,38 @@ function ProcessDetailView({ process, onBack }) {
                 </tbody>
               </table>
             </div>
+          )}
+
+          {/* === 副产品 === */}
+          {tab === 'output' && (
+            <table className="aw-table" style={{ borderRadius:6, overflow:'hidden' }}>
+              <thead>
+                <tr>
+                  <th style={{ width:60 }}>图片</th>
+                  <th>产品名称</th>
+                  <th>产品编号</th>
+                  <th>型号</th>
+                  <th style={{ width:90 }}>分类</th>
+                  <th style={{ width:70 }}>单位</th>
+                  <th style={{ width:100 }}>获取方式</th>
+                </tr>
+              </thead>
+              <tbody>
+                {OUTPUT_PRODUCTS.map(p => (
+                  <tr key={p.id}>
+                    <td>
+                      <div style={{ width:36, height:36, borderRadius:6, background:'#E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', color:'#9CA3AF', fontSize:16 }}>📦</div>
+                    </td>
+                    <td>{p.name}</td>
+                    <td className="aw-num">{p.code}</td>
+                    <td>{p.model}</td>
+                    <td>{p.cat}</td>
+                    <td>{p.unit}</td>
+                    <td>{p.source}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
 
           {/* === 技术参数 === */}

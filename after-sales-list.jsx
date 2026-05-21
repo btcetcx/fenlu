@@ -1,9 +1,10 @@
-﻿// ui_kits/erp-console/after-sales-list.jsx
-// 售后中心：售后工单 / 退换退款 / 服务派工 / 质量闭环 / 基础设置
+// ui_kits/erp-console/after-sales-list.jsx
+// 售后中心：售后单 / 处理任务 / 质量闭环
 const { useState: useAsState, useEffect: useAsEffect } = React;
 
 const AS_CONFIG = {
-  asService:{ title:'售后工单', treeTitle:'工单视图', groups:['全部工单','待受理','处理中','待客户确认','已关闭','异常升级'], newLabel:'新增工单', codeLabel:'售后单号', subjectLabel:'工单主题', typeLabel:'服务类型', statusLabel:'工单状态', statuses:['待处理','处理中','已完成','已关闭'], row:{subject:'客户设备异常处理',code:'SH-000001',customer:'海南微为智造产业有限公司',type:'维修处理',priority:'紧急',owner:'老夏',date:'2025-05-01',status:'待处理',sourceOrder:'SO-20251221002',sourceDelivery:'DLV-20251222001',receivable:'待确认',invoice:'未开票'} },
+  asService:{ title:'售后单', treeTitle:'售后单视图', groups:['全部售后单','待受理','处理中','待客户确认','已关闭','异常升级'], newLabel:'新增售后', codeLabel:'售后单号', subjectLabel:'售后主题', typeLabel:'售后类型', statusLabel:'售后状态', statuses:['待处理','处理中','已完成','已关闭'], row:{subject:'客户设备异常处理',code:'SH-000001',customer:'海南微为智造产业有限公司',type:'维修处理',priority:'紧急',owner:'老夏',date:'2025-05-01',status:'待处理',sourceOrder:'SO-20251221002',sourceDelivery:'DLV-20251222001',receivable:'待确认',invoice:'未开票'} },
+  asTask:{ kind:'task', title:'处理任务', treeTitle:'任务类型', groups:['全部处理任务','退货入库','换货出库','退款处理','维修派工','现场服务','客户确认'], newLabel:'新增任务', codeLabel:'任务编号', subjectLabel:'任务主题', typeLabel:'任务类型', statusLabel:'任务状态', statuses:['待处理','处理中','待客户确认','已完成','异常'], row:{subject:'退货入库处理任务',code:'AST-202505-001',customer:'海南微为智造产业有限公司',type:'退货入库',priority:'紧急',owner:'仓库/财务',date:'2025-05-01',status:'待处理',sourceOrder:'SO-20251221002',sourceDelivery:'DLV-20251222001',receivable:'待应收调整',invoice:'待红冲'} },
   asRefundExchange:{ title:'退换退款', treeTitle:'处理类型', groups:['全部退换退款','待审核','退款退货','仅退款','换货','仅退货','异常处理'], newLabel:'新增退换退款', codeLabel:'退换退款单号', subjectLabel:'退换退款主题', typeLabel:'处理类型', statusLabel:'审核状态', statuses:['待审核','已通过','驳回','已关闭'], row:{subject:'WL0001退换退款申请',code:'ASR-202505-001',customer:'海南微为智造产业有限公司',type:'退换退款',priority:'紧急',owner:'老夏',date:'2025-05-01',status:'待审核',sourceOrder:'SO-20251221002',sourceDelivery:'DLV-20251222001',receivable:'待应收调整',invoice:'待红冲'} },
   asRefundReturn:{ kind:'refundReturn', title:'退款退货', treeTitle:'退款退货分类', groups:['全部退款退货','待退货入库','待退款审核','待打款','已完成','异常单'], newLabel:'新增退款退货', codeLabel:'退款退货单号', subjectLabel:'退款退货主题', typeLabel:'处理方式', statusLabel:'处理状态', statuses:['待退货入库','待退款审核','待打款','已完成','异常'], row:{subject:'退货入库并退款',code:'ARR-202505-001',customer:'海南微为智造产业有限公司',type:'退款退货',priority:'紧急',owner:'仓库/财务',date:'2025-05-01',status:'待退货入库',sourceOrder:'SO-20251221002',sourceDelivery:'DLV-20251222001',refund:'28,000.00',receivable:'冲减应收28,000.00',invoice:'待红冲'} },
   asRefundOnly:{ kind:'refundOnly', title:'仅退款', treeTitle:'仅退款分类', groups:['全部仅退款','待退款审核','待财务打款','已退款','驳回','异常单'], newLabel:'新增仅退款', codeLabel:'仅退款单号', subjectLabel:'仅退款主题', typeLabel:'退款类型', statusLabel:'退款状态', statuses:['待退款审核','待财务打款','已退款','驳回','异常'], row:{subject:'订单差价仅退款',code:'ARO-202505-001',customer:'海南微为智造产业有限公司',type:'仅退款',priority:'中等',owner:'财务',date:'2025-05-01',status:'待退款审核',refund:'3,200.00',receivable:'差价冲减3,200.00'} },
@@ -84,7 +85,13 @@ function AsProcessMatrix() {
 }
 
 function AsAttachmentUpload() {
-  return <div style={{display:'grid',gridTemplateColumns:'320px minmax(0,1fr)',gap:16,alignItems:'start'}}><div><div style={{fontSize:13,marginBottom:8}}>问题附件 <span style={{color:'var(--aw-danger)'}}>*</span></div><div style={{border:'1px dashed var(--aw-border-strong)',borderRadius:8,padding:24,textAlign:'center',color:'var(--aw-fg-3)',background:'#fff'}}><span className="aw-link">点击或将文件拖拽到这里上传</span><div style={{fontSize:12,marginTop:8}}>支持图片、视频、检测报告、物流凭证</div></div></div><table className="aw-table"><thead><tr><th>附件类型</th><th>是否必传</th><th>用于环节</th><th>示例</th></tr></thead><tbody><tr><td>问题照片/视频</td><td><Badge tone="r">必传</Badge></td><td>受理、责任判定</td><td>外观破损、故障现象</td></tr><tr><td>物流/签收凭证</td><td><Badge tone="y">条件必传</Badge></td><td>错发、少发、运输破损</td><td>签收单、运单截图</td></tr><tr><td>检测报告</td><td><Badge tone="y">条件必传</Badge></td><td>质量改进、供应商追责</td><td>复检报告、OQC记录</td></tr></tbody></table></div>;
+  return <div className="aw-as-upload-only">
+    <div className="aw-as-upload-box">
+      <span className="aw-link">点击或将文件拖拽到这里上传</span>
+      <div>建议上传问题照片/视频、物流签收凭证、检测报告或现场沟通记录，证据越完整，责任判定和后续处理越快。</div>
+      <div>支持图片、视频、PDF、Excel、Word 等附件。</div>
+    </div>
+  </div>;
 }
 
 function AsTone({ status }) {
@@ -101,6 +108,54 @@ function AsRows(config) {
     {...b, code:b.code.replace('001','003'), subject:config.groups[2] + '示例', status:config.statuses[1] || config.statuses[0]},
     {...b, code:b.code.replace('001','004'), subject:config.groups[3] + '示例', status:config.statuses[2] || config.statuses[0]},
   ];
+}
+
+const AS_SOURCE_ROWS = [
+  { cat:'订单', code:'SO-20251221002', subject:'智能温控锅售后退货', date:'2025-05-01', customer:'海南微为智造产业有限公司', contact:'老夏', phone:'13888888888', manager:'老夏', group:'代理商', sourceOrder:'SO-20251221002', sourceDelivery:'DLV-20251222001', sourceDetail:'DLV-20251222001-01', sourceReceivable:'AR-20251222001', sourceInvoice:'INV-20251224001', maxQty:'80', maxRefund:'28,000.00' },
+  { cat:'订单', code:'SO-20251221018', subject:'包装破损换货申请', date:'2025-05-03', customer:'深圳市启明科技有限公司', contact:'王芳', phone:'13700137003', manager:'张国', group:'重点客户', sourceOrder:'SO-20251221018', sourceDelivery:'DLV-20251223008', sourceDetail:'DLV-20251223008-02', sourceReceivable:'AR-20251223008', sourceInvoice:'INV-20251225009', maxQty:'36', maxRefund:'12,600.00' },
+  { cat:'客户', code:'CUST-00086', subject:'客户批量退货诉求', date:'2025-05-06', customer:'广州智造电子', contact:'李主管', phone:'13666666666', manager:'李文涛', group:'项目客户', sourceOrder:'SO-20251218006', sourceDelivery:'DLV-20251219003', sourceDetail:'DLV-20251219003-01', sourceReceivable:'AR-20251219003', sourceInvoice:'INV-20251221004', maxQty:'24', maxRefund:'9,800.00' },
+  { cat:'项目', code:'PRJ-2025-001', subject:'项目交付异常换货', date:'2025-05-08', customer:'杭州云联技术', contact:'陈经理', phone:'13999999999', manager:'陈思源', group:'长期客户', sourceOrder:'SO-20251226001', sourceDelivery:'DLV-20251227001', sourceDetail:'DLV-20251227001-04', sourceReceivable:'AR-20251227001', sourceInvoice:'INV-20251228001', maxQty:'12', maxRefund:'6,400.00' },
+];
+
+function AsSourcePickerModal({ onClose, onConfirm }) {
+  const [cat, setCat] = useAsState('订单');
+  const [picked, setPicked] = useAsState(null);
+  const rows = AS_SOURCE_ROWS.filter(row => row.cat === cat);
+  return (
+    <div className="aw-mask" onClick={onClose}>
+      <div className="aw-modal lg" onClick={e=>e.stopPropagation()}>
+        <div className="head"><span>选择售后来源</span><span style={{cursor:'pointer',color:'var(--aw-fg-4)'}} onClick={onClose}>×</span></div>
+        <div className="body" style={{display:'grid',gridTemplateColumns:'180px minmax(0,1fr)',padding:0,minHeight:430}}>
+          <div style={{borderRight:'1px solid var(--aw-divider)',padding:12,background:'var(--aw-surface-2)'}}>
+            {['订单','客户','项目'].map(item => (
+              <div key={item} className={'aw-tree-row aw-tree-l2 '+(cat===item?'on':'')} onClick={()=>{setCat(item);setPicked(null);}}>
+                <TileIcon name={item==='订单'?'doc':item==='客户'?'user':'folder'} size={14}/><span>{item}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{padding:16,overflow:'auto'}}>
+            <div style={{fontSize:13,color:'var(--aw-fg-3)',marginBottom:12}}>当前来源：<span className="aw-link">{cat}</span></div>
+            <table className="aw-table">
+              <thead><tr><th style={{width:56}}>选择</th><th>来源编号</th><th>来源主题</th><th>客户</th><th>来源日期</th><th>产品数</th></tr></thead>
+              <tbody>
+                {rows.map(row => (
+                  <tr key={row.code} onClick={()=>setPicked(row)} style={{cursor:'pointer'}}>
+                    <td><Radio on={picked?.code===row.code} /></td>
+                    <td className="aw-num">{row.code}</td>
+                    <td className="aw-link">{row.subject}</td>
+                    <td>{row.customer}</td>
+                    <td>{row.date}</td>
+                    <td>{row.maxQty}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="foot"><Btn onClick={onClose}>取消</Btn><Btn kind="primary" onClick={()=>picked&&onConfirm(picked)}>确定</Btn></div>
+      </div>
+    </div>
+  );
 }
 
 function AsTree({ config, picked, setPicked }) {
@@ -124,35 +179,207 @@ function AsListView({ config, picked, onNew, onView }) {
   const someChecked=rows.some((_,i)=>sel[i]);
   const toggleAll=()=>{ if(allChecked)setSel({}); else { const n={}; rows.forEach((_,i)=>n[i]=true); setSel(n);} };
   const toggleRow=i=>setSel(s=>({...s,[i]:!s[i]}));
-  const extraFilters = <><Select value={scene} onChange={e=>setScene(e.target.value)} style={{width:118}}><option value="">全部场景</option>{AS_PROCESS_OPTIONS.map(t=><option key={t}>{t}</option>)}</Select><Select value={sla} onChange={e=>setSla(e.target.value)} style={{width:112}}><option value="">SLA状态</option><option>正常</option><option>临期</option><option>超时</option></Select><Btn>批量派单</Btn><Btn>批量催办</Btn></>;
-  return <><AsMiniStats/><PurchaseListToolbar searchPlaceholder={`全局搜索（如${config.subjectLabel}、${config.codeLabel}、客户、来源订单）`} newLabel={config.newLabel} onNew={onNew} afterSearch={extraFilters}/><div className="aw-doc-tbl-wrap"><div className="aw-doc-tbl-inner"><table className="aw-doc-tbl" style={{whiteSpace:'nowrap'}}><thead><tr><PurchaseSelectHeader checked={allChecked} indeterminate={someChecked} onToggle={toggleAll}/><PurchaseIndexHeader />{[config.subjectLabel,config.codeLabel,'客户','来源订单','来源发货单','来源明细',config.typeLabel,'可售后数量','可退金额','SLA','仓储处理','财务处理','发票处理','客户确认','质量联动','优先级','负责人','提交时间'].map(c=><th key={c} style={{width:c.length>4?130:100}}><div className="aw-th-inner">{c}</div></th>)}<PurchaseStatusFilterHeader label={config.statusLabel} value={status} onChange={setStatus} options={config.statuses} width={150}/><th style={{width:150}}><div className="aw-th-inner">操作</div></th></tr></thead><tbody>{rows.map((r,i)=>{const slaLevel=i===1?'临期':i===2?'超时':'正常';return <tr key={r.code} onClick={()=>onView(r)} style={{cursor:'pointer'}}><PurchaseSelectCell checked={!!sel[i]} onToggle={()=>toggleRow(i)}/><td>{i+1}</td><td className="aw-link">{r.subject}</td><td className="aw-num">{r.code}</td><td>{r.customer}</td><td>{r.sourceOrder}</td><td>{r.sourceDelivery}</td><td>{r.sourceDetail}</td><td>{r.type}</td><td>{r.maxQty}</td><td className="aw-num">{r.refund||r.maxRefund||'0.00'}</td><td><AsSlaBadge level={slaLevel}/></td><td>{r.inboundState||r.outboundState||'无需仓储'}</td><td>{r.receivable||r.refundState||r.receivableState||'无需调整'}</td><td>{r.invoice||r.invoiceState||'未开票'}</td><td>{i===3?'已确认':'待确认'}</td><td>{r.type==='维修处理'||r.type==='换货'?<Badge tone="y">待判定</Badge>:<Badge tone="g">无需</Badge>}</td><td>{r.priority}</td><td>{r.owner}</td><td>{r.date}</td><td><AsTone status={r.status}/></td><td><span className="aw-link" onClick={e=>{e.stopPropagation();onView(r)}}>查看</span> <span className="aw-link" onClick={e=>e.stopPropagation()}>催办</span></td></tr>})}</tbody></table></div></div><PurchaseListFooter total={800} selectedCount={Object.values(sel).filter(Boolean).length} allChecked={allChecked} someChecked={someChecked} onToggleAll={toggleAll} pages={23}/></>;
+  const extraFilters = <><Select value={scene} onChange={e=>setScene(e.target.value)} style={{width:118}}><option value="">全部场景</option>{AS_PROCESS_OPTIONS.map(t=><option key={t}>{t}</option>)}</Select><Select value={sla} onChange={e=>setSla(e.target.value)} style={{width:112}}><option value="">SLA状态</option><option>正常</option><option>临期</option><option>超时</option></Select></>;
+  const bulkActions = <><Btn>批量派单</Btn><Btn>批量催办</Btn></>;
+  return <><AsMiniStats/><PurchaseListToolbar searchPlaceholder={`全局搜索（如${config.subjectLabel}、${config.codeLabel}、客户、来源订单）`} newLabel={config.newLabel} onNew={onNew} afterSearch={extraFilters}/><div className="aw-doc-tbl-wrap"><div className="aw-doc-tbl-inner"><table className="aw-doc-tbl" style={{whiteSpace:'nowrap'}}><thead><tr><PurchaseSelectHeader checked={allChecked} indeterminate={someChecked} onToggle={toggleAll}/><PurchaseIndexHeader />{[config.subjectLabel,config.codeLabel,'客户','来源订单','来源发货单','来源明细',config.typeLabel,'可售后数量','可退金额','SLA','仓储处理','财务处理','发票处理','客户确认','质量联动','优先级','负责人','提交时间'].map(c=><th key={c} style={{width:c.length>4?130:100}}><div className="aw-th-inner">{c}</div></th>)}<PurchaseStatusFilterHeader label={config.statusLabel} value={status} onChange={setStatus} options={config.statuses} width={150}/><th style={{width:150}}><div className="aw-th-inner">操作</div></th></tr></thead><tbody>{rows.map((r,i)=>{const slaLevel=i===1?'临期':i===2?'超时':'正常';return <tr key={r.code} onClick={()=>onView(r)} style={{cursor:'pointer'}}><PurchaseSelectCell checked={!!sel[i]} onToggle={()=>toggleRow(i)}/><td>{i+1}</td><td className="aw-link">{r.subject}</td><td className="aw-num">{r.code}</td><td>{r.customer}</td><td>{r.sourceOrder}</td><td>{r.sourceDelivery}</td><td>{r.sourceDetail}</td><td>{r.type}</td><td>{r.maxQty}</td><td className="aw-num">{r.refund||r.maxRefund||'0.00'}</td><td><AsSlaBadge level={slaLevel}/></td><td>{r.inboundState||r.outboundState||'无需仓储'}</td><td>{r.receivable||r.refundState||r.receivableState||'无需调整'}</td><td>{r.invoice||r.invoiceState||'未开票'}</td><td>{i===3?'已确认':'待确认'}</td><td>{r.type==='维修处理'||r.type==='换货'?<Badge tone="y">待判定</Badge>:<Badge tone="g">无需</Badge>}</td><td>{r.priority}</td><td>{r.owner}</td><td>{r.date}</td><td><AsTone status={r.status}/></td><td><span className="aw-link" onClick={e=>{e.stopPropagation();onView(r)}}>查看</span> <span className="aw-link" onClick={e=>e.stopPropagation()}>催办</span></td></tr>})}</tbody></table></div></div><PurchaseListFooter total={800} selectedCount={Object.values(sel).filter(Boolean).length} allChecked={allChecked} someChecked={someChecked} onToggleAll={toggleAll} pages={23} bulkActions={bulkActions}/></>;
 }
 
 function AsBaseFieldContent({ config, row }) {
   const data = {...AS_SOURCE_DEFAULTS, ...(row||config.row||{})};
   const [customer, setCustomer] = useAsState({ name:data.customer||'海南微为智造产业有限公司', contact:'老夏', phone:'13888888888', manager:'老夏', group:'代理商' });
-  const [showCustomerPicker, setShowCustomerPicker] = useAsState(false);
-  return <><div className="aw-doc-grid"><Field label="选择客户" req><div style={{display:'flex',gap:8}}><Input value={customer.name} readOnly onClick={()=>setShowCustomerPicker(true)} style={{flex:1,cursor:'pointer'}} /><Btn onClick={()=>setShowCustomerPicker(true)}>选择</Btn></div></Field><Field label="联系人"><Input value={customer.contact} readOnly /></Field><Field label="联系电话"><Input value={customer.phone} readOnly /></Field><Field label="收货地址"><Input defaultValue="海南省海口市龙华区华海路安海大厦" /></Field><Field label="客户类别"><Input value={customer.group} readOnly /></Field><Field label="销售经理"><Input value={customer.manager} readOnly /></Field><Field label="来源销售订单" req><Input defaultValue={data.sourceOrder} /></Field><Field label="来源发货单" req><Input defaultValue={data.sourceDelivery} /></Field><Field label="来源明细" req><Input defaultValue={data.sourceDetail} /></Field><Field label="原应收单"><Input value={data.sourceReceivable} readOnly /></Field><Field label="原发票"><Input value={data.sourceInvoice} readOnly /></Field><Field label="可售后数量"><Input value={data.maxQty} readOnly /></Field><Field label="可退金额"><Input value={data.maxRefund} readOnly /></Field><Field label="红冲/应收策略"><Input value="已开票需红冲或应收冲减" readOnly /></Field><Field label="售后日期"><Input defaultValue="2025-05-01" /></Field><Field label={config.codeLabel}><Input defaultValue="自动生成" disabled /></Field><Field label={config.statusLabel}><Input value={config.statuses[0]} readOnly /></Field><Field label="SLA等级"><Select defaultValue="紧急-2小时受理"><option>紧急-2小时受理</option><option>标准-8小时受理</option><option>低优先-24小时受理</option></Select></Field><Field label="优先级"><div style={{display:'flex',gap:14,alignItems:'center',height:32}}><Radio on>紧急</Radio><Radio>中等</Radio><Radio>一般</Radio></div></Field><Field label="客户确认方式"><Select defaultValue="线上确认"><option>线上确认</option><option>电话确认</option><option>签字回传</option></Select></Field></div>{showCustomerPicker&&<SimpleCustomerPickerModal onClose={()=>setShowCustomerPicker(false)} onConfirm={(picked)=>{setCustomer({name:picked.name,contact:picked.contact,phone:picked.phone,manager:picked.manager,group:picked.group});setShowCustomerPicker(false);}} />}</>;
+  const [source, setSource] = useAsState(data);
+  const [subject, setSubject] = useAsState(data.subject || config.row?.subject || '');
+  const [showSourcePicker, setShowSourcePicker] = useAsState(false);
+  const subjectPlaceholder = config.kind === 'exchange' ? '请输入或选择换货主题' : config.kind === 'returnOnly' || config.kind === 'refundReturn' ? '请输入或选择退货主题' : '请输入或选择退换退款主题';
+  const applySource = (picked) => {
+    setSubject(picked.subject);
+    setCustomer({name:picked.customer, contact:picked.contact, phone:picked.phone, manager:picked.manager, group:picked.group});
+    setSource({...source, ...picked});
+    setShowSourcePicker(false);
+  };
+  return (
+    <>
+      <div className="aw-doc-grid">
+        <Field label="选择主题" req>
+          <div style={{display:'flex',gap:8}}>
+            <Input value={subject} onChange={e=>setSubject(e.target.value)} placeholder={subjectPlaceholder} style={{flex:1}} />
+            <Btn onClick={()=>setShowSourcePicker(true)}>选择</Btn>
+          </div>
+        </Field>
+        <Field label="联系人"><Input value={customer.contact} readOnly /></Field>
+        <Field label="联系电话"><Input value={customer.phone} readOnly /></Field>
+        <Field label="客户名称"><Input value={customer.name} readOnly /></Field>
+        <Field label="收货地址"><Input defaultValue="海南省海口市龙华区华海路安海大厦" /></Field>
+        <Field label="客户类别"><Input value={customer.group} readOnly /></Field>
+        <Field label="销售经理"><Input value={customer.manager} readOnly /></Field>
+        <Field label="来源分类"><Input value={source.cat || '订单'} readOnly /></Field>
+        <Field label="来源销售订单" req><Input value={source.sourceOrder} readOnly /></Field>
+        <Field label="来源发货单" req><Input value={source.sourceDelivery} readOnly /></Field>
+        <Field label="来源明细" req><Input value={source.sourceDetail} readOnly /></Field>
+        <Field label="原应收单"><Input value={source.sourceReceivable} readOnly /></Field>
+        <Field label="原发票"><Input value={source.sourceInvoice} readOnly /></Field>
+        <Field label="可售后数量"><Input value={source.maxQty} readOnly /></Field>
+        <Field label="可退金额"><Input value={source.maxRefund} readOnly /></Field>
+        <Field label="红冲/应收策略"><Input value="已开票需红冲或应收冲减" readOnly /></Field>
+        <Field label="售后日期"><Input defaultValue="2025-05-01" /></Field>
+        <Field label={config.codeLabel}><Input defaultValue="自动生成" disabled /></Field>
+        <Field label={config.statusLabel}><Input value={config.statuses[0]} readOnly /></Field>
+        <Field label="SLA等级"><Select defaultValue="紧急-2小时受理"><option>紧急-2小时受理</option><option>标准-8小时受理</option><option>低优先-24小时受理</option></Select></Field>
+        <Field label="优先级"><div style={{display:'flex',gap:14,alignItems:'center',height:32}}><Radio on>紧急</Radio><Radio>中等</Radio><Radio>一般</Radio></div></Field>
+        <Field label="客户确认方式"><Select defaultValue="线上确认"><option>线上确认</option><option>电话确认</option><option>签字回传</option></Select></Field>
+      </div>
+      {showSourcePicker && <AsSourcePickerModal onClose={()=>setShowSourcePicker(false)} onConfirm={applySource} />}
+    </>
+  );
 }
 
 function AsBaseFields({ config, row }) {
   return <PurchaseSection title="基本信息"><AsBaseFieldContent config={config} row={row}/></PurchaseSection>;
 }
 
-function AsProductTable({ withActions=true }) {
-  return <table className="aw-table"><thead><tr><th>序号</th><th>来源明细</th><th>产品名称</th><th>物料型号</th><th>物料类型</th><th>物料分类</th><th>规格/尺寸</th><th>单位</th><th>实供数量</th><th>实供单价</th><th>已售后</th><th>可售后数量</th><th>本次售后</th><th>售后类型</th><th>售后原因</th><th>责任判定</th><th>仓储动作</th><th>财务动作</th>{withActions&&<th>操作</th>}</tr></thead><tbody>{AS_PRODUCTS.map((p,i)=>{const canQty=Number(p[7]||0)-20;return <tr key={p[0]}><td>{i+1}</td><td>DLV-20251222001-{String(i+1).padStart(2,'0')}</td>{p.slice(0,8).map((c,j)=><td key={`${p[0]}-${j}`}>{c}</td>)}<td>20</td><td>{canQty}</td><td>{p[7]}</td><td>{p[8]}</td><td>{p[9]}</td><td>{i===0?'运输/包装':'出货标签'}</td><td>{i===0?'待仓储复检':'待质检确认'}</td><td>退货入库/换出出库</td><td>退款/应收冲减/发票红冲</td>{withActions&&<td><span className="aw-link">删除</span></td>}</tr>})}</tbody></table>;
+function AsSourceProducts(source) {
+  if (!source) return [];
+  const baseCode = source.sourceDetail || source.code || 'SRC-001';
+  const detailPrefix = String(baseCode).replace(/-\d+$/, '');
+  if (source.cat === '项目') {
+    return [
+      { code:'PRD-P001', name:'项目交付控制柜', model:'AW-CAB-900', materialType:'成品', category:'电控设备', spec:'900*600*2200', unit:'台', qty:6, price:'18,500.00', aftered:1 },
+      { code:'PRD-P002', name:'现场传感器组件', model:'AW-SEN-12', materialType:'成品', category:'电子物料', spec:'12点套装', unit:'套', qty:12, price:'1,260.00', aftered:0 },
+    ].map((p,i)=>({...p, detail:`${detailPrefix}-${String(i+1).padStart(2,'0')}`}));
+  }
+  if (source.cat === '客户') {
+    return [
+      { code:'CP-2025010101', name:'智能温控终端', model:'PRO', materialType:'成品', category:'终端设备', spec:'标准版', unit:'台', qty:24, price:'1,180.00', aftered:2 },
+      { code:'CP-2025010102', name:'半成品模组', model:'HM-450', materialType:'半成品', category:'电子模组', spec:'450型', unit:'件', qty:36, price:'520.00', aftered:4 },
+    ].map((p,i)=>({...p, detail:`${detailPrefix}-${String(i+1).padStart(2,'0')}`}));
+  }
+  return AS_PRODUCTS.map((p,i)=>({
+    detail:`${detailPrefix}-${String(i+1).padStart(2,'0')}`,
+    code:p[0],
+    name:i===0?'智能温控终端':'包装标签套件',
+    model:p[1],
+    materialType:p[2],
+    category:p[3],
+    spec:i===0?'PRO 标准版':'外箱标签',
+    unit:p[4],
+    qty:Number(p[5] || 0),
+    price:p[6],
+    aftered:20,
+  }));
+}
+
+function AsProductTable({ source, type='退款退货', withActions=true, review=false }) {
+  const effectiveSource = source === undefined ? { ...AS_SOURCE_DEFAULTS, cat:'订单', code:'SO-20251221002' } : source;
+  const products = AsSourceProducts(effectiveSource);
+  if (!products.length) return <div className="aw-empty">请选择来源后，系统会带出对应的订单/项目/客户可售后产品。</div>;
+  return <table className="aw-table"><thead><tr>{withActions&&<th style={{width:52}}>选择</th>}<th>序号</th><th>来源明细</th><th>产品编号</th><th>产品名称</th><th>规格型号</th><th>物料类型</th><th>物料分类</th><th>单位</th><th>实供数量</th><th>已售后</th><th>可售后</th><th>本次售后数量</th><th>处理动作</th>{!review&&<th>问题原因</th>}</tr></thead><tbody>{products.map((p,i)=>{const canQty=Number(p.qty||0)-Number(p.aftered||0);const defaultQty=Math.max(1, Math.min(canQty, i===0?8:2));return <tr key={p.detail}>{withActions&&<td><input type="checkbox" defaultChecked={i===0} /></td>}<td>{i+1}</td><td>{p.detail}</td><td>{p.code}</td><td>{p.name}</td><td>{p.model}</td><td>{p.materialType}</td><td>{p.category}</td><td>{p.unit}</td><td>{p.qty}</td><td>{p.aftered}</td><td>{canQty}</td><td>{review?defaultQty:<Input defaultValue={defaultQty} style={{width:82}} />}</td><td>{type==='换货'?'退货入库 / 换出出库':type==='仅退款'?'仅退款':type==='维修处理'||type==='现场服务'?'维修/现场服务':'退货入库 / 财务处理'}</td>{!review&&<td><Select defaultValue="包装破损"><option>包装破损</option><option>产品故障</option><option>少发/错发</option><option>客户误购</option></Select></td>}</tr>})}</tbody></table>;
+}
+
+const AS_FLOW_STEPS = ['选择来源','确认客户','选择类型','问题与证据','产品与方案','预览提交'];
+const AS_AFTERSALE_TYPES = [
+  { key:'退款退货', title:'退款退货', desc:'需要退回实物，并触发退款、应收冲减或发票红冲。', owners:'仓储 / 财务 / 售后' },
+  { key:'仅退款', title:'仅退款', desc:'不退回实物，只处理差价、赔付或服务补偿退款。', owners:'财务 / 售后' },
+  { key:'换货', title:'换货', desc:'先退回问题品，再换出新货并跟踪物流签收。', owners:'仓储 / 质检 / 售后' },
+  { key:'仅退货', title:'仅退货', desc:'只退回实物，不产生退款，重点处理库存和应收调整。', owners:'仓储 / 财务' },
+  { key:'维修处理', title:'维修', desc:'派工维修、配件消耗、服务记录和客户回访。', owners:'服务 / 售后' },
+  { key:'现场服务', title:'现场服务', desc:'上门排查、调试、培训或回访，不一定产生退换货动作。', owners:'服务 / 客户成功' },
+];
+
+function AsFlowStepper({ step, setStep }) {
+  return <div className="aw-as-stepper">{AS_FLOW_STEPS.map((label, idx)=><button key={label} type="button" className={'aw-as-step '+(idx===step?'on':'')+(idx<step?' done':'')} onClick={()=>setStep(idx)}><span>{idx+1}</span>{label}</button>)}</div>;
+}
+
+function AsFlowTypeCards({ value, onChange }) {
+  return <div className="aw-as-type-grid">{AS_AFTERSALE_TYPES.map(item=><button key={item.key} type="button" className={'aw-as-type-card '+(value===item.key?'on':'')} onClick={()=>onChange(item.key)}><strong>{item.title}</strong><span>{item.desc}</span><em>{item.owners}</em></button>)}</div>;
+}
+
+function AsFlowPlan({ type }) {
+  const isReturn = ['退款退货','换货','仅退货','退货入库','换货出库'].includes(type);
+  const isRefund = ['退款退货','仅退款','退款处理'].includes(type);
+  const isService = ['维修处理','现场服务','维修派工'].includes(type);
+  return <div className="aw-as-plan-grid">
+    {isReturn && <div className="aw-as-plan-card"><strong>仓储动作</strong><p>生成退货入库任务，收货后隔离暂存并等待质检判定。</p></div>}
+    {type==='换货' && <div className="aw-as-plan-card"><strong>换出动作</strong><p>退货入库确认后生成换出出库，关联物流和客户签收。</p></div>}
+    {isRefund && <div className="aw-as-plan-card"><strong>财务动作</strong><p>进入退款审核，联动应收冲减、红字发票或付款批次。</p></div>}
+    {isService && <div className="aw-as-plan-card"><strong>服务动作</strong><p>生成服务派工，记录上门、维修、配件和回访结果。</p></div>}
+    <div className="aw-as-plan-card"><strong>质量动作</strong><p>根据问题类型判定是否触发复检、8D 或 CAPA 闭环。</p></div>
+  </div>;
+}
+
+function AsAfterSalesFlowForm({ config, onBack, isQuality }) {
+  const [step, setStep] = useAsState(0);
+  const [source, setSource] = useAsState(null);
+  const [subject, setSubject] = useAsState('');
+  const [customer, setCustomer] = useAsState({ name:'', contact:'', phone:'', manager:'', group:'' });
+  const [contactIndex, setContactIndex] = useAsState(0);
+  const [addressIndex, setAddressIndex] = useAsState(0);
+  const [type, setType] = useAsState(isQuality ? '质量问题' : (config.row?.type || '退款退货'));
+  const [showSourcePicker, setShowSourcePicker] = useAsState(false);
+  const selectedProducts = AsSourceProducts(source);
+  const customerContacts = [
+    { contact: customer.contact || '默认联系人', phone: customer.phone || '13888888888', title:'默认联系人' },
+    { contact: '售后负责人', phone: '13900001111', title:'售后负责人' },
+    { contact: '仓库收货人', phone: '13700002222', title:'仓库收货人' },
+  ];
+  const customerAddresses = [
+    '海南省海口市龙华区华海路安海大厦',
+    '海南省海口市美兰区滨海大道项目仓',
+    '海南省澄迈县老城开发区智能制造园',
+  ];
+  const pickedContact = customerContacts[contactIndex] || customerContacts[0];
+  const applySource = picked => {
+    setSource({...AS_SOURCE_DEFAULTS, ...picked});
+    setSubject(picked.subject);
+    setCustomer({ name:picked.customer, contact:picked.contact, phone:picked.phone, manager:picked.manager, group:picked.group });
+    setContactIndex(0);
+    setAddressIndex(0);
+    setShowSourcePicker(false);
+  };
+  const goNextFromSource = () => { if (source) setStep(1); };
+  const sourceValue = (key) => source ? source[key] : '选择来源后自动填充';
+  const sourceFields = source?.cat === '项目'
+    ? [
+        ['项目编号', 'code'],
+        ['项目名称', 'subject'],
+        ['关联订单号', 'sourceOrder'],
+        ['发货/交付批次', 'sourceDelivery'],
+        ['来源日期', 'date'],
+      ]
+    : [
+        ['订单号', 'sourceOrder'],
+        ['发货单号', 'sourceDelivery'],
+        ['来源明细', 'sourceDetail'],
+        ['客户', 'customer'],
+        ['来源日期', 'date'],
+      ];
+  const sourceHint = source?.cat === '项目'
+    ? '项目来源会先带出项目编号、项目名称，再选择关联订单和发货/交付批次；可售后产品按项目交付明细生成。'
+    : source?.cat === '订单'
+      ? '订单来源会带出订单号，并继续选择该订单下的一次或多次发货单；可售后产品按所选发货明细生成。'
+      : '请先选择来源。选择订单时带出订单号和发货单号；选择项目时带出项目编号、关联订单号和发货/交付批次。';
+  return <PurchaseFormPage onBack={onBack} submitText={isQuality?'提交改进':'提交'} className="aw-as-flow-form">
+    <PurchaseSection title="售后受理流程"><AsFlowStepper step={step} setStep={setStep} /></PurchaseSection>
+    {step===0 && <PurchaseSection title="选择售后主题 / 来源"><div className="aw-doc-grid"><Field label="售后主题" req><div style={{display:'flex',gap:8}}><Input value={subject} onChange={e=>setSubject(e.target.value)} placeholder="选择来源后可自动带出，也可以手动调整主题" style={{flex:1}} /><Btn onClick={()=>setShowSourcePicker(true)}>选择来源</Btn></div></Field><Field label="来源分类"><Input value={sourceValue('cat')} readOnly /></Field>{sourceFields.map(([label,key])=><Field label={label} key={label}><Input value={sourceValue(key)} readOnly /></Field>)}</div><div className="aw-as-empty-note">{sourceHint}</div><div style={{display:'flex',justifyContent:'flex-end',marginTop:14}}><Btn kind="primary" onClick={goNextFromSource}>确认来源</Btn></div></PurchaseSection>}
+    {step===1 && <PurchaseSection title="确认客户信息"><div className="aw-doc-grid"><Field label="客户名称"><Input value={customer.name} readOnly /></Field><Field label="客户类别"><Input value={customer.group} readOnly /></Field><Field label="销售经理"><Input value={customer.manager} readOnly /></Field><Field label="联系人"><Select value={contactIndex} onChange={e=>setContactIndex(Number(e.target.value))}>{customerContacts.map((item,idx)=><option key={item.title} value={idx}>{item.contact}（{item.title}）</option>)}</Select></Field><Field label="联系电话"><Input value={pickedContact.phone} readOnly /></Field><Field label="收货地址"><Select value={addressIndex} onChange={e=>setAddressIndex(Number(e.target.value))}>{customerAddresses.map((addr,idx)=><option key={addr} value={idx}>{idx===0?'默认地址：':''}{addr}</option>)}</Select></Field></div><div style={{display:'flex',justifyContent:'space-between',marginTop:14}}><Btn onClick={()=>setStep(0)}>上一步</Btn><Btn kind="primary" onClick={()=>setStep(2)}>确认客户</Btn></div></PurchaseSection>}
+    {step===2 && <PurchaseSection title="选择售后类型"><AsFlowTypeCards value={type} onChange={setType} /><div style={{display:'flex',justifyContent:'space-between',marginTop:14}}><Btn onClick={()=>setStep(1)}>上一步</Btn><Btn kind="primary" onClick={()=>setStep(3)}>确认类型</Btn></div></PurchaseSection>}
+    {step===3 && <><PurchaseSection title="填写问题信息"><div className="aw-doc-grid"><Field label="问题类型" req><Select defaultValue={type==='质量问题'?'产品质量':'包装破损'}><option>包装破损</option><option>产品故障</option><option>少发/错发</option><option>服务投诉</option><option>产品质量</option></Select></Field><Field label="售后原因" req><Select defaultValue="包装破损">{AS_REASON_OPTIONS.map(t=><option key={t}>{t}</option>)}</Select></Field><Field label="责任归属"><Select defaultValue="待判定"><option>待判定</option><option>我方责任</option><option>客户责任</option><option>物流责任</option><option>供应商责任</option></Select></Field><Field label="期望完成日期"><Input defaultValue="2025-05-03" /></Field><Field label="是否升级客诉"><Select defaultValue="否"><option>否</option><option>是</option></Select></Field><Field label="客户确认方式"><Select defaultValue="线上确认"><option>线上确认</option><option>电话确认</option><option>签字回传</option></Select></Field></div><PurchaseRichText placeholder="请输入问题描述、客户诉求、沟通记录和现场情况..." /></PurchaseSection><PurchaseSection title="证据附件"><AsAttachmentUpload /></PurchaseSection><div style={{display:'flex',justifyContent:'space-between'}}><Btn onClick={()=>setStep(2)}>上一步</Btn><Btn kind="primary" onClick={()=>setStep(4)}>生成处理方案</Btn></div></>}
+    {step===4 && <><PurchaseSection title="来源产品与处理动作"><div style={{display:'flex',gap:10,alignItems:'center',marginBottom:12}}><Btn>校验可售后数量</Btn><span style={{fontSize:12,color:'var(--aw-fg-3)'}}>按当前{source?.cat || '来源'}的产品明细校验已售后占用，勾选本次需要售后的产品并填写售后数量。</span></div><AsProductTable source={source} type={type} /></PurchaseSection><PurchaseSection title={`${type}处理方案`}><AsFlowPlan type={type} /></PurchaseSection><div style={{display:'flex',justifyContent:'space-between'}}><Btn onClick={()=>setStep(3)}>上一步</Btn><Btn kind="primary" onClick={()=>setStep(5)}>预览提交</Btn></div></>}
+    {step===5 && <><PurchaseSection title="提交前预览"><div className="aw-doc-grid"><AsKV label="售后主题" value={subject || '-'} /><AsKV label="客户" value={customer.name || '-'} /><AsKV label="售后类型" value={<Badge tone="b">{type}</Badge>} /><AsKV label="来源分类" value={source?.cat || '-'} /><AsKV label="来源单据" value={source?.code || '-'} /><AsKV label="来源订单" value={source?.sourceOrder || '-'} /><AsKV label="来源发货/交付" value={source?.sourceDelivery || '-'} /><AsKV label="预计流转" value={type==='换货'?'仓储入库 → 质检 → 换出出库 → 客户确认':'售后受理 → 责任判定 → 执行处理 → 客户确认'} /></div></PurchaseSection><PurchaseSection title="本次售后产品预览"><AsProductTable source={source} type={type} withActions={false} review /></PurchaseSection><PurchaseSection title="证据与审核"><div className="aw-doc-grid"><AsKV label="附件要求" value="已上传问题证据后提交" /><AsKV label="产品行数" value={`${selectedProducts.length} 行来源产品`} /><AsKV label="风险提示" value="提交后将进入售后受理和责任判定流程" /></div><textarea className="aw-input" placeholder="请输入提交说明、风险提示或下一环节要求" style={{height:92,resize:'vertical',marginTop:14}} /></PurchaseSection><div style={{display:'flex',justifyContent:'space-between'}}><Btn onClick={()=>setStep(4)}>上一步</Btn><Btn kind="primary">提交</Btn></div></>}
+    {showSourcePicker && <AsSourcePickerModal onClose={()=>setShowSourcePicker(false)} onConfirm={applySource} />}
+  </PurchaseFormPage>;
 }
 
 function AsFormView({ config, onBack }) {
   const isConfig = config === AS_CONFIG.asConfig;
   const isQuality = config === AS_CONFIG.asQuality;
   if (isConfig) return <PurchaseFormPage onBack={onBack} submitText="保存配置"><PurchaseSection title="售后配置项"><div className="aw-tabs" style={{marginBottom:12}}>{['售后原因','投诉问题','售后类型','问题类型','处理方式'].map((t,i)=><span key={t} className={'aw-tab '+(i===0?'on':'')}>{t}</span>)}</div><div className="aw-doc-grid" style={{marginBottom:16}}><Field label="配置名称" req><Input defaultValue="做工粗糙/有瑕疵" /></Field><Field label="适用场景"><Select defaultValue="退换货"><option>退换货</option><option>仅退款</option><option>换货</option><option>仅退货</option><option>现场服务</option></Select></Field><Field label="是否触发质量改进"><Select defaultValue="重复发生时触发"><option>不触发</option><option>重复发生时触发</option><option>强制触发</option></Select></Field><Field label="是否需要附件"><Select defaultValue="必传"><option>必传</option><option>非必传</option><option>按金额判断</option></Select></Field><Field label="是否启用"><Select defaultValue="启用"><option>启用</option><option>停用</option></Select></Field><Field label="排序"><Input defaultValue="10" /></Field></div><table className="aw-table"><thead><tr><th>序号</th><th>配置名称</th><th>关联场景</th><th>触发仓储</th><th>触发财务</th><th>触发质改</th><th>状态</th><th>操作</th></tr></thead><tbody><tr><td>1</td><td>做工粗糙/有瑕疵</td><td>退换货、换货</td><td>退货入库</td><td>按处理方式判断</td><td>重复3次触发</td><td><AsTone status="启用"/></td><td><span className="aw-link">编辑</span> <span className="aw-link">停用</span></td></tr></tbody></table></PurchaseSection></PurchaseFormPage>;
-  return <PurchaseFormPage onBack={onBack} submitText={isQuality?'提交改进':'提交审核'}><AsBaseFields config={config}/>{!isQuality&&<><PurchaseSection title="受理与判定"><div className="aw-doc-grid"><Field label="客户诉求" req><Select defaultValue={config.row.type}>{AS_PROCESS_OPTIONS.map(t=><option key={t}>{t}</option>)}</Select></Field><Field label="问题原因" req><Select defaultValue="包装破损">{AS_REASON_OPTIONS.map(t=><option key={t}>{t}</option>)}</Select></Field><Field label="责任归属"><Select defaultValue="待判定"><option>待判定</option><option>我方责任</option><option>客户责任</option><option>物流责任</option><option>供应商责任</option></Select></Field><Field label="期望完成日期"><Input defaultValue="2025-05-03" /></Field><Field label="客户是否需退回"><Select defaultValue="是"><option>是</option><option>否</option><option>按复检判定</option></Select></Field><Field label="是否升级客诉"><Select defaultValue="否"><option>否</option><option>是</option></Select></Field></div></PurchaseSection><PurchaseSection title="来源产品与处理动作"><div style={{display:'flex',gap:10,alignItems:'center',marginBottom:12}}><Btn>关联产品</Btn><Btn>关联订单</Btn><Btn>校验可售后数量</Btn><span style={{fontSize:12,color:'var(--aw-fg-3)'}}>按来源发货明细校验已售后占用，避免重复退款/退货。</span></div><AsProductTable/></PurchaseSection><PurchaseSection title="处理方式矩阵"><AsProcessMatrix/></PurchaseSection><PurchaseSection title="证据附件"><AsAttachmentUpload/></PurchaseSection></>}{isQuality&&<PurchaseSection title="问题分析"><div className="aw-doc-grid"><Field label="问题类型" req><Select><option>包装问题</option><option>产品质量</option><option>服务投诉</option></Select></Field><Field label="处理方式" req><Select><option>整改</option><option>培训</option><option>供应商改善</option></Select></Field><Field label="关联部门"><Select><option>质检部</option><option>仓储部</option><option>销售部</option></Select></Field><Field label="重复发生次数"><Input defaultValue="3" /></Field><Field label="影响批次"><Input defaultValue="LOT-20250428001" /></Field><Field label="CAPA要求"><Select defaultValue="必须创建"><option>必须创建</option><option>主管判定</option><option>无需创建</option></Select></Field></div></PurchaseSection>}<PurchaseSection title="售后详情"><PurchaseRichText placeholder="请输入售后问题、客户诉求、处理说明、客户沟通记录..." /></PurchaseSection><PurchaseSection title="审核信息"><div style={{display:'flex',gap:24,alignItems:'center',marginBottom:16}}><span>处理方式：</span><Radio on>通过</Radio><Radio>驳回</Radio><Radio>回退补充资料</Radio></div><textarea className="aw-input" placeholder="请输入审核意见、风险提示或下一环节要求" style={{height:92,resize:'vertical'}} /></PurchaseSection></PurchaseFormPage>;
+  return <AsAfterSalesFlowForm config={config} onBack={onBack} isQuality={isQuality} />;
 }
 
 function AsKV({ label, value }) { return <div style={{display:'flex',gap:14}}><span style={{width:96,color:'var(--aw-fg-3)',flex:'none'}}>{label}：</span><span>{value}</span></div>; }
 
 function AsDetailTabs(config) {
+  if (config.kind==='task') return ['任务详情','处理记录','关联售后单','客户确认'];
   if (config.kind==='refundOnly') return ['售后详情','退款处理','售后处理'];
   if (config.kind==='exchange') return ['售后详情','退货入库','换出出库','售后处理'];
   if (config.kind==='returnOnly') return ['售后详情','退货入库','应收调整','售后处理'];
@@ -178,7 +405,7 @@ function AsDetailView({ config, row, onBack }) {
   const [tab,setTab]=useAsState(tabs[0]);
   useAsEffect(()=>setTab(tabs[0]),[config.kind]);
   const data = {...AS_SOURCE_DEFAULTS, ...row};
-  return <div className="aw-doc-form"><div className="aw-doc-form-body"><DetailHeaderCard title={`${row.subject} ${row.code}`} status={row.status} onBack={onBack} creator={row.owner} createdAt={`${row.date} 10:25`} modifier="售后主管" modifiedAt="2025-05-01 15:30" detailItems={[[config.codeLabel,row.code],[config.subjectLabel,row.subject],[config.typeLabel,row.type],['客户',row.customer],[config.statusLabel,row.status],['SLA','临期']]}/><PurchaseSection title="基本信息"><AsBaseFieldContent config={config} row={data}/></PurchaseSection><PurchaseSection title="SLA与流程进度"><AsSlaTimeline/></PurchaseSection><Card><div className="aw-tabs" style={{marginBottom:14}}>{tabs.map(t=><span key={t} className={'aw-tab '+(tab===t?'on':'')} onClick={()=>setTab(t)}>{t}</span>)}</div>{tab==='售后详情'&&<><PurchaseSection title="售后信息"><AsProductTable withActions={false}/><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginTop:18}}>{['问题照片.png','签收凭证.pdf','复检报告.xlsx'].map(n=><div key={n} style={{height:78,border:'1px dashed var(--aw-border-strong)',borderRadius:8,background:'var(--aw-surface-2)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--aw-fg-3)'}}>{n}</div>)}</div></PurchaseSection><PurchaseSection title="来源与财务闭环"><table className="aw-table"><thead><tr><th>来源订单</th><th>来源发货单</th><th>来源明细</th><th>原应收单</th><th>原发票</th><th>可退金额</th><th>应收处理</th><th>发票处理</th><th>回款处理</th></tr></thead><tbody><tr><td>{data.sourceOrder}</td><td>{data.sourceDelivery}</td><td>{data.sourceDetail}</td><td>{data.sourceReceivable}</td><td>{data.sourceInvoice}</td><td>{data.refund||data.maxRefund}</td><td>{data.receivable||data.receivableState}</td><td>{data.invoice||data.invoiceState}</td><td>退款后回写核销和信用占用</td></tr></tbody></table></PurchaseSection><PurchaseSection title="处理联动说明"><AsProcessMatrix/></PurchaseSection><PurchaseSection title="沟通与服务记录"><table className="aw-table"><thead><tr><th>时间</th><th>处理人</th><th>动作</th><th>记录</th></tr></thead><tbody>{AS_SERVICE_RECORDS.map(r=><tr key={r.time}><td>{r.time}</td><td>{r.actor}</td><td>{r.action}</td><td>{r.note}</td></tr>)}</tbody></table></PurchaseSection><PurchaseSection title="备注说明"><div style={{border:'1px solid var(--aw-border)',borderRadius:8,minHeight:88,padding:14,color:'var(--aw-fg-3)'}}>客户反馈产品标签破损，售后需核对订单、仓库、财务与服务处理状态。关闭前必须完成客户确认和回访满意度记录。</div></PurchaseSection></>}{tab==='退货入库'&&<PurchaseSection title="处理退货入库"><table className="aw-table"><thead><tr><th>序号</th><th>来源明细</th><th>单据类型</th><th>单据编号</th><th>入库类型</th><th>产品名称</th><th>退货数量</th><th>实收数量</th><th>差异</th><th>批次/序列号</th><th>库位</th><th>质量状态</th><th>处置建议</th><th>时间</th></tr></thead><tbody><tr><td>1</td><td>{data.sourceDetail}</td><td>入库单</td><td>IN-AS-202505-001</td><td>退货入库</td><td>WL0001</td><td>100</td><td>100</td><td>0</td><td>LOT-20250428001</td><td>退货暂存区-A01</td><td>待复检</td><td>隔离待判</td><td>2025-05-01</td></tr></tbody></table></PurchaseSection>}{tab==='换出出库'&&<PurchaseSection title="换出出库"><table className="aw-table"><thead><tr><th>序号</th><th>来源明细</th><th>出库单号</th><th>换出产品</th><th>数量</th><th>批次</th><th>OQC状态</th><th>物流单号</th><th>出库人</th><th>状态</th></tr></thead><tbody><tr><td>1</td><td>{data.sourceDetail}</td><td>OUT-AS-202505-001</td><td>WL0001</td><td>100</td><td>LOT-20250501002</td><td>待OQC</td><td>SF100200300</td><td>仓库二</td><td><AsTone status="待换出出库"/></td></tr></tbody></table></PurchaseSection>}{tab==='退款处理'&&<PurchaseSection title="退款处理"><div className="aw-doc-grid"><AsKV label="退款金额" value={data.refund || data.maxRefund}/><AsKV label="退款账户" value="客户默认账户"/><AsKV label="退款状态" value={<AsTone status={data.refundState||row.status}/>} /><AsKV label="财务经办" value="王会计"/><AsKV label="关联应收" value={data.sourceReceivable}/><AsKV label="红字发票" value={data.sourceInvoice}/><AsKV label="付款批次" value="PAY-202505-019"/><AsKV label="核销回写" value="退款完成后冲减应收和信用占用"/></div></PurchaseSection>}{tab==='应收调整'&&<PurchaseSection title="应收调整"><div className="aw-doc-grid"><AsKV label="调整类型" value="销售应收冲减"/><AsKV label="调整金额" value={data.receivable || data.maxRefund}/><AsKV label="关联发票" value={data.sourceInvoice}/><AsKV label="财务状态" value={<AsTone status={data.receivableState}/>}/></div></PurchaseSection>}{tab==='派单信息'&&<PurchaseSection title="派单信息"><table className="aw-table"><thead><tr><th>序号</th><th>服务人员</th><th>技能组</th><th>服务类型</th><th>来源订单</th><th>派单时间</th><th>预约上门</th><th>预计完成</th><th>签到</th><th>状态</th></tr></thead><tbody><tr><td>1</td><td>老夏</td><td>设备调试组</td><td>上门服务</td><td>{data.sourceOrder}</td><td>2025-05-01</td><td>2025-05-02 09:30</td><td>2025-05-02</td><td>待签到</td><td><AsTone status="上门处理中"/></td></tr></tbody></table></PurchaseSection>}{tab==='售后处理'&&<PurchaseSection title="售后处理"><div className="aw-doc-grid"><Field label="问题类型"><Select><option>包装破损</option><option>产品故障</option></Select></Field><Field label="处理方式"><Select><option>{row.type}</option><option>维修</option><option>补发</option></Select></Field><Field label="关联部门"><Select><option>仓储部</option><option>财务部</option></Select></Field><Field label="回访满意度"><Select><option>待回访</option><option>满意</option><option>一般</option><option>不满意</option></Select></Field></div><PurchaseRichText placeholder="请输入售后处理结果、客户确认意见、关闭说明..." /></PurchaseSection>}{tab==='8D报告'&&<PurchaseSection title="8D报告"><div className="aw-doc-grid"><AsKV label="8D单号" value={row.eightD || '8D-202505-001'}/><AsKV label="D4根因" value="包装来料耐磨不足"/><AsKV label="D5措施" value="更换包材并调整检验标准"/><AsKV label="负责人" value={row.owner}/></div></PurchaseSection>}{tab==='CAPA措施'&&<PurchaseSection title="CAPA措施"><div className="aw-doc-grid"><AsKV label="CAPA编号" value={row.capa || 'CAPA-202505-006'}/><AsKV label="纠正措施" value="隔离库存并返工贴标"/><AsKV label="预防措施" value="供应商来料加严检验"/><AsKV label="状态" value={<AsTone status="CAPA执行中"/>}/></div></PurchaseSection>}{tab==='验证关闭'&&<PurchaseSection title="验证关闭"><table className="aw-table"><thead><tr><th>序号</th><th>验证项</th><th>验证方式</th><th>责任人</th><th>计划日期</th><th>结果</th></tr></thead><tbody><tr><td>1</td><td>客诉复发率</td><td>近30天售后追踪</td><td>质检主管</td><td>2025-05-30</td><td><AsTone status="待验证"/></td></tr></tbody></table></PurchaseSection>}</Card></div></div>;
+  return <div className="aw-doc-form"><div className="aw-doc-form-body"><DetailHeaderCard title={`${row.subject} ${row.code}`} status={row.status} onBack={onBack} creator={row.owner} createdAt={`${row.date} 10:25`} modifier="售后主管" modifiedAt="2025-05-01 15:30" detailItems={[[config.codeLabel,row.code],[config.subjectLabel,row.subject],[config.typeLabel,row.type],['客户',row.customer],[config.statusLabel,row.status],['SLA','临期']]}/><PurchaseSection title="基本信息"><AsBaseFieldContent config={config} row={data}/></PurchaseSection><PurchaseSection title="SLA与流程进度"><AsSlaTimeline/></PurchaseSection><Card><div className="aw-tabs" style={{marginBottom:14}}>{tabs.map(t=><span key={t} className={'aw-tab '+(tab===t?'on':'')} onClick={()=>setTab(t)}>{t}</span>)}</div>{tab==='任务详情'&&<><PurchaseSection title="任务信息"><div className="aw-doc-grid"><AsKV label="任务类型" value={row.type}/><AsKV label="关联售后单" value="SH-000001"/><AsKV label="责任部门" value={row.owner}/><AsKV label="任务状态" value={<AsTone status={row.status}/>} /><AsKV label="来源订单" value={data.sourceOrder}/><AsKV label="来源发货单" value={data.sourceDelivery}/></div></PurchaseSection><PurchaseSection title="任务处理要求"><AsFlowPlan type={row.type}/></PurchaseSection></>}{tab==='处理记录'&&<PurchaseSection title="处理记录"><table className="aw-table"><thead><tr><th>时间</th><th>处理人</th><th>动作</th><th>说明</th></tr></thead><tbody>{AS_SERVICE_RECORDS.map(r=><tr key={r.time}><td>{r.time}</td><td>{r.actor}</td><td>{r.action}</td><td>{r.note}</td></tr>)}</tbody></table></PurchaseSection>}{tab==='关联售后单'&&<PurchaseSection title="关联售后单"><table className="aw-table"><thead><tr><th>售后单号</th><th>售后主题</th><th>客户</th><th>售后类型</th><th>状态</th></tr></thead><tbody><tr><td>SH-000001</td><td>{row.subject}</td><td>{row.customer}</td><td>{row.type}</td><td><AsTone status={row.status}/></td></tr></tbody></table></PurchaseSection>}{tab==='客户确认'&&<PurchaseSection title="客户确认"><div className="aw-doc-grid"><AsKV label="确认方式" value="线上确认"/><AsKV label="确认状态" value={<AsTone status="待客户确认"/>}/><AsKV label="回访满意度" value="待回访"/><AsKV label="关闭条件" value="任务完成 + 客户确认 + 回访记录"/></div></PurchaseSection>}{tab==='售后详情'&&<><PurchaseSection title="售后信息"><AsProductTable withActions={false}/><div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginTop:18}}>{['问题照片.png','签收凭证.pdf','复检报告.xlsx'].map(n=><div key={n} style={{height:78,border:'1px dashed var(--aw-border-strong)',borderRadius:8,background:'var(--aw-surface-2)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--aw-fg-3)'}}>{n}</div>)}</div></PurchaseSection><PurchaseSection title="来源与财务闭环"><table className="aw-table"><thead><tr><th>来源订单</th><th>来源发货单</th><th>来源明细</th><th>原应收单</th><th>原发票</th><th>可退金额</th><th>应收处理</th><th>发票处理</th><th>回款处理</th></tr></thead><tbody><tr><td>{data.sourceOrder}</td><td>{data.sourceDelivery}</td><td>{data.sourceDetail}</td><td>{data.sourceReceivable}</td><td>{data.sourceInvoice}</td><td>{data.refund||data.maxRefund}</td><td>{data.receivable||data.receivableState}</td><td>{data.invoice||data.invoiceState}</td><td>退款后回写核销和信用占用</td></tr></tbody></table></PurchaseSection><PurchaseSection title="处理联动说明"><AsProcessMatrix/></PurchaseSection><PurchaseSection title="沟通与服务记录"><table className="aw-table"><thead><tr><th>时间</th><th>处理人</th><th>动作</th><th>记录</th></tr></thead><tbody>{AS_SERVICE_RECORDS.map(r=><tr key={r.time}><td>{r.time}</td><td>{r.actor}</td><td>{r.action}</td><td>{r.note}</td></tr>)}</tbody></table></PurchaseSection><PurchaseSection title="备注说明"><div style={{border:'1px solid var(--aw-border)',borderRadius:8,minHeight:88,padding:14,color:'var(--aw-fg-3)'}}>客户反馈产品标签破损，售后需核对订单、仓库、财务与服务处理状态。关闭前必须完成客户确认和回访满意度记录。</div></PurchaseSection></>}{tab==='退货入库'&&<PurchaseSection title="处理退货入库"><table className="aw-table"><thead><tr><th>序号</th><th>来源明细</th><th>单据类型</th><th>单据编号</th><th>入库类型</th><th>产品名称</th><th>退货数量</th><th>实收数量</th><th>差异</th><th>批次/序列号</th><th>库位</th><th>质量状态</th><th>处置建议</th><th>时间</th></tr></thead><tbody><tr><td>1</td><td>{data.sourceDetail}</td><td>入库单</td><td>IN-AS-202505-001</td><td>退货入库</td><td>WL0001</td><td>100</td><td>100</td><td>0</td><td>LOT-20250428001</td><td>退货暂存区-A01</td><td>待复检</td><td>隔离待判</td><td>2025-05-01</td></tr></tbody></table></PurchaseSection>}{tab==='换出出库'&&<PurchaseSection title="换出出库"><table className="aw-table"><thead><tr><th>序号</th><th>来源明细</th><th>出库单号</th><th>换出产品</th><th>数量</th><th>批次</th><th>OQC状态</th><th>物流单号</th><th>出库人</th><th>状态</th></tr></thead><tbody><tr><td>1</td><td>{data.sourceDetail}</td><td>OUT-AS-202505-001</td><td>WL0001</td><td>100</td><td>LOT-20250501002</td><td>待OQC</td><td>SF100200300</td><td>仓库二</td><td><AsTone status="待换出出库"/></td></tr></tbody></table></PurchaseSection>}{tab==='退款处理'&&<PurchaseSection title="退款处理"><div className="aw-doc-grid"><AsKV label="退款金额" value={data.refund || data.maxRefund}/><AsKV label="退款账户" value="客户默认账户"/><AsKV label="退款状态" value={<AsTone status={data.refundState||row.status}/>} /><AsKV label="财务经办" value="王会计"/><AsKV label="关联应收" value={data.sourceReceivable}/><AsKV label="红字发票" value={data.sourceInvoice}/><AsKV label="付款批次" value="PAY-202505-019"/><AsKV label="核销回写" value="退款完成后冲减应收和信用占用"/></div></PurchaseSection>}{tab==='应收调整'&&<PurchaseSection title="应收调整"><div className="aw-doc-grid"><AsKV label="调整类型" value="销售应收冲减"/><AsKV label="调整金额" value={data.receivable || data.maxRefund}/><AsKV label="关联发票" value={data.sourceInvoice}/><AsKV label="财务状态" value={<AsTone status={data.receivableState}/>}/></div></PurchaseSection>}{tab==='派单信息'&&<PurchaseSection title="派单信息"><table className="aw-table"><thead><tr><th>序号</th><th>服务人员</th><th>技能组</th><th>服务类型</th><th>来源订单</th><th>派单时间</th><th>预约上门</th><th>预计完成</th><th>签到</th><th>状态</th></tr></thead><tbody><tr><td>1</td><td>老夏</td><td>设备调试组</td><td>上门服务</td><td>{data.sourceOrder}</td><td>2025-05-01</td><td>2025-05-02 09:30</td><td>2025-05-02</td><td>待签到</td><td><AsTone status="上门处理中"/></td></tr></tbody></table></PurchaseSection>}{tab==='售后处理'&&<PurchaseSection title="售后处理"><div className="aw-doc-grid"><Field label="问题类型"><Select><option>包装破损</option><option>产品故障</option></Select></Field><Field label="处理方式"><Select><option>{row.type}</option><option>维修</option><option>补发</option></Select></Field><Field label="关联部门"><Select><option>仓储部</option><option>财务部</option></Select></Field><Field label="回访满意度"><Select><option>待回访</option><option>满意</option><option>一般</option><option>不满意</option></Select></Field></div><PurchaseRichText placeholder="请输入售后处理结果、客户确认意见、关闭说明..." /></PurchaseSection>}{tab==='8D报告'&&<PurchaseSection title="8D报告"><div className="aw-doc-grid"><AsKV label="8D单号" value={row.eightD || '8D-202505-001'}/><AsKV label="D4根因" value="包装来料耐磨不足"/><AsKV label="D5措施" value="更换包材并调整检验标准"/><AsKV label="负责人" value={row.owner}/></div></PurchaseSection>}{tab==='CAPA措施'&&<PurchaseSection title="CAPA措施"><div className="aw-doc-grid"><AsKV label="CAPA编号" value={row.capa || 'CAPA-202505-006'}/><AsKV label="纠正措施" value="隔离库存并返工贴标"/><AsKV label="预防措施" value="供应商来料加严检验"/><AsKV label="状态" value={<AsTone status="CAPA执行中"/>}/></div></PurchaseSection>}{tab==='验证关闭'&&<PurchaseSection title="验证关闭"><table className="aw-table"><thead><tr><th>序号</th><th>验证项</th><th>验证方式</th><th>责任人</th><th>计划日期</th><th>结果</th></tr></thead><tbody><tr><td>1</td><td>客诉复发率</td><td>近30天售后追踪</td><td>质检主管</td><td>2025-05-30</td><td><AsTone status="待验证"/></td></tr></tbody></table></PurchaseSection>}</Card></div></div>;
 }
 
 function AsActionView({ config, action, onNew, onBack, onView }) {
