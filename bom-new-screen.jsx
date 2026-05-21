@@ -760,11 +760,11 @@ function BomCreateSteps({ baseInfo, rows, selectedNode, onAddRoot, onAddChild, o
   const childReady = rows.some(row => row.level > 0);
   const materialReady = rows.length > 0 && rows.every(row => row.node.code && row.node.name !== '请选择物料');
   const steps = [
-    { label:'填写基础信息', done:infoReady, hint:'BOM 名称与适用产品是提交前必填项' },
-    { label:'确认规格', done:true, hint:'当前使用颜色/容量两组规格，可继续扩展' },
-    { label:'添加根物料', done:rootReady, hint:'根物料通常是成品或总成' },
-    { label:'添加子件', done:childReady, hint:'逐层补齐自制件、外购件、包装与虚拟件' },
-    { label:'完善属性', done:materialReady, hint:'选择物料后补充用量、损耗、工序、替代料和适用规格' },
+    { label:'填写基础信息', done:infoReady },
+    { label:'确认规格', done:true },
+    { label:'添加根物料', done:rootReady },
+    { label:'添加子件', done:childReady },
+    { label:'完善属性', done:materialReady },
   ];
   const activeIndex = steps.findIndex(step => !step.done);
   const current = activeIndex < 0 ? steps.length - 1 : activeIndex;
@@ -777,16 +777,9 @@ function BomCreateSteps({ baseInfo, rows, selectedNode, onAddRoot, onAddChild, o
             <span className="dot">{step.done ? '✓' : idx + 1}</span>
             <div>
               <div className="name">{step.label}</div>
-              <div className="hint">{step.hint}</div>
             </div>
           </div>
         ))}
-      </div>
-      <div className="bn-step-actions">
-        <Btn kind={rootReady ? 'secondary' : 'primary'} onClick={onAddRoot}>＋ 添加根物料</Btn>
-        <Btn onClick={onAddChild}>{selectedNode ? '＋ 给选中项添加子项' : '＋ 添加子项'}</Btn>
-        <Btn onClick={onOpenAttrs}>⚙ 配置属性</Btn>
-        <Btn onClick={onImport}>⤴ 从 Excel 导入</Btn>
       </div>
     </div>
   );
