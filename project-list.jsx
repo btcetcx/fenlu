@@ -435,22 +435,25 @@ function ProjectNewView({ onBack }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  Detail View — 6 Tabs + Red Stamp
+//  Detail View — project business tabs
 // ═══════════════════════════════════════════════════════════════
 function ProjectDetailView({ onBack, projectIndex = 0 }) {
-  const [tab, setTab] = useState('info');
+  const [tab, setTab] = useState('detail');
   const p = PROJECT_ROWS[projectIndex] || PROJECT_ROWS[0];
 
   const TABS = [
-    { k: 'info',      label: '基本信息' },
-    { k: 'members',   label: '项目成员' },
-    { k: 'milestones',label: '里程碑' },
-    { k: 'docs',      label: '关联文档' },
-    { k: 'approvals', label: '审批记录' },
-    { k: 'logs',      label: '操作日志' },
+    { k: 'detail',     label: '项目详情' },
+    { k: 'members',    label: '项目成员' },
+    { k: 'materials',  label: '物料清单' },
+    { k: 'process',    label: '工艺流程' },
+    { k: 'quote',      label: '报价信息' },
+    { k: 'purchase',   label: '采购信息' },
+    { k: 'production', label: '生产信息' },
+    { k: 'expense',    label: '关联费用' },
+    { k: 'logs',       label: '操作记录' },
   ];
 
-  const renderInfoTab = () => (
+  const renderDetailTab = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: 14, columnGap: 32, fontSize: 13 }}>
       <KV k="项目编号"       v={p.code} />
       <KV k="项目名称"       v={p.name} />
@@ -467,6 +470,13 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
       <KV k="合同金额"       v="¥ 850,000.00" />
       <KV k="项目预算"       v="¥ 1,200,000.00" />
       <KV k="项目进度"       v={<ProgressBar pct={p.progress} />} />
+    </div>
+  );
+
+  const renderBusinessIntro = (items, extra = null) => (
+    <div style={{fontSize:13,color:'var(--aw-fg-2)',lineHeight:1.8,marginBottom:14}}>
+      {items.map((text, i) => <div key={i}><span style={{color:'var(--aw-primary)',fontWeight:600}}>{i + 1}. </span>{text}</div>)}
+      {extra}
     </div>
   );
 
@@ -573,6 +583,118 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
     </div>
   );
 
+  const renderMaterialsTab = () => (
+    <div>
+      {renderBusinessIntro([
+        '引用标准库物料清单，可进行编辑；项目内修改只对当前项目生效，不改动标准库物料清单。',
+        '引用后可在当前项目下调整物料、用量和备注，保证标准库数据权威性。',
+      ], <div className="aw-meta-bar" style={{marginTop:10}}>标准库引用：创建项目物料清单时，可直接一键引用“标准库”的内容。</div>)}
+      <table className="aw-table">
+        <thead><tr><th>序号</th><th>物料编码</th><th>物料名称</th><th>规格型号</th><th>单位</th><th>项目用量</th><th>来源</th><th>状态</th></tr></thead>
+        <tbody>
+          {[
+            ['1','WL-7820864','半成品物料','规格一','KG','500','标准库引用','项目可编辑'],
+            ['2','WL-8518691','铝合金型材','AL-6061','KG','320','标准库引用','项目可编辑'],
+            ['3','WL-6081578','外箱包装','PK-500','个','800','项目新增','待确认'],
+          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 1 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderProcessTab = () => (
+    <div>
+      {renderBusinessIntro([
+        '引用标准库工艺流程，可进行编辑；项目内修改只对当前项目生效，不改动标准库工艺流程。',
+        '可在项目内调整工序、工时、检验点和责任岗位，用于后续报价、采购和生产。',
+      ])}
+      <table className="aw-table">
+        <thead><tr><th>序号</th><th>工序编码</th><th>工序名称</th><th>标准工时</th><th>责任岗位</th><th>质检节点</th><th>来源</th><th>状态</th></tr></thead>
+        <tbody>
+          {[
+            ['1','GX-001','备料','2h','计划员','来料核对','标准库引用','已确认'],
+            ['2','GX-006','机加工','6h','机加工','尺寸首检','标准库引用','项目调整'],
+            ['3','GX-012','总装','4h','装配工','FQC','项目新增','待确认'],
+          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i}>{c}</td>)}</tr>)}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderQuoteTab = () => (
+    <div>
+      {renderBusinessIntro([
+        '填写报价项目及金额，进行价格预审。',
+        '报价信息必须点击确认后，系统才允许启动后续采购和生产流程。',
+        '确认报价并开启生产/采购的操作，仅该项目负责人可执行，其他人员仅能查看。',
+      ])}
+      <table className="aw-table">
+        <thead><tr><th>序号</th><th>报价项</th><th>金额</th><th>报价状态</th><th>确认人</th><th>确认时间</th></tr></thead>
+        <tbody>
+          {[
+            ['1','材料成本','¥ 420,000.00','已确认',p.owner,'2026-06-12 10:20'],
+            ['2','工艺加工费','¥ 180,000.00','已确认',p.owner,'2026-06-12 10:20'],
+            ['3','项目管理费','¥ 60,000.00','待确认','-','-'],
+          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 2 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderPurchaseTab = () => (
+    <div>
+      {renderBusinessIntro([
+        '项目所需物料在采购信息里发起采购，采购来源保留项目和项目明细记录。',
+        '采购可基于项目物料清单生成，便于追踪项目成本和采购进度。',
+      ])}
+      <table className="aw-table">
+        <thead><tr><th>序号</th><th>采购单号</th><th>来源物料</th><th>供应商</th><th>采购数量</th><th>采购金额</th><th>状态</th></tr></thead>
+        <tbody>
+          {[
+            ['1','PO-2026-0008','半成品物料','海南傲为','500','¥ 25,000.00','采购中'],
+            ['2','PO-2026-0011','铝合金型材','华南铝材','320','¥ 10,240.00','待到货'],
+          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 5 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderProductionTab = () => (
+    <div>
+      {renderBusinessIntro([
+        '报价确认后可发起生产需求，生产信息记录需求、计划、订单和工单的推进状态。',
+        '生产数据按项目隔离，便于项目内追踪排产、开工、完工和入库。',
+      ])}
+      <table className="aw-table">
+        <thead><tr><th>序号</th><th>生产单据</th><th>产品/半成品</th><th>计划数量</th><th>已完成</th><th>负责人</th><th>状态</th></tr></thead>
+        <tbody>
+          {[
+            ['1','MR-2026-0012','智能输送线总成','20','0','计划员王敏','待排产'],
+            ['2','MO-2026-0026','铝合金外壳','260','120','生产一部','生产中'],
+          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i}>{c}</td>)}</tr>)}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderExpenseTab = () => (
+    <div>
+      {renderBusinessIntro([
+        '添加项目其他产生的相关费用，用于项目整体成本核算。',
+        '费用可按类别、发生部门和责任人归集，并参与项目利润分析。',
+      ])}
+      <table className="aw-table">
+        <thead><tr><th>序号</th><th>费用类型</th><th>费用说明</th><th>金额</th><th>发生日期</th><th>责任人</th><th>状态</th></tr></thead>
+        <tbody>
+          {[
+            ['1','差旅费','客户现场调研','¥ 8,600.00','2026-06-09','李文涛','已入账'],
+            ['2','测试费','样机可靠性测试','¥ 12,000.00','2026-06-14','陈思源','待审核'],
+          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 3 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
+        </tbody>
+      </table>
+    </div>
+  );
+
   const renderApprovalsTab = () => (
     <div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -641,11 +763,14 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
 
   const tabContent = () => {
     switch (tab) {
-      case 'info':       return renderInfoTab();
+      case 'detail':     return renderDetailTab();
       case 'members':    return renderMembersTab();
-      case 'milestones': return renderMilestonesTab();
-      case 'docs':       return renderDocsTab();
-      case 'approvals':  return renderApprovalsTab();
+      case 'materials':  return renderMaterialsTab();
+      case 'process':    return renderProcessTab();
+      case 'quote':      return renderQuoteTab();
+      case 'purchase':   return renderPurchaseTab();
+      case 'production': return renderProductionTab();
+      case 'expense':    return renderExpenseTab();
       case 'logs':       return renderLogsTab();
       default:           return null;
     }
