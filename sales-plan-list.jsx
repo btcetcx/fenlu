@@ -254,20 +254,18 @@ function SalesPlanDetailView({ onBack, data }) {
 
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span><span style={{flex:1}} />
-        <button className="aw-btn">修改</button><button className="aw-btn">暂停</button><button className="aw-btn">导出</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{display:'flex',alignItems:'center',gap:18,marginBottom:10}}>
-            <div style={{fontSize:18,fontWeight:600}}>{plan.name}</div>
-            <span className={'aw-state aw-state-' + plan.tone}>{plan.state}</span>
-          </div>
-          <div style={{display:'flex',gap:28,fontSize:12,color:'var(--aw-fg-3)',flexWrap:'wrap'}}>
-            <span>计划编号：{plan.code}</span><span>计划周期：{plan.cycle}</span><span>负责对象：{plan.ownerType} / {plan.owner}</span><span>达成率：{plan.rate}%</span>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={plan.name}
+          status={plan.state}
+          onBack={onBack}
+          detailItems={[
+            ['计划编号', plan.code],
+            ['计划周期', plan.cycle],
+            ['负责对象', `${plan.ownerType} / ${plan.owner}`],
+            ['达成率', `${plan.rate}%`],
+          ]}
+        />
 
         <Card>
           <div className="aw-tabs" style={{marginBottom:14}}>

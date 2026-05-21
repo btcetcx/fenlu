@@ -83,6 +83,31 @@ const initStages = () => {
   ];
 };
 
+const CRAFT_DETAIL_TEXT = `本工艺适用于智能温控锅 AW-H8 整机制造，覆盖来料检验、关键零件加工、整机装配、委外热处理、功能调试、出货检验与包装入库全过程。
+
+工艺路线采用串序与并序结合的组织方式：加工段支持切割、钻孔、车削并行处理，表面处理段支持委外热处理与本厂抛光同步推进；系统按并序节点最大时长计算工艺总时长。关键质量控制点包括来料检验、装配首件确认、功能全检和 OQC 全检。
+
+执行时需优先使用已维护的工作中心、设备、SOP、检验方案和物料消耗标准。若出现尺寸超差、装配异常或功能测试不通过，应按质检策略进入返修或隔离流程，并记录异常原因、责任工序和复检结果。`;
+
+function CraftRichTextEditor({ defaultValue = CRAFT_DETAIL_TEXT }) {
+  return (
+    <div style={{border:'1px solid var(--aw-border)',borderRadius:8,overflow:'hidden',background:'#fff'}}>
+      <div style={{display:'flex',alignItems:'center',gap:6,padding:'8px 10px',borderBottom:'1px solid var(--aw-divider)',background:'var(--aw-surface-2)',fontSize:12,color:'var(--aw-fg-2)'}}>
+        {['B','I','U','H1','H2','•','1.','链接','图片','表格'].map(item => (
+          <span key={item} style={{minWidth:26,height:24,padding:'0 8px',border:'1px solid var(--aw-border)',borderRadius:5,background:'#fff',display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:item==='B'?700:400,fontStyle:item==='I'?'italic':'normal',textDecoration:item==='U'?'underline':'none'}}>{item}</span>
+        ))}
+      </div>
+      <div
+        contentEditable
+        suppressContentEditableWarning
+        style={{minHeight:168,padding:'14px 16px',fontSize:13,lineHeight:1.8,color:'var(--aw-fg-1)',whiteSpace:'pre-wrap',outline:'none'}}
+      >
+        {defaultValue}
+      </div>
+    </div>
+  );
+}
+
 /* ============================================================
    主组件
    ============================================================ */
@@ -303,6 +328,10 @@ function CraftNewScreen({ onBack }) {
             <div className="cf-route-empty">当前未添加工序，点击“添加工序”进行配置。</div>
           )}
         </div>
+
+        <Card title="工艺详情">
+          <CraftRichTextEditor />
+        </Card>
 
         {routeModalOpen && (
           <div className="cf-route-modal-mask">

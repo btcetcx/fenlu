@@ -38,8 +38,6 @@ const PRD_MODULES = {
         ]},
         { name:'BOM管理', groups:[
           { name:'物料清单库', items:['新增物料清单','清单列表'] },
-          { name:'物料组件库', items:['新增组件','组件列表'] },
-          { name:'BOM模块', items:['新增模块','模块列表'] },
           { name:'代替物料库', items:['新增代替','代替列表'] },
           { name:'BOM设置', items:['设置项目编号','设置bom策略','设置bom分类','设置bom模板','设置bom流程','设置自定义字段'] },
         ]},

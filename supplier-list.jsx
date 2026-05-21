@@ -552,25 +552,19 @@ function SupplierDetailView({ onBack, data }) {
   ];
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span><span style={{flex:1}}/>
-        <button className="aw-btn">修改</button><button className="aw-btn">删除</button><button className="aw-btn">打印</button><button className="aw-btn">导出</button><button className="aw-btn danger">停用</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card>
-          {sup.state==='待审核' && (
-            <div style={{position:'absolute',top:18,right:24,width:80,height:80,border:'2px solid #F5222D',borderRadius:'50%',color:'#F5222D',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:600,letterSpacing:2,transform:'rotate(-12deg)',opacity:.85}}>待审核</div>
-          )}
-          <div style={{fontSize:18,fontWeight:600,marginBottom:8}}>{sup.name}</div>
-          <div style={{display:'flex',gap:28,fontSize:12,color:'var(--aw-fg-3)',flexWrap:'wrap'}}>
-            <span>供应商编号：{sup.code}</span>
-            <span>供应商分类：{sup.type}</span>
-            <span>主联系人：{sup.contact}</span>
-            <span>联系方式：{sup.phone}</span>
-            <span>采购人员：{sup.buyer}</span>
-            <span>状态：<span className={'aw-badge' + (sup.state==='已审核'?' mint':sup.state==='临时'?' b':sup.state==='已停用'?'':' peach')}>{sup.state}</span></span>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={sup.name}
+          status={sup.state}
+          onBack={onBack}
+          detailItems={[
+            ['供应商编号', sup.code],
+            ['供应商分类', sup.type],
+            ['主联系人', sup.contact],
+            ['联系方式', sup.phone],
+            ['采购人员', sup.buyer],
+          ]}
+        />
         <Card>
           <Tabs items={tabs} active={tab} onChange={setTab} />
           {tab === 'info' && (

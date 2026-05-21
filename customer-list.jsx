@@ -329,15 +329,18 @@ function CustomerDetailView({ onBack, data }) {
 
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span><span style={{flex:1}} />
-        <button className="aw-btn">修改</button><button className="aw-btn">删除</button><button className="aw-btn">打印</button><button className="aw-btn">导出</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{fontSize:18,fontWeight:600,marginBottom:8}}>{customer.name}</div>
-          <div style={{display:'flex',gap:28,fontSize:12,color:'var(--aw-fg-3)'}}><span>客户分组：{customer.group}</span><span>主联系人：{customer.contact}</span><span>联系方式：{customer.phone}</span><span>客户经理：{customer.manager}</span></div>
-        </Card>
+        <DetailHeaderCard
+          title={customer.name}
+          status={customer.state}
+          onBack={onBack}
+          detailItems={[
+            ['客户分组', customer.group],
+            ['主联系人', customer.contact],
+            ['联系方式', customer.phone],
+            ['客户经理', customer.manager],
+          ]}
+        />
         <Card>
           <Tabs items={tabs} active={tab} onChange={setTab} />
           {tab === 'info' && (

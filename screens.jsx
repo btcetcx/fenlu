@@ -518,16 +518,18 @@ function DocDetailScreen({embedded}={}) {
   const [tab, setTab] = useS('detail');
   const content = (
     <>
-      <Card style={{position:'relative'}}>
-        <div style={{position:'absolute',top:18,right:24,width:80,height:80,border:'2px solid #F5222D',borderRadius:'50%',color:'#F5222D',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:600,letterSpacing:2,transform:'rotate(-12deg)',opacity:.85}}>待审批</div>
-        <div style={{fontSize:18,fontWeight:600,marginBottom:6}}>xxx文档202415487</div>
-        <div style={{display:'flex',gap:18,fontSize:12,color:'#6B7280',marginBottom:14}}>
-          <span>创建人：XXX</span><span>创建时间：2024-06-07 19:49:12</span><span>最后修改人：XXX</span><span>修改时间：2024-06-07 19:49:12</span>
-        </div>
-        <div style={{display:'flex',gap:8}}>
-          <Btn>编辑</Btn><Btn>删除</Btn><Btn>打印</Btn><Btn>导出</Btn>
-        </div>
-      </Card>
+      {!embedded && (
+        <DetailHeaderCard
+          title="xxx文档202415487"
+          status="待审批"
+          detailItems={[
+            ['文档编号', 'PJ7820864'],
+            ['文档名称', '文档名称'],
+            ['文档类型', '文档分类'],
+            ['版本号', 'V 1.0'],
+          ]}
+        />
+      )}
       <Card>
         <Tabs items={[{k:'detail',label:'文档详情'},{k:'attach',label:'文档附件'},{k:'ver',label:'历史版本'},{k:'log',label:'操作记录'}]} active={tab} onChange={setTab}/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',rowGap:14,columnGap:32,fontSize:13}}>

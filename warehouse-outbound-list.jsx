@@ -164,14 +164,18 @@ function OutboundOrderDetailView({ data, onBack }) {
   return (
     <div className="aw-doc-form">
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{fontSize:16,fontWeight:600,marginBottom:10}}>202404{row.subject}单232</div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,auto)',justifyContent:'start',gap:'6px 28px',fontSize:12,color:'var(--aw-fg-3)',marginBottom:14}}>
-            <span>打印状态：未打印</span><span>设置已打印</span><span>打印状态：已打印</span><span>创建人：XXX</span>
-            <span>创建时间：2024-06-07 19:49:12</span><span>最后修改人：XXX</span><span>修改时间：2024-06-07 19:49:12</span>
-          </div>
-          <div style={{display:'flex',gap:10}}><Btn onClick={onBack}>返回</Btn><Btn>编辑</Btn><Btn>删除</Btn><Btn>导出</Btn><Btn>打印</Btn></div>
-        </Card>
+        <DetailHeaderCard
+          title={`202404${row.subject}单232`}
+          status={row.state}
+          onBack={onBack}
+          detailItems={[
+            ['出库类型', row.type],
+            ['出库单号', row.code],
+            ['出库日期', row.date || row.applyDate],
+            ['出库仓库', row.type === '采购退货' ? '退货暂存仓' : '仓库0545'],
+            ['打印状态', '未打印'],
+          ]}
+        />
         <Card>
           <Tabs items={[{k:'出库信息',label:'出库信息'},{k:'操作记录',label:'操作记录'}]} active={tab} onChange={setTab} />
           {tab === '出库信息' && (

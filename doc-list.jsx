@@ -226,17 +226,18 @@ function DocNewView({onBack}){
 function DocDetailView({onBack}){
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{flex:1}}/>
-        <button className="aw-btn">外发申请</button>
-        <button className="aw-btn">下载审批</button>
-        <button className="aw-btn">编辑</button>
-        <button className="aw-btn">打印</button>
-        <button className="aw-btn">导出</button>
-        <button className="aw-btn danger">删除</button>
-      </div>
       <div className="aw-doc-form-body">
+        <DetailHeaderCard
+          title="xxx文档202415487"
+          status="待审批"
+          onBack={onBack}
+          detailItems={[
+            ['文档编号', 'PJ7820864'],
+            ['文档名称', '文档名称'],
+            ['文档类型', '文档分类'],
+            ['版本号', 'V 1.0'],
+          ]}
+        />
         <DocDetailScreen embedded/>
       </div>
     </div>

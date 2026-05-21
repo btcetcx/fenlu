@@ -464,15 +464,22 @@ function FinanceDetailView({ config, row, onBack }) {
   return (
     <div className="aw-doc-form">
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{fontSize:16,fontWeight:600,marginBottom:10}}>{row.subject} {row.code}</div>
-          <div style={{display:'flex',gap:24,fontSize:12,color:'var(--aw-fg-3)',marginBottom:14}}>
-            <span>创建人：王会计</span><span>创建时间：2026-05-17 10:25</span><span>最后修改人：财务主管</span><span>修改时间：2026-05-17 15:30</span>
-          </div>
-          <div style={{display:'flex',gap:10}}>
-            <Btn onClick={onBack}>返回</Btn><Btn>编辑</Btn><Btn>删除</Btn><Btn>打印</Btn><Btn>导出</Btn><Btn>审核</Btn><Btn>生成凭证</Btn>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={`${row.subject} ${row.code}`}
+          status={row.status}
+          onBack={onBack}
+          creator="王会计"
+          createdAt="2026-05-17 10:25"
+          modifier="财务主管"
+          modifiedAt="2026-05-17 15:30"
+          detailItems={[
+            [config.codeLabel, row.code],
+            [config.counterpartyLabel, row.party],
+            [config.amountLabel, row.amount],
+            [config.dateLabel, row.date],
+            [config.statusLabel, row.status],
+          ]}
+        />
         <Card>
           <div className="aw-tabs" style={{marginBottom:14}}>
             {tabs.map(t => <span key={t.k} className={'aw-tab ' + (tab === t.k ? 'on' : '')} onClick={() => setTab(t.k)}>{t.label}</span>)}

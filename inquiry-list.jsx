@@ -403,12 +403,18 @@ function InquiryDetailView({ onBack, data }) {
   };
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span><span style={{flex:1}} />
-        <button className="aw-btn">修改</button><button className="aw-btn">删除</button><button className="aw-btn">打印</button><button className="aw-btn">导出</button><button className="aw-btn" onClick={() => finishInquiry(INQUIRY_DETAIL_ROWS[0].suppliers[0].id)}>完成定价</button><button className="aw-btn">终止</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card><div style={{fontSize:18,fontWeight:600,marginBottom:8}}>{inq.topic}</div><div style={{display:'flex',gap:28,fontSize:12,color:'var(--aw-fg-3)'}}><span>询价编号：{inq.code}</span><span>询价日期：{inq.date}</span><span>截止日期：{inq.deadline}</span><span>询价状态：{status}</span></div></Card>
+        <DetailHeaderCard
+          title={inq.topic}
+          status={status}
+          onBack={onBack}
+          detailItems={[
+            ['询价编号', inq.code],
+            ['询价日期', inq.date],
+            ['截止日期', inq.deadline],
+            ['询价产品', inq.product],
+          ]}
+        />
         <Card>
           <Tabs items={[{k:'info',label:'询价信息'},{k:'log',label:'操作记录'}]} active="info" onChange={() => {}} />
           <div className="section-title">基础信息</div>

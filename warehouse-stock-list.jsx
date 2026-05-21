@@ -157,13 +157,19 @@ function WarehouseStockDetailView({ data, onBack }) {
   return (
     <div className="aw-doc-form">
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{fontSize:16,fontWeight:600,marginBottom:12}}>新型产品PS2024</div>
-          <div style={{display:'flex',gap:28,fontSize:12,color:'var(--aw-fg-3)',marginBottom:14}}>
-            <span>创建人：XXX</span><span>创建时间：2024-06-07 19:49:12</span><span>最后修改人：XXX</span><span>修改时间：2024-06-07 19:49:12</span>
-          </div>
-          <div style={{display:'flex',gap:10}}><Btn onClick={onBack}>返回</Btn><Btn>出库</Btn><Btn>入库</Btn><Btn>转库</Btn><Btn>盘库</Btn></div>
-        </Card>
+        <DetailHeaderCard
+          title={item.name || '新型产品PS2024'}
+          status={item.qualityState || '启用'}
+          onBack={onBack}
+          detailItems={[
+            ['产品编号', item.code],
+            ['产品型号', item.model],
+            ['产品分类', item.cat],
+            ['默认仓库', item.wh],
+            ['账面库存', distributionTotal || item.stock],
+            ['可用数量', distributionAvailable || item.available],
+          ]}
+        />
         <Card>
           <div className="aw-tabs" style={{marginBottom:14}}>{tabs.map(t => <span key={t} className={'aw-tab ' + (tab === t ? 'on' : '')} onClick={() => setTab(t)}>{t}</span>)}</div>
           {tab === '产品信息' && (

@@ -658,15 +658,18 @@ function OrderDetailView({ onBack, data }) {
   const tabs = ['采购信息','采购明细','入库记录','三单匹配','应付暂估','质检扣款','付款记录','到票记录','来源记录','操作记录'];
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span><span style={{flex:1}} />
-        <button className="aw-btn">修改</button><button className="aw-btn">删除</button><button className="aw-btn">打印</button><button className="aw-btn">导出</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{fontSize:18,fontWeight:600,marginBottom:8}}>{order.code}</div>
-          <div style={{display:'flex',gap:28,fontSize:12,color:'var(--aw-fg-3)'}}><span>供应商：{order.supplier}</span><span>采购日期：{order.date}</span><span>预计到货：{order.arrival}</span><span>采购状态：{order.state}</span></div>
-        </Card>
+        <DetailHeaderCard
+          title={order.code}
+          status={order.state}
+          onBack={onBack}
+          detailItems={[
+            ['供应商', order.supplier],
+            ['采购日期', order.date],
+            ['预计到货', order.arrival],
+            ['采购金额', order.amount],
+          ]}
+        />
         <Card>
           <div className="aw-tabs" style={{marginBottom:14}}>{tabs.map(t => <span key={t} className={'aw-tab ' + (tab === t ? 'on' : '')} onClick={() => setTab(t)}>{t}</span>)}</div>
           {tab === '采购信息' && <PurchaseSection title="基础信息"><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',rowGap:16,columnGap:80,fontSize:13}}>

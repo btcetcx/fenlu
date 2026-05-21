@@ -158,14 +158,18 @@ function WarehouseInboundOrderDetail({ data, onBack }) {
   return (
     <div className="aw-doc-form">
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{fontSize:16,fontWeight:600,marginBottom:10}}>202404{row.subject}单232</div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,auto)',justifyContent:'start',gap:'6px 28px',fontSize:12,color:'var(--aw-fg-3)',marginBottom:14}}>
-            <span>打印状态：未打印</span><span>设置已打印</span><span>创建人：XXX</span><span>创建时间：2024-06-07 19:49:12</span>
-            <span>最后修改人：XXX</span><span>修改时间：2024-06-07 19:49:12</span>
-          </div>
-          <div style={{display:'flex',gap:10}}><Btn onClick={onBack}>返回</Btn><Btn>编辑</Btn><Btn>删除</Btn><Btn>导出</Btn><Btn>打印</Btn></div>
-        </Card>
+        <DetailHeaderCard
+          title={`202404${row.subject}单232`}
+          status={row.state}
+          onBack={onBack}
+          detailItems={[
+            ['入库类型', row.type],
+            ['入库单号', row.code],
+            ['入库日期', row.date || row.applyDate],
+            ['入库仓库', '仓库0545'],
+            ['打印状态', '未打印'],
+          ]}
+        />
         <Card>
           <Tabs items={[{k:'入库信息',label:'入库信息'},{k:'操作记录',label:'操作记录'}]} active={tab} onChange={setTab} />
           {tab === '入库信息' && (

@@ -1449,11 +1449,24 @@ function MfgDetailView({ config, row, moduleKey, onBack }) {
   if (generatedWorkOrders) return <MfgGeneratedProductionOrderList onBack={()=>setGeneratedWorkOrders(false)} />;
   return (
     <div className="aw-doc-form"><div className="aw-doc-form-body">
-      <Card>
-        <div style={{fontSize:16,fontWeight:600,marginBottom:10}}>{row.subject} {row.code}</div>
-        <div style={{display:'flex',gap:24,fontSize:12,color:'var(--aw-fg-3)',marginBottom:14}}><span>创建人：老夏</span><span>创建时间：2026-05-17 10:25</span><span>最后修改人：生产主管</span><span>修改时间：2026-05-17 15:30</span><span>打印状态：未打印</span></div>
-        <div style={{display:'flex',gap:10}}><Btn onClick={onBack}>返回</Btn><Btn>编辑</Btn><Btn>删除</Btn>{moduleKey === 'mfgPlan' && <Btn kind="primary" onClick={()=>setStartPlanModal(true)}>启动计划</Btn>}<Btn>打印</Btn><Btn>导出</Btn>{moduleKey === 'mfgWorkOrder' && <Btn kind="primary">任务报工</Btn>}</div>
-      </Card>
+      <DetailHeaderCard
+        title={`${row.subject} ${row.code}`}
+        status={row.status}
+        onBack={onBack}
+        creator="老夏"
+        createdAt="2026-05-17 10:25"
+        modifier="生产主管"
+        modifiedAt="2026-05-17 15:30"
+        detailItems={[
+          [config.codeLabel, row.code],
+          ['来源单据', row.source],
+          ['生产产品', row.product],
+          ['计划数量', row.qty],
+          ['责任部门', row.owner],
+          ['计划周期', `${row.date} 至 ${row.end}`],
+          ['打印状态', '未打印'],
+        ]}
+      />
       <Card>
         <div className="aw-tabs" style={{marginBottom:14}}>{tabs.map(t=><span key={t} className={'aw-tab '+(tab===t?'on':'')} onClick={()=>setTab(t)}>{t}</span>)}</div>
         {(tab.includes('信息') || tab === '基本信息') && <><PurchaseSection title="基础信息"><InfoGrid items={[

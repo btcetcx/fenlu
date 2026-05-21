@@ -59,6 +59,56 @@ const PRIORITY_MAP = { '高': 'r', '中': 'orange', '低': 'gray' };
 const STATUS_MAP   = { '筹备中': 'b', '进行中': 'b', '已完成': 'g', '已暂停': 'gray' };
 const CAT_OPTIONS  = ['研发项目', '工程项目', '合作项目', '内部研发', '合作研发', '基建工程', '校企合作'];
 
+const PROJECT_TREE = [
+  { k: 'rd', label: '研发项目', open: true, kids: [{ k: 'rd_inner', label: '内部研发' }, { k: 'rd_product', label: '产品研发' }] },
+  { k: 'eng', label: '工程项目', open: true, kids: [{ k: 'eng_it', label: '系统改造' }, { k: 'eng_auto', label: '自动化工程' }] },
+  { k: 'coop', label: '合作项目', open: true, kids: [{ k: 'coop_school', label: '校企合作' }, { k: 'coop_partner', label: '联合创新' }] },
+];
+
+const PROJECT_CAT_MAP = {
+  rd: '研发项目',
+  rd_inner: '研发项目',
+  rd_product: '研发项目',
+  eng: '工程项目',
+  eng_it: '工程项目',
+  eng_auto: '工程项目',
+  coop: '合作项目',
+  coop_school: '合作项目',
+  coop_partner: '合作项目',
+};
+
+function ProjectTree({ picked, setPicked, rows }) {
+  const countByKey = (k) => {
+    const label = PROJECT_CAT_MAP[k];
+    return label ? rows.filter(r => r.category === label).length : rows.length;
+  };
+
+  return (
+    <div className="aw-doc-tree">
+      <div className="aw-doc-tree-h">项目分类 <span className="aw-doc-tree-n">({rows.length})</span></div>
+      <div className="aw-doc-tree-list">
+        {PROJECT_TREE.map(n => (
+          <div key={n.k}>
+            <div className={'aw-tree-row aw-tree-l2' + (picked === n.k ? ' on' : '')} onClick={() => setPicked(n.k)}>
+              <span className="aw-tree-caret">{n.open ? '▾' : '▸'}</span>
+              <TileIcon name="folder" size={14} />
+              <span>{n.label}</span>
+              <span style={{ marginLeft:'auto', fontSize:11, color:'var(--aw-fg-3)', fontFamily:'var(--aw-font-num)' }}>{countByKey(n.k)}</span>
+            </div>
+            {n.open && n.kids.map(c => (
+              <div key={c.k} className={'aw-tree-row aw-tree-l3' + (picked === c.k ? ' on' : '')} onClick={() => setPicked(c.k)}>
+                <TileIcon name="doc" size={13} />
+                <span>{c.label}</span>
+                <span style={{ marginLeft:'auto', fontSize:11, color:'var(--aw-fg-3)', fontFamily:'var(--aw-font-num)' }}>{countByKey(c.k)}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════
 //  ProgressBar sub-component
 // ═══════════════════════════════════════════════════════════════
@@ -77,10 +127,9 @@ function ProgressBar({ pct }) {
 // ═══════════════════════════════════════════════════════════════
 //  List View — Toolbar + Table
 // ═══════════════════════════════════════════════════════════════
-function ProjectListView({ onNew, onView, onEdit }) {
+function ProjectListView({ onNew, onView, onEdit, rows = PROJECT_ROWS }) {
   const [drawer, setDrawer] = useState(null);
   const [sel, setSel] = useState({});
-  const rows = PROJECT_ROWS;
   const allChecked = rows.length > 0 && rows.every((_, i) => sel[i]);
   const someChecked = rows.some((_, i) => sel[i]);
   const toggleAll = () => { if (allChecked) setSel({}); else { const n = {}; rows.forEach((_, i) => n[i] = true); setSel(n); } };
@@ -576,41 +625,25 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
 
   return (
     <div className="aw-doc-form">
-      {/* Header */}
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{ flex: 1 }} />
-        <button className="aw-btn">编辑</button>
-        <button className="aw-btn">打印</button>
-        <button className="aw-btn">导出</button>
-        <button className="aw-btn danger">删除</button>
-      </div>
-
       <div className="aw-doc-form-body">
-        {/* Top Card: Red Stamp + Title + Meta */}
-        <Card style={{ position: 'relative' }}>
-          {/* Approval red stamp */}
-          <div style={{ position: 'absolute', top: 18, right: 24, width: 80, height: 80, border: '2px solid #F5222D', borderRadius: '50%', color: '#F5222D', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, letterSpacing: 2, transform: 'rotate(-12deg)', opacity: .85 }}>
-            {p.status === '已完成' ? '已归档' : p.status === '已暂停' ? '已暂停' : '进行中'}
-          </div>
-
-          {/* Title */}
-          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 6 }}>{p.code} {p.name}</div>
-
-          {/* Meta info row */}
-          <div style={{ display: 'flex', gap: 18, fontSize: 12, color: '#6B7280', marginBottom: 14, flexWrap: 'wrap' }}>
-            <span>创建人：老夏</span>
-            <span>创建时间：{p.startDate} 09:00</span>
-            <span>最后修改人：{p.owner}</span>
-            <span>修改时间：2025-05-10 16:30</span>
-          </div>
-
-          {/* Progress bar summary */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <span style={{ fontSize: 13, color: 'var(--aw-fg-2)' }}>项目进度</span>
-            <div style={{ width: 240 }}><ProgressBar pct={p.progress} /></div>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={`${p.code} ${p.name}`}
+          status={p.status}
+          detailItems={[
+            ['项目编号', p.code],
+            ['项目分类', p.category],
+            ['负责人', p.owner],
+            ['优先级', p.priority],
+            ['开始日期', p.startDate],
+            ['计划完成日期', p.planEnd],
+            ['进度', `${p.progress}%`],
+          ]}
+          onBack={onBack}
+          creator="老夏"
+          createdAt={`${p.startDate} 09:00`}
+          modifier={p.owner}
+          modifiedAt="2025-05-10 16:30"
+        />
 
         {/* Tabs + Content */}
         <Card>
@@ -640,6 +673,7 @@ function KV({ k, v }) {
 function ProjectListScreen({ module: mod, initialAction, onActionConsumed }) {
   const m = mod || MODULES.project;
   const [view, setView] = useState('list');
+  const [picked, setPicked] = useState('rd');
   const [detailIdx, setDetailIdx] = useState(0);
   const [drawer, setDrawer] = useState(null);
 
@@ -650,11 +684,14 @@ function ProjectListScreen({ module: mod, initialAction, onActionConsumed }) {
 
   const handleView = (idx) => { setDetailIdx(idx); setView('detail'); };
   const handleEdit = (idx) => { setDetailIdx(idx); /* could navigate to edit mode */ };
+  const pickedCategory = PROJECT_CAT_MAP[picked];
+  const rows = pickedCategory ? PROJECT_ROWS.filter(r => r.category === pickedCategory) : PROJECT_ROWS;
 
   return (
     <div className="aw-doc-page">
+      {view === 'list' && <ProjectTree picked={picked} setPicked={setPicked} rows={PROJECT_ROWS} />}
       <div className="aw-doc-main">
-        {view === 'list'   && <ProjectListView   onNew={() => setView('new')} onView={handleView} onEdit={handleEdit} />}
+        {view === 'list'   && <ProjectListView rows={rows} onNew={() => setView('new')} onView={(idx) => handleView(PROJECT_ROWS.indexOf(rows[idx]))} onEdit={(idx) => handleEdit(PROJECT_ROWS.indexOf(rows[idx]))} />}
         {view === 'new'    && <ProjectNewView    onBack={() => setView('list')} />}
         {view === 'detail' && <ProjectDetailView onBack={() => setView('list')} projectIndex={detailIdx} />}
       </div>

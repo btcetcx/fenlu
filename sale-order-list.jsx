@@ -674,35 +674,22 @@ function SaleOrderDetailView({ onBack, data }) {
   const deliveryActionHelp = '发货按钮规则：未发货显示发货，发货中显示部分发货，已发货显示已自动发货，已完成显示已完成';
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{flex:1}} />
-        <button className="aw-btn">编辑</button>
-        <button className="aw-btn">提交审批</button>
-        <button className="aw-btn">导出</button>
-        <button className="aw-btn">打印</button>
-        <span className="aw-action-help-wrap">
-          <button className="aw-btn primary" disabled={deliveryActionDisabled}>{deliveryActionText}</button>
-          <span className="aw-action-help-pop">{deliveryActionHelp}</span>
-        </span>
-      </div>
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
-            <div style={{fontSize:18,fontWeight:600}}>{order.topic} {order.code}</div>
-            <Badge tone={order.tone}>{order.state}</Badge>
-          </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,auto)',justifyContent:'start',gap:'6px 28px',fontSize:12,color:'var(--aw-fg-3)'}}>
-            <span>订单编号：{order.code}</span>
-            <span>客户：{order.customer}</span>
-            <span>来源：{order.source}</span>
-            <span>下单日期：{order.date}</span>
-            <span>销售人员：{order.owner}</span>
-            <span>订单金额：{order.amount}</span>
-            <span>已回款：{order.received}</span>
-            <span>订单进展：{order.progress}</span>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={`${order.topic} ${order.code}`}
+          status={order.state}
+          onBack={onBack}
+          detailItems={[
+            ['订单编号', order.code],
+            ['客户', order.customer],
+            ['来源', order.source],
+            ['下单日期', order.date],
+            ['销售人员', order.owner],
+            ['订单金额', order.amount],
+            ['已回款', order.received],
+            ['订单进展', order.progress],
+          ]}
+        />
 
         <Card>
           <Tabs items={tabItems} active={tab} onChange={setTab} />

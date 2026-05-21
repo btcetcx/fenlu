@@ -432,20 +432,22 @@ function QuoteDetailView({ onBack, data }) {
   ];
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span><span style={{flex:1}} />
-        <button className="aw-btn">修改</button><button className="aw-btn">提交审批</button><button className="aw-btn">打印</button><button className="aw-btn">导出</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{display:'flex',alignItems:'center',gap:18,marginBottom:10}}>
-            <div style={{fontSize:18,fontWeight:600}}>{quote.topic}</div>
-            <span className={'aw-state aw-state-' + quote.tone}>{quote.state}</span>
-          </div>
-          <div style={{display:'flex',gap:28,fontSize:12,color:'var(--aw-fg-3)',flexWrap:'wrap'}}>
-            <span>报价编号：{quote.code}</span><span>报价类型：{quote.type}</span><span>适用客户：{quote.customer}</span><span>报价金额：{quote.amount}</span><span>价格版本：{quote.version}</span><span>报价日期：{quote.date}</span><span>失效日期：{quote.expire}</span><span>报价人员：{quote.owner}</span>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={quote.topic}
+          status={quote.state}
+          onBack={onBack}
+          detailItems={[
+            ['报价编号', quote.code],
+            ['报价类型', quote.type],
+            ['适用客户', quote.customer],
+            ['报价金额', quote.amount],
+            ['价格版本', quote.version],
+            ['报价日期', quote.date],
+            ['失效日期', quote.expire],
+            ['报价人员', quote.owner],
+          ]}
+        />
         <Card title="基础信息">
           <div className="aw-doc-grid" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
             <div><span style={{color:'var(--aw-fg-3)'}}>报价主题：</span>{quote.topic}</div>

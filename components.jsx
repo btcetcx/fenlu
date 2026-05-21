@@ -310,8 +310,6 @@ const DEPT_CONFIG = {
       craft:{sections:[{title:'工艺管理',items:['新增工艺','工艺列表']},{title:'工艺设置',items:['设置工艺编号','设置工艺分类','设置审批流程','设置自定义字段','设置工艺策略','设置打印模板']}]},
       bom:{sections:[
         {title:'物料清单库',items:['新增物料清单','清单列表']},
-        {title:'物料组件库',items:['新增组件','组件列表']},
-        {title:'BOM模块',items:['新增模块','模块列表']},
         {title:'代替物料库',items:['新增代替','代替列表']},
         {title:'BOM设置',items:['设置项目编号','设置bom策略','设置bom分类','设置bom模板','设置bom流程','设置自定义字段']}
       ]},
@@ -930,6 +928,87 @@ function Card({ title, children, style }) {
   );
 }
 
+function DetailHeaderCard({
+  title,
+  status = '待审批',
+  detailItems,
+  onBack,
+  onEdit,
+  onDelete,
+  onExport,
+  onPrint,
+  onDisable,
+  creator = 'XXX',
+  createdAt = '2024-06-07 19:49:12',
+  modifier = 'XXX',
+  modifiedAt = '2024-06-07 19:49:12',
+}) {
+  const metaItems = [
+    ['创建人', creator],
+    ['创建时间', createdAt],
+    ['最后修改人', modifier],
+    ['修改时间', modifiedAt],
+  ];
+  const infoItems = detailItems || metaItems;
+  return (
+    <>
+      <div style={{ display:'flex', alignItems:'center', gap:8, padding:'16px 18px', background:'#fff', border:'1px solid var(--aw-border)', borderRadius:8, marginBottom:14 }}>
+        <span className="aw-link" onClick={onBack}>← 返回列表</span>
+        <span style={{ flex:1 }} />
+        <button className="aw-btn" onClick={onEdit}>修改</button>
+        <button className="aw-btn" onClick={onDelete}>删除</button>
+        <button className="aw-btn" onClick={onPrint}>打印</button>
+        <button className="aw-btn" onClick={onExport}>导出</button>
+        <button className="aw-btn danger" onClick={onDisable}>停用</button>
+      </div>
+      <Card style={{ position:'relative', paddingRight:126, minHeight:86 }}>
+        <StatusStamp status={status} />
+        <div style={{ fontSize:18, fontWeight:600, color:'var(--aw-fg-1)', marginBottom:10 }}>{title}</div>
+        <div style={{ display:'flex', gap:24, fontSize:12, color:'#6B7280', flexWrap:'wrap' }}>
+          {infoItems.map(([label, value]) => <span key={label}>{label}：{value}</span>)}
+        </div>
+      </Card>
+    </>
+  );
+}
+
+function StatusStamp({ status = '待审批' }) {
+  const normalized = status === '待审核' ? '待审批'
+    : status === '已生效' || status === '启用' || status === '在售' || status === '已发布' ? '已审批'
+    : status === '已完成' ? '已完成'
+    : status === '草稿' ? '未提交'
+    : status === '已退回' ? '驳回'
+    : status;
+  const colorMap = {
+    '驳回': '#E5484D',
+    '未提交': '#A1A1AA',
+    '待审批': '#2563EB',
+    '审批中': '#F59E0B',
+    '进行中': '#F59E0B',
+    '已审批': '#059669',
+    '已完成': '#059669',
+  };
+  const color = colorMap[normalized] || '#6B7280';
+  const stars = Array.from({ length: 18 }, (_, i) => {
+    const a = (Math.PI * 2 * i) / 18 - Math.PI / 2;
+    return { x: 62 + Math.cos(a) * 39, y: 62 + Math.sin(a) * 39 };
+  });
+
+  return (
+    <svg width="92" height="84" viewBox="0 0 124 112" style={{ position:'absolute', top:12, right:20, overflow:'visible' }} aria-label={normalized}>
+      <g opacity=".96">
+        <circle cx="62" cy="62" r="47" fill="none" stroke={color} strokeWidth="3" />
+        <circle cx="62" cy="62" r="30" fill="none" stroke={color} strokeWidth="3" />
+        {stars.map((p, i) => <text key={i} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" fill={color} fontSize="8" fontWeight="700">★</text>)}
+        <g transform="rotate(-30 62 62)">
+          <rect x="4" y="43" width="116" height="38" rx="5" fill="#fff" stroke={color} strokeWidth="3" />
+          <text x="62" y="68" textAnchor="middle" fill={color} fontSize="23" fontWeight="600" letterSpacing="2">{normalized}</text>
+        </g>
+      </g>
+    </svg>
+  );
+}
+
 function Btn({ kind = 'secondary', children, onClick, style }) {
   const cls = 'aw-btn' + (kind==='primary'?' primary':kind==='text'?' text':kind==='danger'?' danger':'');
   return <button className={cls} onClick={onClick} style={style}>{children}</button>;
@@ -1508,24 +1587,19 @@ function SupplierDetailView({ onBack, data }) {
   const sup = data || { code:'SUP-2025-001', name:'深圳鑫达电子科技有限公司', type:'原材料供应商', creditCode:'91440300MA5DXXXXX', buyer:'老夏', contact:'张伟', phone:'13800138001', position:'销售经理', address:'广东省深圳市福田区华强北路1002号赛格广场32楼', bankAccount:'6217000000123456789', bankName:'深圳鑫达电子科技有限公司', bankBranch:'中国工商银行深圳福田支行', state:'已审核' };
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{flex:1}}/>
-        <button className="aw-btn">编辑</button>
-        <button className="aw-btn">打印</button>
-        <button className="aw-btn">导出</button>
-        <button className="aw-btn danger">停用</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card style={{position:'relative'}}>
-          {sup.state==='待审核' && (
-            <div style={{position:'absolute',top:18,right:24,width:80,height:80,border:'2px solid #F5222D',borderRadius:'50%',color:'#F5222D',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:600,letterSpacing:2,transform:'rotate(-12deg)',opacity:.85}}>待审核</div>
-          )}
-          <div style={{fontSize:18,fontWeight:600,marginBottom:6}}>{sup.name}</div>
-          <div style={{display:'flex',gap:18,fontSize:12,color:'#6B7280',marginBottom:14,flexWrap:'wrap'}}>
-            <span>编号：{sup.code}</span><span>分类：{sup.type}</span><span>状态：<span className={'aw-badge' + (sup.state==='已审核'?' mint':' peach')}>{sup.state}</span></span>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={sup.name}
+          status={sup.state}
+          onBack={onBack}
+          detailItems={[
+            ['编号', sup.code],
+            ['分类', sup.type],
+            ['联系人', sup.contact],
+            ['联系方式', sup.phone],
+            ['采购人员', sup.buyer],
+          ]}
+        />
         <Card title="基础信息">
           <div className="aw-doc-grid" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
             <KV k="供应商编号" v={sup.code} /><KV k="供应商名称" v={sup.name} />

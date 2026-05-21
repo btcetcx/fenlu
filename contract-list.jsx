@@ -230,32 +230,22 @@ function ContractDetailView({ row, onBack }) {
   const tabItems = tabs.map(t => ({ k: t, label: t }));
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{flex:1}} />
-        <button className="aw-btn">编辑</button>
-        <button className="aw-btn">提交审批</button>
-        <button className="aw-btn">终止</button>
-        <button className="aw-btn">导出</button>
-        <button className="aw-btn">打印</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:10}}>
-            <div style={{fontSize:18,fontWeight:600}}>{row.title}</div>
-            <Badge tone={row.tone}>{row.state}</Badge>
-          </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,auto)',justifyContent:'start',gap:'6px 28px',fontSize:12,color:'var(--aw-fg-3)'}}>
-            <span>合同编号：{row.code}</span>
-            <span>客户：{row.customer}</span>
-            <span>来源：{row.source}</span>
-            <span>签订日期：{row.signDate}</span>
-            <span>销售人员：{row.owner}</span>
-            <span>合同金额：{row.amount}</span>
-            <span>已回款：{row.received}</span>
-            <span>剩余金额：{row.balance}</span>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={row.title}
+          status={row.state}
+          onBack={onBack}
+          detailItems={[
+            ['合同编号', row.code],
+            ['客户', row.customer],
+            ['来源', row.source],
+            ['签订日期', row.signDate],
+            ['销售人员', row.owner],
+            ['合同金额', row.amount],
+            ['已回款', row.received],
+            ['剩余金额', row.balance],
+          ]}
+        />
 
         <Card>
           <Tabs items={tabItems} active={tab} onChange={setTab} />

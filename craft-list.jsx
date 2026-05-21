@@ -691,6 +691,12 @@ const DETAIL_STAGES_V2 = [
   { id:'detail-st-7', kind:'seq', ops:[{ id:'detail-op-10', code:'OP1110', name:'包装', type:'in', cat:'包装', workCenter:'包装车间', equipment:'包装线 A', setupTime:5, runTime:5, queueTime:10, laborCount:1, costRate:1.2, qcRequired:false, qcPlan:'包装抽检', sopCode:'SOP-701', materialRows:[['M-801','包装箱',1,'个'],['M-802','标签',1,'张']], wasteRows:[['包装边角料',0.01,'kg']] }] },
 ];
 
+const CRAFT_DETAIL_TEXT_V2 = `本工艺适用于智能温控锅 AW-H8 整机制造，覆盖来料检验、关键零件加工、整机装配、委外热处理、功能调试、出货检验与包装入库全过程。
+
+工艺路线采用串序与并序结合的组织方式：加工段支持切割、钻孔、车削并行处理，表面处理段支持委外热处理与本厂抛光同步推进；系统按并序节点最大时长计算工艺总时长。关键质量控制点包括来料检验、装配首件确认、功能全检和 OQC 全检。
+
+执行时需优先使用已维护的工作中心、设备、SOP、检验方案和物料消耗标准。若出现尺寸超差、装配异常或功能测试不通过，应按质检策略进入返修或隔离流程，并记录异常原因、责任工序和复检结果。`;
+
 function calcCraftDetailStatsV2(stages) {
   let inOps = 0;
   let outOps = 0;
@@ -818,7 +824,7 @@ function CraftDetailReadonlyPanelV2({ op, stage }) {
 }
 
 function CraftDetailScreenV2({ data, onBack }) {
-  const [tab, setTab] = React.useState('route');
+  const [tab, setTab] = React.useState('info');
   const [selectedOpId, setSelectedOpId] = React.useState(DETAIL_STAGES_V2[0].ops[0].id);
   const current = data || CRAFT_SAMPLES[0];
   const stages = DETAIL_STAGES_V2;
@@ -844,34 +850,24 @@ function CraftDetailScreenV2({ data, onBack }) {
 
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回工艺列表</span>
-        <span style={{flex:1}}/>
-        <Btn>编辑</Btn>
-        <Btn>复制为新版本</Btn>
-        <Btn>打印</Btn>
-        <Btn>导出</Btn>
-      </div>
       <div className="aw-doc-form-body" style={{padding:18}}>
-        <Card title="工艺基础信息">
-          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
-            <div style={{fontSize:18,fontWeight:700,color:'var(--aw-fg-1)'}}>{current.name}</div>
-            <span className={'aw-state aw-state-' + statusTone}>{current.status}</span>
-            <span className="aw-badge g">当前版本</span>
-          </div>
-          <div className="cf-base-grid">
-            {[
-              ['工艺编号', current.code],
-              ['工艺名称', current.name],
-              ['适用产品', current.product],
-              ['版本号', current.version],
-              ['工艺分类', current.category],
-              ['编制人', `${current.creator} / ${current.owner}`],
-              ['生效日期', '2026-06-01'],
-              ['审批流程', '默认审批流'],
-            ].map(([label, value]) => <div className="aw-kv" key={label}><div className="aw-kv-l">{label}</div><div className="aw-kv-v">{value}</div></div>)}
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={`${current.code} ${current.name}`}
+          status={current.status}
+          detailItems={[
+            ['工艺编号', current.code],
+            ['工艺分类', current.category],
+            ['适用产品', current.product],
+            ['版本号', current.version],
+            ['编制人', `${current.creator} / ${current.owner}`],
+            ['生效日期', '2026-06-01'],
+          ]}
+          onBack={onBack}
+          creator={current.creator}
+          createdAt={`${current.created || '2026-05-18'} 09:00`}
+          modifier={current.owner}
+          modifiedAt={`${current.updated || '2026-05-19'} 16:30`}
+        />
 
         <div className="cf-summary" style={{marginTop:14}}>
           <div className="cf-summary-card"><div className="l">工序总数</div><div className="n">{stats.inOps + stats.outOps}<span className="u">道</span></div></div>
@@ -883,7 +879,7 @@ function CraftDetailScreenV2({ data, onBack }) {
         </div>
 
         <Card>
-          <Tabs items={[{k:'route',label:'工艺路线'},{k:'op',label:'工序详情'},{k:'params',label:'工序参数'},{k:'info',label:'发布信息'},{k:'log',label:'操作记录'}]} active={tab} onChange={setTab} />
+          <Tabs items={[{k:'info',label:'工艺详情'},{k:'route',label:'工艺路线'},{k:'params',label:'工序列表'},{k:'log',label:'操作记录'}]} active={tab} onChange={setTab} />
           {tab === 'route' && (
             <div style={{paddingTop:18}}>
               <div className="cf-canvas" style={{border:'1px solid var(--aw-border)',borderRadius:8,minHeight:360,maxHeight:520}}>
@@ -913,10 +909,9 @@ function CraftDetailScreenV2({ data, onBack }) {
                   ))}
                 </div>
               </div>
-              <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>点击工序卡片后，可在“工序详情”页签查看资源、工时、质量与物料信息。</div>
+              <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>工艺路线按新增工艺页面的串序、并序和自制/委外结构展示。</div>
             </div>
           )}
-          {tab === 'op' && <div style={{paddingTop:18}}><CraftDetailReadonlyPanelV2 op={selected.op} stage={selected.stage} /></div>}
           {tab === 'params' && (
             <div className="aw-table-scroll" style={{paddingTop:18}}>
               <table className="aw-table">
@@ -936,9 +931,11 @@ function CraftDetailScreenV2({ data, onBack }) {
                   ['更新日期', current.updated],
                   ['默认工艺', current.isDefault],
                   ['引用状态', '未被在制订单锁定'],
-                  ['发布说明', '与新增工艺页面的路线、资源、质量和物料结构保持一致。'],
                 ].map(([label, value]) => <div className="aw-kv" key={label}><div className="aw-kv-l">{label}</div><div className="aw-kv-v">{value}</div></div>)}
               </div>
+              <Card title="工艺详情" style={{marginTop:16}}>
+                <div style={{fontSize:13,lineHeight:1.9,color:'var(--aw-fg-2)',whiteSpace:'pre-wrap'}}>{CRAFT_DETAIL_TEXT_V2}</div>
+              </Card>
             </div>
           )}
           {tab === 'log' && <div style={{fontSize:13,color:'var(--aw-fg-3)',textAlign:'center',padding:'34px 0'}}>暂无操作记录</div>}

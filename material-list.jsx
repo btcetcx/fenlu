@@ -795,51 +795,22 @@ function MaterialDetailView({ onBack, materialIndex = 0 }) {
 
   return (
     <div className="aw-doc-form">
-      {/* Header */}
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{ flex: 1 }} />
-        <button className="aw-btn">编辑</button>
-        <button className="aw-btn danger">删除</button>
-        <button className="aw-btn">{p.status === '启用' ? '停用' : '启用'}</button>
-      </div>
-
       <div className="aw-doc-form-body">
-        {/* Top Card: Title + Meta + Buttons */}
-        <Card style={{ position: 'relative' }}>
-          {/* Status stamp */}
-          <div style={{
-            position: 'absolute', top: 18, right: 24,
-            width: 80, height: 80,
-            border: `2px solid ${p.status === '启用' ? '#10B981' : '#D1D5DB'}`,
-            borderRadius: '50%',
-            color: p.status === '启用' ? '#10B981' : '#D1D5DB',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 14, fontWeight: 600, letterSpacing: 2,
-            transform: 'rotate(-12deg)', opacity: .85,
-          }}>
-            {p.status === '启用' ? '已启用' : '已停用'}
-          </div>
-
-          {/* Title */}
-          <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 6 }}>{p.name}</div>
-
-          {/* Meta info row */}
-          <div style={{ display: 'flex', gap: 18, fontSize: 12, color: '#6B7280', marginBottom: 10, flexWrap: 'wrap' }}>
-            <span>物料编号：{p.code}</span>
-            <span>分类：{p.category} / {p.subCat}</span>
-            <span>规格：{p.spec}</span>
-            <span>创建人：老夏</span>
-            <span>创建时间：{p.code === 'MAT-2025-001' ? '2025-03-01 09:00' : '2025-04-15 10:30'}</span>
-          </div>
-
-          {/* Action buttons row */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <Btn>编辑</Btn>
-            <Btn danger>删除</Btn>
-            <Btn>{p.status === '启用' ? '停用' : '启用'}</Btn>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={p.name}
+          status={p.status}
+          detailItems={[
+            ['物料编号', p.code],
+            ['物料分类', `${p.category} / ${p.subCat}`],
+            ['规格型号', p.spec],
+            ['标准单位', p.unit],
+            ['获取方式', p.method],
+            ['默认供应商', p.supplier],
+          ]}
+          onBack={onBack}
+          creator="老夏"
+          modifier="李文涛"
+        />
 
         {/* Tabs + Content */}
         <Card>

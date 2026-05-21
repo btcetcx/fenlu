@@ -86,6 +86,10 @@ const OPERATION_LOGS = [
 function ProductTree({ picked, setPicked }) {
   const [open, setOpen] = useState({ fin: true, semi: false, raw: false });
   const toggle = (k) => setOpen(o => ({ ...o, [k]: !o[k] }));
+  const countByKey = (k) => {
+    if (k === 'cat-a' || k === 'cat-b') return PRODUCTS.filter(p => p.subCatKey === k).length;
+    return PRODUCTS.filter(p => p.parentCat === k).length;
+  };
 
   return (
     <div className="aw-doc-tree">
@@ -97,16 +101,22 @@ function ProductTree({ picked, setPicked }) {
           <span className="aw-tree-caret" onClick={(e) => { e.stopPropagation(); toggle('fin'); }}>
             {open.fin ? '▾' : '▸'}
           </span>
+          <TileIcon name="folder" size={14} />
           <span>成品</span>
+          <span style={{ marginLeft:'auto', fontSize:11, color:'var(--aw-fg-3)', fontFamily:'var(--aw-font-num)' }}>{countByKey('fin')}</span>
         </div>
         {open.fin && <>
           <div className={'aw-tree-row aw-tree-l3' + (picked === 'cat-a' ? ' on' : '')}
             onClick={() => setPicked('cat-a')}>
+            <TileIcon name="doc" size={13} />
             <span>类别A</span>
+            <span style={{ marginLeft:'auto', fontSize:11, color:'var(--aw-fg-3)', fontFamily:'var(--aw-font-num)' }}>{countByKey('cat-a')}</span>
           </div>
           <div className={'aw-tree-row aw-tree-l3' + (picked === 'cat-b' ? ' on' : '')}
             onClick={() => setPicked('cat-b')}>
+            <TileIcon name="doc" size={13} />
             <span>类别B</span>
+            <span style={{ marginLeft:'auto', fontSize:11, color:'var(--aw-fg-3)', fontFamily:'var(--aw-font-num)' }}>{countByKey('cat-b')}</span>
           </div>
         </>}
         {/* 半成品 */}
@@ -115,7 +125,9 @@ function ProductTree({ picked, setPicked }) {
           <span className="aw-tree-caret" onClick={(e) => { e.stopPropagation(); toggle('semi'); }}>
             {open.semi ? '▾' : '▸'}
           </span>
+          <TileIcon name="folder" size={14} />
           <span>半成品</span>
+          <span style={{ marginLeft:'auto', fontSize:11, color:'var(--aw-fg-3)', fontFamily:'var(--aw-font-num)' }}>{countByKey('semi')}</span>
         </div>
         {/* 原材料 */}
         <div className={'aw-tree-row aw-tree-l2' + (picked === 'raw' ? ' on' : '')}
@@ -123,7 +135,9 @@ function ProductTree({ picked, setPicked }) {
           <span className="aw-tree-caret" onClick={(e) => { e.stopPropagation(); toggle('raw'); }}>
             {open.raw ? '▾' : '▸'}
           </span>
+          <TileIcon name="folder" size={14} />
           <span>原材料</span>
+          <span style={{ marginLeft:'auto', fontSize:11, color:'var(--aw-fg-3)', fontFamily:'var(--aw-font-num)' }}>{countByKey('raw')}</span>
         </div>
       </div>
     </div>
@@ -236,7 +250,7 @@ function ProductListView({
                 <th style={{ width: 140 }}><div className="aw-th-inner">产品编号</div></th>
                 <th style={{ width: 100 }}><div className="aw-th-inner">产品型号</div></th>
                 <th style={{ width: 100 }}><div className="aw-th-inner">产品分类</div></th>
-                <th style={{ width: 80 }}><div className="aw-th-inner">产品单位</div></th>
+                <th style={{ width: 80 }}><div className="aw-th-inner">标准单位</div></th>
                 <th style={{ width: 90 }}><div className="aw-th-inner">获取方式</div></th>
                 <th style={{ width: 80 }}><div className="aw-th-inner">产品状态</div></th>
                 <th style={{ width: 80 }}><div className="aw-th-inner">操作</div></th>
@@ -611,54 +625,38 @@ function ProductDetailView({ product, onBack }) {
 
   if (!product) return null;
 
+  const TABS = [
+    { k:'info', label:'产品信息' },
+    { k:'sales', label:'销售记录' },
+    { k:'inbound', label:'入库记录' },
+    { k:'outbound', label:'出库记录' },
+    { k:'pricing', label:'客户价格表' },
+    { k:'log', label:'操作记录' },
+  ];
+
   return (
     <div className="aw-doc-form">
-      {/* Header */}
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{ flex:1 }} />
-        <button className="aw-btn">编辑</button>
-        <button className="aw-btn danger">删除</button>
-        <button className="aw-btn">{product.state === '停用' ? '启用' : '停用'}</button>
-      </div>
       <div className="aw-doc-form-body">
 
-        {/* Product Info Header */}
-        <Card style={{ position:'relative' }}>
-          <div style={{ display:'flex', gap:16, alignItems:'flex-start' }}>
-            <div style={{ width:80, height:80, borderRadius:8, background:'#E5E7EB', display:'flex', alignItems:'center', justifyContent:'center', color:'#9CA3AF', fontSize:32, flex:'none' }}>
-              📦
-            </div>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:18, fontWeight:600, marginBottom:6 }}>{product.name}</div>
-              <div style={{ display:'flex', gap:18, fontSize:12, color:'#6B7280', marginBottom:4 }}>
-                <span>创建人：{product.creator}</span>
-                <span>创建时间：{product.createdAt}</span>
-              </div>
-              <div style={{ display:'flex', gap:18, fontSize:12, color:'#6B7280', marginBottom:14 }}>
-                <span>修改人：{product.modifier}</span>
-                <span>修改时间：{product.modifiedAt}</span>
-              </div>
-              <div style={{ display:'flex', gap:8 }}>
-                <Btn>编辑</Btn>
-                <Btn>删除</Btn>
-                <Btn>打印</Btn>
-                <Btn>导出</Btn>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={product.name}
+          status={product.state}
+          detailItems={[
+            ['产品编号', product.code],
+            ['分类', `${product.cat}${product.subCat ? ' / ' + product.subCat : ''}`],
+            ['型号', product.model],
+            ['规格', product.spec],
+            ['创建人', product.creator],
+            ['创建时间', product.createdAt],
+          ]}
+          onBack={onBack}
+          creator={product.creator}
+          modifier={product.modifier}
+        />
 
         {/* Tabs */}
         <Card>
-          <Tabs items={[
-            { k:'info', label:'产品信息' },
-            { k:'sales', label:'销售记录' },
-            { k:'inbound', label:'入库记录' },
-            { k:'outbound', label:'出库记录' },
-            { k:'pricing', label:'客户价格表' },
-            { k:'log', label:'操作记录' },
-          ]} active={tab} onChange={setTab} />
+          <Tabs items={TABS} active={tab} onChange={setTab} />
 
           {/* === 产品信息 === */}
           {tab === 'info' && (
@@ -886,7 +884,6 @@ function ProductDetailView({ product, onBack }) {
           )}
         </Card>
       </div>
-      {customerPicker && <ProductCustomerPickerModal onClose={() => setCustomerPicker(false)} onConfirm={(customer) => { setLinkedCustomer(customer.name); setCustomerPicker(false); }} />}
     </div>
   );
 }

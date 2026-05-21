@@ -18,9 +18,10 @@ function ModuleTree({ module: m, picked, setPicked }) {
     craft:    [{k:'weld',  label:'焊接工艺', open:true,  kids:[{k:'w1',label:'电弧焊'},{k:'w2',label:'激光焊'}]},
                {k:'coat',  label:'喷涂工艺', open:false, kids:[{k:'c1',label:'静电喷涂'}]},
                {k:'asm',   label:'装配工艺', open:false, kids:[{k:'a1',label:'流水线装配'}]}],
-    bom:      [{k:'prod',  label:'生产BOM',  open:true,  kids:[{k:'p1_bom',label:'已生效'},{k:'p2_bom',label:'待审核'}]},
-               {k:'eng_bom', label:'工程BOM', open:false, kids:[{k:'eng_draft',label:'工程草稿'}]},
-               {k:'virt_bom', label:'虚拟BOM', open:false, kids:[{k:'virt_part',label:'组件BOM'}]}],
+    bom:      [{k:'finished_bom', label:'成品BOM', open:true, kids:[{k:'finished_cooker',label:'温控锅整机'},{k:'finished_pack',label:'包装套件'}]},
+               {k:'semi_bom', label:'半成品BOM', open:true, kids:[{k:'semi_control',label:'控制板组件'},{k:'semi_body',label:'机身子装配'},{k:'semi_temp',label:'温控模块'}]},
+               {k:'eng_bom', label:'工程BOM', open:true, kids:[{k:'eng_trial',label:'新品试制'},{k:'eng_change',label:'变更验证'}]},
+               {k:'virt_bom', label:'虚拟BOM', open:true, kids:[{k:'virt_common',label:'通用组件'},{k:'virt_replace',label:'替代组件'}]}],
   };
   const tree = trees[m.code] || trees.project;
 
@@ -52,7 +53,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
   const m = mod || MODULE_DOC;
   const isBomModule = m.code === 'bom' || m.name === 'BOM';
   const [view, setView] = useState('list');
-  const [picked, setPicked] = useState(m.code === 'proj' ? 'rd' : m.code === 'prod' ? 'fin' : m.code === 'mat' ? 'elec' : m.code === 'proc' ? 'mach' : m.code === 'craft' ? 'weld' : 'prod');
+  const [picked, setPicked] = useState(m.code === 'proj' ? 'rd' : m.code === 'prod' ? 'fin' : m.code === 'mat' ? 'elec' : m.code === 'proc' ? 'mach' : m.code === 'craft' ? 'weld' : 'finished_bom');
   const [drawer, setDrawer] = useState(null);
   const [detailRow, setDetailRow] = useState(null);
   const [detailTab, setDetailTab] = useState('info');
@@ -75,7 +76,10 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
     // craft
     weld:'焊接工艺', coat:'喷涂工艺', asm_craft:'装配工艺', w1:'电弧焊', w2:'激光焊', c1_coat:'静电喷涂', a1_line:'流水线装配',
     // bom
-    prod:'生产BOM', eng_bom:'工程BOM', virt_bom:'虚拟BOM', p1_bom:'已生效', p2_bom:'待审核', eng_draft:'工程草稿', virt_part:'组件BOM',
+    finished_bom:'成品BOM', finished_cooker:'温控锅整机', finished_pack:'包装套件',
+    semi_bom:'半成品BOM', semi_control:'控制板组件', semi_body:'机身子装配', semi_temp:'温控模块',
+    eng_bom:'工程BOM', eng_trial:'新品试制', eng_change:'变更验证',
+    virt_bom:'虚拟BOM', virt_common:'通用组件', virt_replace:'替代组件',
   };
 
   const genericRows = [
@@ -86,16 +90,18 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
     { code:`${m.code.toUpperCase()}-2025-005`, name:`${m.name}示例五`, type: m.code==='proj'?'工程项目':m.code==='prod'?'半成品':m.code==='mat'?'机械物料':m.code==='proc'?'装配工序':m.code==='craft'?'喷涂工艺':'设计BOM', state:'已发布', stTone:'g', owner:'王志强', date:'2025-11-15' },
   ];
   const bomRows = [
-    { code:'BOM-202605-001', name:'智能温控锅生产BOM', product:'智能温控锅 AW-H8', version:'V1.3', type:'生产BOM', materials:18, levels:3, state:'已生效', stTone:'g', owner:'老夏', date:'2026-05-18', cost:'4320.00' },
-    { code:'BOM-202605-002', name:'智能温控锅工程BOM', product:'智能温控锅 AW-H12', version:'V1.0', type:'工程BOM', materials:22, levels:4, state:'待审核', stTone:'y', owner:'李文涛', date:'2026-05-16', cost:'5180.00' },
-    { code:'BOM-202604-018', name:'控制板组件虚拟BOM', product:'控制板组件', version:'V2.1', type:'虚拟BOM', materials:9, levels:2, state:'草稿', stTone:'b', owner:'陈思源', date:'2026-04-28', cost:'860.00' },
-    { code:'BOM-202604-011', name:'包装套件BOM', product:'温控锅包装套件', version:'V1.1', type:'生产BOM', materials:6, levels:2, state:'已停用', stTone:'gray', owner:'赵工', date:'2026-04-20', cost:'58.60' },
+    { code:'BOM-202605-001', name:'智能温控锅生产BOM', product:'智能温控锅 AW-H8', version:'V1.3', type:'生产BOM', category:'温控锅整机', group:'成品BOM', materials:18, levels:3, state:'已生效', stTone:'g', owner:'老夏', date:'2026-05-18', cost:'4320.00' },
+    { code:'BOM-202605-002', name:'智能温控锅工程BOM', product:'智能温控锅 AW-H12', version:'V1.0', type:'工程BOM', category:'新品试制', group:'工程BOM', materials:22, levels:4, state:'待审核', stTone:'y', owner:'李文涛', date:'2026-05-16', cost:'5180.00' },
+    { code:'BOM-202604-018', name:'控制板组件虚拟BOM', product:'控制板组件', version:'V2.1', type:'虚拟BOM', category:'控制板组件', group:'半成品BOM', materials:9, levels:2, state:'草稿', stTone:'b', owner:'陈思源', date:'2026-04-28', cost:'860.00' },
+    { code:'BOM-202604-011', name:'包装套件BOM', product:'温控锅包装套件', version:'V1.1', type:'生产BOM', category:'包装套件', group:'成品BOM', materials:6, levels:2, state:'已停用', stTone:'gray', owner:'赵工', date:'2026-04-20', cost:'58.60' },
+    { code:'BOM-202604-026', name:'机身子装配BOM', product:'AW-H8 机身子装配', version:'V1.0', type:'生产BOM', category:'机身子装配', group:'半成品BOM', materials:11, levels:3, state:'已生效', stTone:'g', owner:'王志强', date:'2026-04-26', cost:'1280.00' },
+    { code:'BOM-202604-032', name:'温控模块BOM', product:'温控模块 TM-08', version:'V1.2', type:'生产BOM', category:'温控模块', group:'半成品BOM', materials:7, levels:2, state:'已生效', stTone:'g', owner:'周明', date:'2026-04-30', cost:'420.00' },
   ];
   const allRows = isBomModule ? bomRows : genericRows;
 
   const matchedType = typeMap[picked];
   const rows = matchedType
-    ? allRows.filter(r => isBomModule && ['已生效','待审核','工程草稿','组件BOM'].includes(matchedType) ? r.state === matchedType || r.type === matchedType : r.type === matchedType)
+    ? allRows.filter(r => isBomModule ? [r.type, r.group, r.category, r.state].includes(matchedType) : r.type === matchedType)
     : allRows;
 
   const [sel, setSel] = useState({});
@@ -141,6 +147,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
     { no:'1.1.2', level:'3', code:'M-120', name:'温控传感器', spec:'NTC-10K', type:'外购', qty:'2', unit:'个', loss:'1%', alt:'M-120-B', op:'装配' },
     { no:'1.2', level:'2', code:'P-210', name:'包装纸箱', spec:'8L专用', type:'包装', qty:'1', unit:'个', loss:'0%', alt:'—', op:'包装' },
   ];
+  const bomDetailText = '本物料清单适用于智能温控锅 AW-H8 系列产品，覆盖机身子装配、温控传感器、包装纸箱等关键物料。清单按量产版本维护父子件层级、标准用量、损耗率、替代料和关联工序，提交审批后作为采购、生产领料和成本核算的基准。';
 
   return (
     <div className="aw-doc-page">
@@ -242,31 +249,23 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
 
         {view === 'detail' && isBomModule && currentDetail && (
           <div className="aw-doc-form">
-            <div className="aw-doc-form-head">
-              <span className="aw-link" onClick={() => setView('list')}>← 返回列表</span>
-              <span style={{ flex: 1 }} />
-              <button className="aw-btn" onClick={() => setView('new')}>编辑</button>
-              <button className="aw-btn">版本对比</button>
-              <button className="aw-btn">打印</button>
-              <button className="aw-btn">导出</button>
-            </div>
             <div className="aw-doc-form-body">
-              <Card>
-                <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-                  <div style={{ fontSize:18, fontWeight:700, color:'var(--aw-fg-1)' }}>{currentDetail.name}</div>
-                  <span className={'aw-state aw-state-' + currentDetail.stTone}>{currentDetail.state}</span>
-                </div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,minmax(0,1fr))', gap:'10px 22px', fontSize:13, color:'var(--aw-fg-2)' }}>
-                  <span>BOM编号：<b className="aw-num">{currentDetail.code}</b></span>
-                  <span>适用产品：{currentDetail.product}</span>
-                  <span>版本号：{currentDetail.version}</span>
-                  <span>BOM类型：{currentDetail.type}</span>
-                  <span>物料数：{currentDetail.materials}</span>
-                  <span>层级：{currentDetail.levels}</span>
-                  <span>单件成本：¥ {currentDetail.cost}</span>
-                  <span>编制人：{currentDetail.owner}</span>
-                </div>
-              </Card>
+              <DetailHeaderCard
+                title={`${currentDetail.code} ${currentDetail.name}`}
+                status={currentDetail.state}
+                detailItems={[
+                  ['BOM编号', currentDetail.code],
+                  ['BOM类型', currentDetail.type],
+                  ['适用产品', currentDetail.product],
+                  ['版本号', currentDetail.version],
+                  ['物料数', `${currentDetail.materials}`],
+                  ['层级', `${currentDetail.levels}`],
+                ]}
+                onBack={() => setView('list')}
+                onEdit={() => setView('new')}
+                creator={currentDetail.owner}
+                modifier={currentDetail.owner}
+              />
               <Card>
                 <Tabs items={[{k:'info',label:'BOM信息'},{k:'structure',label:'BOM结构'},{k:'version',label:'版本记录'},{k:'log',label:'操作记录'}]} active={detailTab} onChange={setDetailTab} />
                 {detailTab === 'info' && (
@@ -281,6 +280,12 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
                       <div>生效日期：2026-05-18</div>
                       <div>审批流程：BOM发布审批流程</div>
                       <div>引用状态：未被在制订单锁定</div>
+                    </div>
+                    <div style={{ marginTop:18 }}>
+                      <div className="section-title">清单详情</div>
+                      <div style={{ marginTop:10, border:'1px solid var(--aw-border)', borderRadius:8, background:'#fff', padding:'14px 16px', fontSize:13, lineHeight:1.9, color:'var(--aw-fg-2)', whiteSpace:'pre-wrap' }}>
+                        {bomDetailText}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -317,25 +322,23 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
 
         {view === 'detail' && !isBomModule && (
           <div className="aw-doc-form">
-            <div className="aw-doc-form-head">
-              <span className="aw-link" onClick={() => setView('list')}>← 返回列表</span>
-              <span style={{ flex: 1 }} />
-              <button className="aw-btn">编辑</button>
-              <button className="aw-btn">打印</button>
-              <button className="aw-btn">导出</button>
-              <button className="aw-btn danger">删除</button>
-            </div>
             <div className="aw-doc-form-body">
-              <Card style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', top: 18, right: 24, width: 80, height: 80, border: '2px solid #F5222D', borderRadius: '50%', color: '#F5222D', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, letterSpacing: 2, transform: 'rotate(-12deg)', opacity: .85 }}>待审批</div>
-                <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 6 }}>{m.name}示例一 {allRows[0].code}</div>
-                <div style={{ display: 'flex', gap: 18, fontSize: 12, color: '#6B7280', marginBottom: 14 }}>
-                  <span>创建人：老夏</span><span>创建时间：2025-12-10 14:30</span><span>最后修改人：李文涛</span><span>修改时间：2025-12-12 09:15</span>
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <Btn>编辑</Btn><Btn>删除</Btn><Btn>打印</Btn><Btn>导出</Btn>
-                </div>
-              </Card>
+              <DetailHeaderCard
+                title={`${m.name}示例一 ${allRows[0].code}`}
+                status={allRows[0].state}
+                detailItems={[
+                  [`${m.name}编号`, allRows[0].code],
+                  [`${m.name}名称`, allRows[0].name],
+                  [`${m.name}类型`, allRows[0].type],
+                  ['负责人', allRows[0].owner],
+                  ['更新日期', allRows[0].date],
+                ]}
+                onBack={() => setView('list')}
+                creator="老夏"
+                createdAt="2025-12-10 14:30"
+                modifier="李文涛"
+                modifiedAt="2025-12-12 09:15"
+              />
               <Card>
                 <Tabs items={[{ k: 'detail', label: `${m.name}详情` }, { k: 'attach', label: `${m.name}附件` }, { k: 'ver', label: '历史版本' }, { k: 'log', label: '操作记录' }]} active="detail" onChange={() => {}} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: 14, columnGap: 32, fontSize: 13 }}>

@@ -399,23 +399,20 @@ function PrDetailView({ onBack, data }) {
   if (generatedOrders) return <PrGeneratedPurchaseOrdersPage pr={pr} orders={generatedOrders} onBack={() => setGeneratedOrders(null)} />;
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{flex:1}} />
-        <button className="aw-btn">修改</button>
-        <button className="aw-btn">删除</button>
-        <button className="aw-btn">打印</button>
-        <button className="aw-btn">导出</button>
-        <button className="aw-btn primary" onClick={() => openPurchaseModal(PR_DETAIL_ROWS)}>一键采购</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card>
-          <div style={{fontSize:18,fontWeight:600,marginBottom:8}}>{pr.topic}</div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,auto)',justifyContent:'start',gap:'6px 28px',fontSize:12,color:'var(--aw-fg-3)',marginBottom:14}}>
-            <span>打印状态：未打印</span><span>设置已打印</span><span>打印状态：已打印</span><span>申请日期：{pr.date}</span>
-            <span>创建人：xxx</span><span>创建时间：2024-06-07 19:49:12</span><span>最后修改人：xxx</span><span>修改时间：2024-06-07 19:49:12</span>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={pr.topic}
+          status={pr.state}
+          onBack={onBack}
+          detailItems={[
+            ['请购编号', pr.code],
+            ['申请日期', pr.date],
+            ['请购人', pr.starter],
+            ['请购来源', pr.source],
+            ['关联单据', pr.ref],
+            ['打印状态', pr.printState || '未打印'],
+          ]}
+        />
 
         <Card>
           <Tabs items={[{k:'info',label:'请购信息'},{k:'log',label:'操作记录'}]} active="info" onChange={() => {}} />

@@ -312,24 +312,18 @@ function SupplierDetailView({ onBack, data }) {
   const sup = data || { code:'SUP-2025-001', name:'深圳鑫达电子科技有限公司', type:'原材料供应商', creditCode:'91440300MA5DXXXXX', buyer:'老夏', contact:'张伟', phone:'13800138001', position:'销售经理', address:'广东省深圳市福田区华强北路1002号赛格广场32楼', bankAccount:'6217000000123456789', bankName:'深圳鑫达电子科技有限公司', bankBranch:'中国工商银行深圳福田支行', state:'已审核' };
   return (
     <div className="aw-doc-form">
-      <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack}>← 返回列表</span>
-        <span style={{flex:1}}/>
-        <button className="aw-btn">编辑</button>
-        <button className="aw-btn">打印</button>
-        <button className="aw-btn">导出</button>
-        <button className="aw-btn danger">停用</button>
-      </div>
       <div className="aw-doc-form-body">
-        <Card style={{position:'relative'}}>
-          {sup.state==='待审核' && (
-            <div style={{position:'absolute',top:18,right:24,width:80,height:80,border:'2px solid #F5222D',borderRadius:'50%',color:'#F5222D',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:600,letterSpacing:2,transform:'rotate(-12deg)',opacity:.85}}>待审核</div>
-          )}
-          <div style={{fontSize:18,fontWeight:600,marginBottom:6}}>{sup.name}</div>
-          <div style={{display:'flex',gap:18,fontSize:12,color:'#6B7280',marginBottom:14,flexWrap:'wrap'}}>
-            <span>编号：{sup.code}</span><span>分类：{sup.type}</span><span>状态：<span className={'aw-badge' + (sup.state==='已审核'?' mint':' peach')}>{sup.state}</span></span>
-          </div>
-        </Card>
+        <DetailHeaderCard
+          title={sup.name}
+          status={sup.state}
+          onBack={onBack}
+          detailItems={[
+            ['编号', sup.code],
+            ['分类', sup.type],
+            ['联系人', sup.contact],
+            ['联系方式', sup.phone],
+          ]}
+        />
         <Card title="基础信息">
           <div className="aw-doc-grid" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
             <KV k="供应商编号" v={sup.code} /><KV k="供应商名称" v={sup.name} />

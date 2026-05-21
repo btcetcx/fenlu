@@ -147,6 +147,31 @@ const BN_COMPARE_RIGHT = [
   { no:'1.2.4', code:'M-124', name:'固件烧录虚拟件', qty:'1', price:'0', status:'add' },
 ];
 
+const BOM_DETAIL_TEXT = `本物料清单适用于智能温控锅 AW-H8 系列产品的研发试制与量产导入，覆盖整机总成、机身子装配、控制模块、加热系统与包装套件等层级。
+
+清单结构按父子件层级维护用量、损耗、替代料、适用规格和工序关联。自制件需要关联对应工序与工作中心，外购件需要维护供应商、单价和替代优先级；虚拟件仅用于工艺和成本归集，不参与实际库存扣减。
+
+执行时需重点校验关键物料版本、替代料可用性、用量损耗、适用规格和成本汇总。若发生物料替换、图纸变更或工艺路线调整，应通过版本对比确认新增、删除和用量变化，再提交审批。`;
+
+function BomRichTextEditor({ defaultValue = BOM_DETAIL_TEXT }) {
+  return (
+    <div style={{border:'1px solid var(--aw-border)',borderRadius:8,overflow:'hidden',background:'#fff'}}>
+      <div style={{display:'flex',alignItems:'center',gap:6,padding:'8px 10px',borderBottom:'1px solid var(--aw-divider)',background:'var(--aw-surface-2)',fontSize:12,color:'var(--aw-fg-2)'}}>
+        {['B','I','U','H1','H2','•','1.','链接','图片','表格'].map(item => (
+          <span key={item} style={{minWidth:26,height:24,padding:'0 8px',border:'1px solid var(--aw-border)',borderRadius:5,background:'#fff',display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:item==='B'?700:400,fontStyle:item==='I'?'italic':'normal',textDecoration:item==='U'?'underline':'none'}}>{item}</span>
+        ))}
+      </div>
+      <div
+        contentEditable
+        suppressContentEditableWarning
+        style={{minHeight:168,padding:'14px 16px',fontSize:13,lineHeight:1.8,color:'var(--aw-fg-1)',whiteSpace:'pre-wrap',outline:'none'}}
+      >
+        {defaultValue}
+      </div>
+    </div>
+  );
+}
+
 function bnToNumber(v) {
   const n = parseFloat(v);
   return Number.isFinite(n) ? n : 0;
@@ -608,6 +633,10 @@ function BomNewScreen({ onBack }) {
           </div>
           <Btn kind={rows.length ? 'secondary' : 'primary'} onClick={openStructureModal}>{rows.length ? '编辑物料清单' : '＋ 添加物料清单'}</Btn>
         </div>
+
+        <Card title="清单详情">
+          <BomRichTextEditor />
+        </Card>
       </div>
 
       {structureModalOpen && (
