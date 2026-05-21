@@ -29,6 +29,17 @@ const PR_DETAIL_ROWS = [
   { sourceLine:'PR-2026-00232-05', code:'6081578', name:'外箱包装', spec:'PK-500', unit:'个', qty:500, price:'4.50', amount:'2250.00', bought:250, wait:250, supplier:'海南包装材料', forceQuote:'否', skipReason:'长期协议价', date:'2024-12-23', usage:'包装出货' },
 ];
 
+function PrFixedSummaryBar({ items }) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:28, padding:'10px 12px', borderTop:'1px solid var(--aw-border)', background:'#fff', fontSize:13 }}>
+      <span>合计</span>
+      {items.map(([label, value]) => (
+        <span key={label}>{label}：<b style={{ color:'var(--aw-danger)' }}>{value}</b></span>
+      ))}
+    </div>
+  );
+}
+
 function PrListView({ onNew, onView }) {
   const [sel, setSel] = usePrState({});
   const [statusFilter, setStatusFilter] = usePrState('');
@@ -365,14 +376,15 @@ function PrPurchaseCreateModal({ pr, sourceRows, onClose, onConfirm }) {
                       <td><span className="aw-link" onClick={() => updateRow(i, {selected:true})}>生成采购单</span></td>
                     </tr>
                   ))}
-                  <tr>
-                    <td colSpan={9}>合计</td>
-                    <td colSpan={2}>本次采购数量：<b style={{color:'var(--aw-danger)'}}>{totalQty}</b></td>
-                    <td colSpan={6}>本次采购金额：<b style={{color:'var(--aw-danger)'}}>{totalAmount.toFixed(2)}</b></td>
-                  </tr>
                 </tbody>
               </table>
             </div>
+            <PrFixedSummaryBar
+              items={[
+                ['本次采购数量', totalQty],
+                ['本次采购金额', totalAmount.toFixed(2)],
+              ]}
+            />
           </div>
           <div style={{marginTop:12,fontSize:12,color:'var(--aw-fg-3)',lineHeight:1.7}}>
             生成后按供应商拆分采购订单，并回写请购明细的已采购数量、待采购数量和来源记录。
@@ -457,14 +469,15 @@ function PrDetailView({ onBack, data }) {
                     <td>{i + 1}</td><td>{r.sourceLine}</td><td className="aw-num">{r.code}</td><td>{r.name}</td><td>{r.spec}</td><td>{r.unit}</td><td>{r.qty}</td><td>{r.price}</td><td>{r.amount}</td><td>{r.bought}</td><td>{r.wait}</td><td>{r.forceQuote}</td><td>{r.skipReason}</td><td>{r.date}</td><td>{r.usage}</td><td><span className="aw-link" onClick={() => openPurchaseModal([r])}>采购</span></td>
                   </tr>
                 ))}
-                <tr>
-                  <td colSpan={10}>合计</td>
-                  <td colSpan={2}>请购总数量：<b style={{color:'var(--aw-danger)'}}>{PR_DETAIL_ROWS.reduce((sum, row) => sum + Number(row.qty || 0), 0)}</b></td>
-                  <td colSpan={4}>预计请购总金额：<b style={{color:'var(--aw-danger)'}}>{PR_DETAIL_ROWS.reduce((sum, row) => sum + Number(row.amount || 0), 0).toFixed(2)}</b></td>
-                </tr>
               </tbody>
             </table>
           </div>
+          <PrFixedSummaryBar
+            items={[
+              ['请购总数量', PR_DETAIL_ROWS.reduce((sum, row) => sum + Number(row.qty || 0), 0)],
+              ['预计请购总金额', PR_DETAIL_ROWS.reduce((sum, row) => sum + Number(row.amount || 0), 0).toFixed(2)],
+            ]}
+          />
 
           <div className="section-title" style={{marginTop:18}}>请购备注</div>
           <div style={{fontSize:13,color:'var(--aw-fg-3)',lineHeight:1.7,marginBottom:16}}>用于生产线急需物料补充，请优先安排采购询价。</div>

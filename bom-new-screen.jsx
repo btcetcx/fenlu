@@ -153,7 +153,7 @@ const BOM_DETAIL_TEXT = `本物料清单适用于智能温控锅 AW-H8 系列产
 
 执行时需重点校验关键物料版本、替代料可用性、用量损耗、适用规格和成本汇总。若发生物料替换、图纸变更或工艺路线调整，应通过版本对比确认新增、删除和用量变化，再提交审批。`;
 
-function BomRichTextEditor({ defaultValue = BOM_DETAIL_TEXT }) {
+function BomRichTextEditor({ value = BOM_DETAIL_TEXT, onChange }) {
   return (
     <div style={{border:'1px solid var(--aw-border)',borderRadius:8,overflow:'hidden',background:'#fff'}}>
       <div style={{display:'flex',alignItems:'center',gap:6,padding:'8px 10px',borderBottom:'1px solid var(--aw-divider)',background:'var(--aw-surface-2)',fontSize:12,color:'var(--aw-fg-2)'}}>
@@ -164,9 +164,10 @@ function BomRichTextEditor({ defaultValue = BOM_DETAIL_TEXT }) {
       <div
         contentEditable
         suppressContentEditableWarning
+        onInput={e => onChange && onChange(e.currentTarget.innerText)}
         style={{minHeight:168,padding:'14px 16px',fontSize:13,lineHeight:1.8,color:'var(--aw-fg-1)',whiteSpace:'pre-wrap',outline:'none'}}
       >
-        {defaultValue}
+        {value}
       </div>
     </div>
   );
@@ -190,10 +191,11 @@ function bnVariantActive(node, selected) {
   });
 }
 
-function bnSubtotal(node, selected) {
+function bnSubtotal(node, selected, multiplier = 1) {
   if (selected && !bnVariantActive(node, selected)) return 0;
-  const own = bnGross(node) * bnToNumber(node.price);
-  return own + (node.children || []).reduce((sum, child) => sum + bnSubtotal(child, selected), 0);
+  const currentQty = multiplier * bnGross(node);
+  const own = currentQty * bnToNumber(node.price);
+  return own + (node.children || []).reduce((sum, child) => sum + bnSubtotal(child, selected, currentQty), 0);
 }
 
 function bnWalk(nodes, cb, depth = 1) {
@@ -310,8 +312,8 @@ function bnAttrValue(node, attr) {
   return attr.defaultValue || '';
 }
 
-function BomNewScreen({ onBack }) {
-  const [baseInfo, setBaseInfo] = useBnState({
+function BomNewScreen({ onBack, initialValue, mode = 'create', onDraft, onSubmit, onPreview }) {
+  const emptyBaseInfo = {
     no:'自动生成',
     name:'',
     product:'',
@@ -320,8 +322,10 @@ function BomNewScreen({ onBack }) {
     author:'',
     effectiveDate:'',
     workflow:'',
-  });
-  const [tree, setTree] = useBnState([]);
+  };
+  const [baseInfo, setBaseInfo] = useBnState(initialValue?.baseInfo || emptyBaseInfo);
+  const [tree, setTree] = useBnState(initialValue?.tree || []);
+  const [detailText, setDetailText] = useBnState(initialValue?.detailText || BOM_DETAIL_TEXT);
   const [spec, setSpec] = useBnState({ color:'白色', capacity:'8L' });
   const [collapsed, setCollapsed] = useBnState({});
   const [selectedId, setSelectedId] = useBnState(null);
@@ -336,11 +340,68 @@ function BomNewScreen({ onBack }) {
   const [compare, setCompare] = useBnState(false);
   const [importOpen, setImportOpen] = useBnState(false);
   const [structureModalOpen, setStructureModalOpen] = useBnState(false);
+  const [previewOpen, setPreviewOpen] = useBnState(false);
+  const [notice, setNotice] = useBnState('');
 
   const rows = bnFlatten(tree, collapsed, spec);
   const selectedNode = selectedId ? bnFindNode(tree, selectedId) : null;
   const stat = bnStats(tree, spec);
-  const selectedCount = Object.values(checked).filter(Boolean).length;
+  const selectedCount = rows.filter(row => checked[row.id]).length;
+
+  const buildPayload = (state) => ({
+    code: initialValue?.code || ('BOM-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + String(Date.now()).slice(-3)),
+    baseInfo: { ...baseInfo },
+    tree,
+    detailText,
+    state,
+    spec,
+    stats: stat,
+  });
+
+  const validate = () => {
+    const missing = [];
+    if (!baseInfo.name) missing.push('BOM 名称');
+    if (!baseInfo.product) missing.push('适用产品');
+    if (!baseInfo.type) missing.push('BOM 类型');
+    if (!baseInfo.workflow) missing.push('审批流程');
+    if (!tree.length) missing.push('物料清单');
+    if (rows.some(row => !row.node.code || row.node.name === '请选择物料')) missing.push('完整物料信息');
+    return missing;
+  };
+
+  const flash = (text) => {
+    setNotice(text);
+    window.setTimeout(() => setNotice(''), 2200);
+  };
+
+  const handleDraft = () => {
+    const payload = buildPayload('草稿');
+    onDraft && onDraft(payload);
+    flash('草稿已暂存');
+  };
+
+  const handleSubmit = () => {
+    const missing = validate();
+    if (missing.length) {
+      flash('请先补充：' + missing.join('、'));
+      return;
+    }
+    const payload = buildPayload('待审核');
+    onSubmit && onSubmit(payload);
+    flash('已提交审批');
+  };
+
+  const handlePreview = () => {
+    const payload = buildPayload('预览');
+    onPreview && onPreview(payload);
+    setPreviewOpen(true);
+  };
+
+  const handleBack = () => {
+    const dirty = baseInfo.name || baseInfo.product || tree.length || detailText !== BOM_DETAIL_TEXT;
+    if (dirty && !window.confirm('当前新增物料清单尚未保存，确定返回列表吗？')) return;
+    onBack && onBack();
+  };
 
   const updateBaseInfo = (key, value) => {
     setBaseInfo(prev => ({ ...prev, [key]: value }));
@@ -587,14 +648,15 @@ function BomNewScreen({ onBack }) {
   return (
     <div className="aw-doc-form bn-page" style={{height:'auto'}}>
       <div className="aw-doc-form-head">
-        <span className="aw-link" onClick={onBack || (() => {})}>← 返回</span>
+        <span className="aw-link" onClick={handleBack}>← 返回</span>
         <span className="bn-toolbar-title">研发中心 / BOM管理 / 新增物料清单</span>
         <span className="bn-toolbar-spacer" />
-        <Btn>暂存草稿</Btn>
-        <Btn onClick={() => { setCompare(false); setStructureModalOpen(true); setImportOpen(true); }}>⤴ 导入</Btn>
-        <Btn onClick={() => { setCompare(v => !v); setStructureModalOpen(true); }}>⇄ 版本对比</Btn>
-        <Btn>预览</Btn>
-        <Btn kind="primary">提交审批</Btn>
+        {notice && <span style={{fontSize:12,color:'#2563EB',marginRight:8}}>{notice}</span>}
+        <Btn onClick={handleDraft}>暂存草稿</Btn>
+        <Btn onClick={() => { setCompare(false); setImportOpen(true); }}>⤴ 导入</Btn>
+        <Btn onClick={() => { setCompare(true); setStructureModalOpen(true); }}>⇄ 版本对比</Btn>
+        <Btn onClick={handlePreview}>预览</Btn>
+        <Btn kind="primary" onClick={handleSubmit}>提交审批</Btn>
       </div>
 
       <div className="aw-doc-form-body" style={{padding:18}}>
@@ -635,9 +697,25 @@ function BomNewScreen({ onBack }) {
         </div>
 
         <Card title="清单详情">
-          <BomRichTextEditor />
+          <BomRichTextEditor value={detailText} onChange={setDetailText} />
         </Card>
       </div>
+
+      {previewOpen && (
+        <Modal title="物料清单预览" subtitle={baseInfo.name || '未命名 BOM'} onClose={() => setPreviewOpen(false)} size="xl" footer={<><Btn onClick={() => setPreviewOpen(false)}>关闭</Btn><Btn kind="primary" onClick={() => { setPreviewOpen(false); handleSubmit(); }}>提交审批</Btn></>}>
+          <div className="aw-doc-grid" style={{marginBottom:16}}>
+            <div>BOM编号：{initialValue?.code || '提交后生成'}</div>
+            <div>BOM名称：{baseInfo.name || '未填写'}</div>
+            <div>适用产品：{baseInfo.product || '未选择'}</div>
+            <div>版本号：{baseInfo.version || 'V1.0'}</div>
+            <div>BOM类型：{baseInfo.type || '未选择'}</div>
+            <div>物料数：{stat.materials}</div>
+            <div>层级数：{stat.levels}</div>
+            <div>单件成本：¥ {stat.cost.toFixed(2)}</div>
+          </div>
+          <div style={{border:'1px solid var(--aw-border)',borderRadius:8,padding:14,whiteSpace:'pre-wrap',fontSize:13,lineHeight:1.8,color:'var(--aw-fg-2)'}}>{detailText}</div>
+        </Modal>
+      )}
 
       {structureModalOpen && (
         <div className="bn-config-modal-mask">
@@ -662,11 +740,11 @@ function BomNewScreen({ onBack }) {
 
       <div className={'bn-floating-bar' + (structureModalOpen && selectedCount > 0 ? ' on' : '')}>
         <span className="count">已选 {selectedCount} 项</span>
-        <Btn>批量改用量</Btn>
-        <Btn>批量替换</Btn>
-        <Btn>批量复制</Btn>
-        <Btn>批量移动</Btn>
-        <Btn kind="danger">批量删除</Btn>
+        <Btn style={{opacity:.55}}>批量改用量</Btn>
+        <Btn style={{opacity:.55}}>批量替换</Btn>
+        <Btn style={{opacity:.55}}>批量复制</Btn>
+        <Btn style={{opacity:.55}}>批量移动</Btn>
+        <Btn kind="danger" style={{opacity:.55}}>批量删除</Btn>
       </div>
 
       {drawerOpen && <BomAttributeDrawer attrs={attrs} setAttrs={setAttrs} onClose={() => setDrawerOpen(false)} />}
@@ -1203,7 +1281,7 @@ function BomMaterialPickerModal({ onClose, onConfirm }) {
 
 function BomImportModal({ onClose, onDone }) {
   const [step, setStep] = useBnState(1);
-  const steps = ['粘贴/上传 Excel','字段映射','预览匹配','入库'];
+  const steps = ['粘贴/上传 Excel','字段映射','预览匹配','写入清单'];
   const mapRows = [
     ['层级','行号'],
     ['物料编码','物料'],
@@ -1218,7 +1296,7 @@ function BomImportModal({ onClose, onDone }) {
   const prev = () => step > 1 && setStep(step - 1);
 
   return (
-    <Modal title="从 Excel 智能导入" subtitle="mock 流程演示，不做真实解析" onClose={onClose} size="xl" footer={<><Btn onClick={step === 1 ? onClose : prev}>{step === 1 ? '取消' : '上一步'}</Btn><Btn kind="primary" onClick={next}>{step === 4 ? '确认入库' : '下一步'}</Btn></>}>
+    <Modal title="从 Excel 智能导入" subtitle="mock 流程演示，不做真实解析" onClose={onClose} size="xl" footer={<><Btn onClick={step === 1 ? onClose : prev}>{step === 1 ? '取消' : '上一步'}</Btn><Btn kind="primary" onClick={next}>{step === 4 ? '写入清单' : '下一步'}</Btn></>}>
       <div className="bn-import-steps">
         {steps.map((label, idx) => <span key={label} className={'bn-import-step' + (step === idx + 1 ? ' on' : step > idx + 1 ? ' done' : '')}>{idx + 1}. {label}</span>)}
       </div>
@@ -1254,7 +1332,7 @@ function BomImportModal({ onClose, onDone }) {
       )}
       {step === 4 && (
         <div className="bn-change-empty" style={{minHeight:240}}>
-          已准备写入 4 行，其中 3 行匹配现有物料，1 行作为新物料待确认。点击“确认入库”后写入主表。
+          已准备写入 4 行，其中 3 行匹配现有物料，1 行作为新物料待确认。点击“写入清单”后加入当前 BOM 草稿。
         </div>
       )}
     </Modal>

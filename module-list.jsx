@@ -60,7 +60,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
 
   useEffect(() => {
     if (initialAction === 'new') { setView('new'); onActionConsumed && onActionConsumed(); }
-    else if (initialAction === 'list') { setView('list'); onActionConsumed && onActionConsumed(); }
+    else if (initialAction === 'list' || initialAction === '清单列表') { setView('list'); onActionConsumed && onActionConsumed(); }
   }, [initialAction]);
 
   // Type map: tree key → table type label
@@ -97,7 +97,9 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
     { code:'BOM-202604-026', name:'机身子装配BOM', product:'AW-H8 机身子装配', version:'V1.0', type:'生产BOM', category:'机身子装配', group:'半成品BOM', materials:11, levels:3, state:'已生效', stTone:'g', owner:'王志强', date:'2026-04-26', cost:'1280.00' },
     { code:'BOM-202604-032', name:'温控模块BOM', product:'温控模块 TM-08', version:'V1.2', type:'生产BOM', category:'温控模块', group:'半成品BOM', materials:7, levels:2, state:'已生效', stTone:'g', owner:'周明', date:'2026-04-30', cost:'420.00' },
   ];
-  const allRows = isBomModule ? bomRows : genericRows;
+  const [savedBomRows, setSavedBomRows] = useState(bomRows);
+  const [editInitial, setEditInitial] = useState(null);
+  const allRows = isBomModule ? savedBomRows : genericRows;
 
   const matchedType = typeMap[picked];
   const rows = matchedType
@@ -148,6 +150,75 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
     { no:'1.2', level:'2', code:'P-210', name:'包装纸箱', spec:'8L专用', type:'包装', qty:'1', unit:'个', loss:'0%', alt:'—', op:'包装' },
   ];
   const bomDetailText = '本物料清单适用于智能温控锅 AW-H8 系列产品，覆盖机身子装配、温控传感器、包装纸箱等关键物料。清单按量产版本维护父子件层级、标准用量、损耗率、替代料和关联工序，提交审批后作为采购、生产领料和成本核算的基准。';
+  const flattenBomTreeRows = (nodes, prefix = [], result = []) => {
+    (nodes || []).forEach((node, idx) => {
+      const path = [...prefix, idx + 1];
+      result.push({
+        no: path.join('.'),
+        level: String(path.length),
+        code: node.code || '待选择',
+        name: node.name || '未命名物料',
+        spec: node.spec || '—',
+        type: node.type || '—',
+        qty: String(node.qty || 0),
+        unit: node.unit || '—',
+        loss: `${node.loss || 0}%`,
+        alt: node.alts && node.alts.length ? node.alts.map(a => a.code || a.name).join('、') : '—',
+        op: node.processOp || '未关联',
+      });
+      flattenBomTreeRows(node.children || [], path, result);
+    });
+    return result;
+  };
+  const normalizeBomType = (type) => type && type.endsWith('BOM') ? type : `${type || '生产'}BOM`;
+  const bomTone = (state) => state === '待审核' ? 'y' : state === '草稿' ? 'b' : state === '已停用' ? 'gray' : 'g';
+  const makeBomRowFromPayload = (payload) => {
+    const base = payload.baseInfo || {};
+    const stats = payload.stats || {};
+    const type = normalizeBomType(base.type);
+    const product = base.product || '未选择产品';
+    return {
+      code: payload.code,
+      name: base.name || '未命名物料清单',
+      product,
+      version: base.version || 'V1.0',
+      type,
+      category: product.includes('包装') ? '包装套件' : product.includes('控制') ? '控制板组件' : product.includes('机身') ? '机身子装配' : '温控锅整机',
+      group: type === '工程BOM' ? '工程BOM' : type === '虚拟BOM' ? '虚拟BOM' : product.includes('组件') || product.includes('模块') || product.includes('机身') ? '半成品BOM' : '成品BOM',
+      materials: stats.materials || 0,
+      levels: stats.levels || 0,
+      state: payload.state || '草稿',
+      stTone: bomTone(payload.state),
+      owner: base.author || '老夏',
+      date: base.effectiveDate || new Date().toISOString().slice(0, 10),
+      cost: Number(stats.cost || 0).toFixed(2),
+      detailText: payload.detailText,
+      tree: payload.tree || [],
+      baseInfo: base,
+    };
+  };
+  const upsertBomPayload = (payload) => {
+    const row = makeBomRowFromPayload(payload);
+    setSavedBomRows(prev => prev.some(item => item.code === row.code) ? prev.map(item => item.code === row.code ? { ...item, ...row } : item) : [row, ...prev]);
+    return row;
+  };
+  const makeEditInitial = (row) => ({
+    code: row.code,
+    baseInfo: row.baseInfo || {
+      no: row.code,
+      name: row.name,
+      product: row.product,
+      version: row.version,
+      type: row.type ? row.type.replace('BOM', '') : '',
+      author: row.owner,
+      effectiveDate: row.date,
+      workflow: '研发 BOM 默认流程',
+    },
+    tree: row.tree || [],
+    detailText: row.detailText || bomDetailText,
+  });
+  const currentBomDetailRows = currentDetail && currentDetail.tree && currentDetail.tree.length ? flattenBomTreeRows(currentDetail.tree) : bomDetailRows;
+  const currentBomDetailText = currentDetail?.detailText || bomDetailText;
 
   return (
     <div className="aw-doc-page">
@@ -165,7 +236,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
               <button className="aw-btn" onClick={() => setDrawer('field')}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="7" height="7" /><rect x="14" y="4" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>字段配置</button>
               <button className="aw-btn" onClick={() => setDrawer('export')}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 4v12" /><path d="M7 11l5 5 5-5" /><path d="M4 20h16" /></svg>导出</button>
               <button className="aw-btn" onClick={() => setDrawer('import')}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 20V8" /><path d="M7 13l5-5 5 5" /><path d="M4 4h16" /></svg>导入</button>
-              <button className="aw-btn primary" onClick={() => setView('new')}>{isBomModule ? '新增物料清单' : `新增${m.name}`}</button>
+              <button className="aw-btn primary" onClick={() => { setEditInitial(null); setView('new'); }}>{isBomModule ? '新增物料清单' : `新增${m.name}`}</button>
             </div>
             <div className="aw-doc-tbl-wrap">
               <div className="aw-doc-tbl-inner">
@@ -200,7 +271,19 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
         )}
 
         {view === 'new' && isBomModule && (
-          <BomNewScreen onBack={() => setView('list')} />
+          <BomNewScreen
+            initialValue={editInitial}
+            mode={editInitial ? 'edit' : 'create'}
+            onBack={() => setView('list')}
+            onDraft={(payload) => { upsertBomPayload(payload); }}
+            onPreview={() => {}}
+            onSubmit={(payload) => {
+              const row = upsertBomPayload(payload);
+              setDetailRow(row);
+              setDetailTab('info');
+              setView('detail');
+            }}
+          />
         )}
 
         {view === 'new' && !isBomModule && (
@@ -262,7 +345,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
                   ['层级', `${currentDetail.levels}`],
                 ]}
                 onBack={() => setView('list')}
-                onEdit={() => setView('new')}
+                onEdit={() => { setEditInitial(makeEditInitial(currentDetail)); setView('new'); }}
                 creator={currentDetail.owner}
                 modifier={currentDetail.owner}
               />
@@ -284,7 +367,7 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
                     <div style={{ marginTop:18 }}>
                       <div className="section-title">清单详情</div>
                       <div style={{ marginTop:10, border:'1px solid var(--aw-border)', borderRadius:8, background:'#fff', padding:'14px 16px', fontSize:13, lineHeight:1.9, color:'var(--aw-fg-2)', whiteSpace:'pre-wrap' }}>
-                        {bomDetailText}
+                        {currentBomDetailText}
                       </div>
                     </div>
                   </div>
@@ -296,8 +379,8 @@ function ModuleListScreen({ module: mod, initialAction, onActionConsumed }) {
                       <table className="aw-table">
                         <thead><tr>{['序号','层级','物料编号','物料名称','规格型号','物料类型','用量','标准单位','损耗率','替代料','关联工序'].map(h => <th key={h}>{h}</th>)}</tr></thead>
                         <tbody>
-                          {bomDetailRows.map(r => <tr key={r.no}><td>{r.no}</td><td>{r.level}</td><td className="aw-num aw-link">{r.code}</td><td>{r.name}</td><td>{r.spec}</td><td>{r.type}</td><td>{r.qty}</td><td>{r.unit}</td><td>{r.loss}</td><td>{r.alt}</td><td>{r.op}</td></tr>)}
-                          <tr><td colSpan={6}>合计</td><td className="aw-num">6</td><td colSpan={4}>物料数：{currentDetail.materials}，单件成本：¥ {currentDetail.cost}</td></tr>
+                          {currentBomDetailRows.map(r => <tr key={r.no}><td>{r.no}</td><td>{r.level}</td><td className="aw-num aw-link">{r.code}</td><td>{r.name}</td><td>{r.spec}</td><td>{r.type}</td><td>{r.qty}</td><td>{r.unit}</td><td>{r.loss}</td><td>{r.alt}</td><td>{r.op}</td></tr>)}
+                          <tr><td colSpan={6}>合计</td><td className="aw-num">{currentBomDetailRows.length}</td><td colSpan={4}>物料数：{currentDetail.materials}，单件成本：¥ {currentDetail.cost}</td></tr>
                         </tbody>
                       </table>
                     </div>
