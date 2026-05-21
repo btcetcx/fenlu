@@ -31,7 +31,7 @@ function DocListView({onNew, onView, picked}){
   const cols = [
     {k:'code',  label:'文档编码', w:140},
     {k:'name',  label:'文档名称', w:220},
-    {k:'type',  label:'类型',    w:120, filter:['全部','工艺方案','工艺文件','技术文档','操作规范']},
+    {k:'type',  label:'类型',    w:120},
     {k:'state', label:'状态',    w:120, filter:['全部','已发布','待审核','已停用','草稿']},
     {k:'ver',   label:'版本',    w:80},
     {k:'owner', label:'编制人',  w:100},
