@@ -42,7 +42,7 @@ function SupplierToolbar({ onNew, onSearch }) {
       <Input placeholder="搜索供应商名称/编号…" style={{width:220}} />
       <Btn onClick={onNew}>新增供应商</Btn>
       <span style={{flex:1}} />
-      <span style={{fontSize:12,color:'var(--aw-fg-3)'}}>刷新数据</span>
+      <RefreshAction style={{fontSize:12,color:'var(--aw-fg-3)'}} />
       <Btn>筛选</Btn>
       <Btn>字段配置</Btn>
       <Btn>导出</Btn>

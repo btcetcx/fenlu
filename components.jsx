@@ -1014,6 +1014,27 @@ function Btn({ kind = 'secondary', children, onClick, style }) {
   return <button className={cls} onClick={onClick} style={style}>{children}</button>;
 }
 
+function RefreshAction({ label = '刷新数据', compact = false, style }) {
+  const [refreshing, setRefreshing] = useState(false);
+  const handleClick = (e) => {
+    e.stopPropagation();
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 900);
+  };
+  const mergedStyle = {
+    ...(style || {}),
+    color: refreshing ? 'var(--aw-success)' : (style && style.color),
+    pointerEvents: refreshing ? 'none' : (style && style.pointerEvents),
+  };
+  return (
+    <span className="aw-act" onClick={handleClick} style={mergedStyle} aria-busy={refreshing ? 'true' : undefined}>
+      {compact ? '↺ ' : (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16" /><path d="M3 21v-5h5" /></svg>
+      )}
+      {label}
+    </span>
+  );
+}
 function Field({ label, req, children }) {
   return (
     <div className={'aw-field' + (req?' req':'')}>
@@ -1317,7 +1338,7 @@ function SupplierToolbar({ onNew, onSearch }) {
       <Input placeholder="搜索供应商名称/编号…" style={{width:220}} />
       <Btn onClick={onNew}>新增供应商</Btn>
       <span style={{flex:1}} />
-      <span style={{fontSize:12,color:'var(--aw-fg-3)'}}>刷新数据</span>
+      <RefreshAction style={{fontSize:12,color:'var(--aw-fg-3)'}} />
       <Btn>筛选</Btn>
       <Btn>字段配置</Btn>
       <Btn>导出</Btn>

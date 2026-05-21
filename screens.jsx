@@ -84,7 +84,7 @@ function WorkbenchScreen({ dept='rd', onNavigate }) {
     <>
       <Card title="待办事项">
         <div className="aw-card-actions">
-          <span className="aw-act" onClick={(e)=>{e.stopPropagation();}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/></svg>刷新</span>
+          <RefreshAction label="刷新" />
           <span className="aw-act" onClick={()=>openDrawer('todoAll', {label:'全部待办', value:[...kpis, ...more].reduce((sum, k) => sum + (Number(k.value) || 0), 0)}, '全部待办事项')}>全部<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6"/></svg></span>
           <span className="aw-act" onClick={()=>setTodoOpen(o=>!o)}>{todoOpen?'收起':'展开'}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{transform:todoOpen?'rotate(90deg)':'rotate(0deg)',transition:'transform .15s'}}><path d="M9 6l6 6-6 6"/></svg></span>
         </div>

@@ -206,12 +206,7 @@ function ProductListView({
           </svg>
           <input placeholder="搜索产品名称、编号、型号…" />
         </div>
-        <span className="aw-act">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/>
-            <path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/>
-          </svg>刷新数据
-        </span>
+        <RefreshAction />
         <button className="aw-btn" onClick={() => setDrawer('filter')}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path d="M3 5h18M6 12h12M10 19h4"/>

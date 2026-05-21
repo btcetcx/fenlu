@@ -963,7 +963,7 @@ function CraftListScreen({ onAdd, onView }) {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><circle cx="11" cy="11" r="6" /><path d="M16 16l4 4" /></svg>
           <input placeholder="搜索工艺名称 / 编号 / 适用产品…" />
         </div>
-        <span className="aw-act">↺ 刷新数据</span>
+        <RefreshAction compact />
         <button className="aw-btn">筛选</button>
         <button className="aw-btn">字段配置</button>
         <button className="aw-btn">导出</button>
