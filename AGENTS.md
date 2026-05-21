@@ -17,12 +17,19 @@ The preview entry is `index.html`. Do not rely on double-clicking the HTML file 
 - Main shared UI and navigation code lives in `components.jsx`, `screens.jsx`, `app.jsx`, and `styles.css`.
 - Feature screens are split into standalone `*-list.jsx`, `*-screen.jsx`, and picker/drawer modules.
 - The `1/` directory currently appears to be a snapshot/copy of the project files and is preserved intentionally until the owner decides whether it should become an archive or be removed.
+- Latest synced version: `v2026.05.21` on branch `main`.
+- The PRD page feedback block titled `8. 待确认问题 / 反馈给 Codex` should stay hidden in deliverable/package builds.
 
 ## Conventions
 - Keep UI changes consistent with the existing ERP console style: dense, work-focused, and suitable for repeated operational use.
 - Prefer focused edits over broad refactors.
 - Preserve Chinese UI copy and business terminology unless a requested change explicitly updates it.
 - Use a local static server for visual verification after significant frontend changes.
+- Every GitHub sync should preserve continuity: update this file when the project direction, latest version, deployment/package rules, or important decisions change.
+- Normal syncs should use a regular commit and push. Use Git tags for clear version checkpoints; avoid force push except when explicitly replacing remote history.
+
+## Version Notes
+- `v2026.05.21`: Synced the latest UI updates to GitHub as a versioned checkpoint. Added `.zip` to `.gitignore` so local delivery packages remain local. Local packaging should include the project files but exclude `.git`, runtime logs, and existing `.zip` files.
 
 ## Next Steps
 - Decide whether the `1/` directory should remain tracked as an archive or be removed before long-term maintenance.
