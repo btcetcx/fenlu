@@ -439,6 +439,10 @@ function ProjectNewView({ onBack }) {
 // ═══════════════════════════════════════════════════════════════
 function ProjectDetailView({ onBack, projectIndex = 0 }) {
   const [tab, setTab] = useState('detail');
+  const [hasProjectBom, setHasProjectBom] = useState(false);
+  const [hasProjectProcess, setHasProjectProcess] = useState(false);
+  const [quoteItems, setQuoteItems] = useState([]);
+  const [projectModal, setProjectModal] = useState(null);
   const p = PROJECT_ROWS[projectIndex] || PROJECT_ROWS[0];
 
   const TABS = [
@@ -477,6 +481,16 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
     <div style={{fontSize:13,color:'var(--aw-fg-2)',lineHeight:1.8,marginBottom:14}}>
       {items.map((text, i) => <div key={i}><span style={{color:'var(--aw-primary)',fontWeight:600}}>{i + 1}. </span>{text}</div>)}
       {extra}
+    </div>
+  );
+
+  const renderEmptyState = ({ title, desc, actions }) => (
+    <div style={{textAlign:'center',padding:'54px 24px',border:'1px dashed var(--aw-border-strong)',borderRadius:6,background:'#fff'}}>
+      <div style={{fontSize:16,fontWeight:700,color:'var(--aw-fg-1)',marginBottom:10}}>{title}</div>
+      <div style={{fontSize:13,color:'var(--aw-fg-3)',marginBottom:18}}>{desc}</div>
+      <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+        {actions.map(action => <Btn key={action.label} kind={action.kind} onClick={action.onClick}>{action.label}</Btn>)}
+      </div>
     </div>
   );
 
@@ -585,95 +599,107 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
 
   const renderMaterialsTab = () => (
     <div>
-      {renderBusinessIntro([
-        '引用标准库物料清单，可进行编辑；项目内修改只对当前项目生效，不改动标准库物料清单。',
-        '引用后可在当前项目下调整物料、用量和备注，保证标准库数据权威性。',
-      ], <div className="aw-meta-bar" style={{marginTop:10}}>标准库引用：创建项目物料清单时，可直接一键引用“标准库”的内容。</div>)}
-      <table className="aw-table">
-        <thead><tr><th>序号</th><th>物料编码</th><th>物料名称</th><th>规格型号</th><th>单位</th><th>项目用量</th><th>来源</th><th>状态</th></tr></thead>
-        <tbody>
-          {[
-            ['1','WL-7820864','半成品物料','规格一','KG','500','标准库引用','项目可编辑'],
-            ['2','WL-8518691','铝合金型材','AL-6061','KG','320','标准库引用','项目可编辑'],
-            ['3','WL-6081578','外箱包装','PK-500','个','800','项目新增','待确认'],
-          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 1 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
-        </tbody>
-      </table>
+      {!hasProjectBom ? renderEmptyState({
+        title:'BOM 清单还是空的',
+        desc:'可以引用已有 BOM，也可以新增项目物料清单，或从 Excel 导入后再逐项修正。',
+        actions:[
+          { label:'引用BOM', kind:'primary', onClick:()=>setProjectModal('bomRef') },
+          { label:'添加BOM', onClick:()=>setProjectModal('bomAdd') },
+          { label:'导入Excel', onClick:()=>setProjectModal('bomImport') },
+        ],
+      }) : (
+        <>
+          <div style={{display:'flex',gap:8,marginBottom:12}}>
+            <Btn onClick={()=>setProjectModal('bomRef')}>引用BOM</Btn>
+            <Btn onClick={()=>setProjectModal('bomAdd')}>添加BOM</Btn>
+            <Btn onClick={()=>setProjectModal('bomImport')}>导入Excel</Btn>
+          </div>
+          <table className="aw-table">
+            <thead><tr><th>序号</th><th>BOM编号</th><th>BOM名称</th><th>适用产品</th><th>版本</th><th>来源</th><th>状态</th></tr></thead>
+            <tbody>
+              {[
+                ['1','BOM-2026-0008','智能输送线项目BOM','智能输送线系统','V1.0','项目BOM','可编辑'],
+              ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 1 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 
   const renderProcessTab = () => (
     <div>
-      {renderBusinessIntro([
-        '引用标准库工艺流程，可进行编辑；项目内修改只对当前项目生效，不改动标准库工艺流程。',
-        '可在项目内调整工序、工时、检验点和责任岗位，用于后续报价、采购和生产。',
-      ])}
-      <table className="aw-table">
-        <thead><tr><th>序号</th><th>工序编码</th><th>工序名称</th><th>标准工时</th><th>责任岗位</th><th>质检节点</th><th>来源</th><th>状态</th></tr></thead>
-        <tbody>
-          {[
-            ['1','GX-001','备料','2h','计划员','来料核对','标准库引用','已确认'],
-            ['2','GX-006','机加工','6h','机加工','尺寸首检','标准库引用','项目调整'],
-            ['3','GX-012','总装','4h','装配工','FQC','项目新增','待确认'],
-          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i}>{c}</td>)}</tr>)}
-        </tbody>
-      </table>
+      {!hasProjectProcess ? renderEmptyState({
+        title:'工艺流程还是空的',
+        desc:'可以选择标准工艺流程，也可以新增项目专属工艺流程。',
+        actions:[
+          { label:'选择工艺流程', kind:'primary', onClick:()=>setProjectModal('processRef') },
+          { label:'添加工艺流程', onClick:()=>setProjectModal('processAdd') },
+        ],
+      }) : (
+        <>
+          <div style={{display:'flex',gap:8,marginBottom:12}}>
+            <Btn onClick={()=>setProjectModal('processRef')}>选择工艺流程</Btn>
+            <Btn onClick={()=>setProjectModal('processAdd')}>添加工艺流程</Btn>
+          </div>
+          <table className="aw-table">
+            <thead><tr><th>序号</th><th>工艺编号</th><th>工艺名称</th><th>版本</th><th>来源</th><th>状态</th></tr></thead>
+            <tbody>
+              {[
+                ['1','CRAFT-2026-0012','智能输送线总装工艺','V1.0','项目工艺','可编辑'],
+              ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i}>{c}</td>)}</tr>)}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 
   const renderQuoteTab = () => (
     <div>
-      {renderBusinessIntro([
-        '填写报价项目及金额，进行价格预审。',
-        '报价信息必须点击确认后，系统才允许启动后续采购和生产流程。',
-        '确认报价并开启生产/采购的操作，仅该项目负责人可执行，其他人员仅能查看。',
-      ])}
-      <table className="aw-table">
-        <thead><tr><th>序号</th><th>报价项</th><th>金额</th><th>报价状态</th><th>确认人</th><th>确认时间</th></tr></thead>
-        <tbody>
-          {[
-            ['1','材料成本','¥ 420,000.00','已确认',p.owner,'2026-06-12 10:20'],
-            ['2','工艺加工费','¥ 180,000.00','已确认',p.owner,'2026-06-12 10:20'],
-            ['3','项目管理费','¥ 60,000.00','待确认','-','-'],
-          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 2 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
-        </tbody>
-      </table>
+      {(() => {
+        const rows = [
+          ...(hasProjectBom ? [['BOM成本','由项目 BOM 物料清单汇总生成','¥ 420,000.00']] : []),
+          ...(hasProjectProcess ? [['工艺成本','由项目工艺流程工时与加工费汇总生成','¥ 180,000.00']] : []),
+          ...quoteItems,
+        ];
+        if (!rows.length) return renderEmptyState({
+          title:'报价信息还是空的',
+          desc:'添加 BOM 和工艺后会自动形成对应成本，也可以手动新增成本项。',
+          actions:[{ label:'新增成本项', kind:'primary', onClick:()=>setProjectModal('quoteAdd') }],
+        });
+        return (
+          <>
+            <div style={{display:'flex',gap:8,marginBottom:12}}>
+              <Btn kind="primary" onClick={()=>setProjectModal('quoteAdd')}>新增成本项</Btn>
+            </div>
+            <table className="aw-table">
+              <thead><tr><th>序号</th><th>成本项</th><th>来源说明</th><th>金额</th><th>状态</th></tr></thead>
+              <tbody>{rows.map((r,i)=><tr key={`${r[0]}-${i}`}><td>{i + 1}</td><td>{r[0]}</td><td>{r[1]}</td><td className="aw-num">{r[2]}</td><td>{i < 2 ? '系统生成' : '手动新增'}</td></tr>)}</tbody>
+            </table>
+          </>
+        );
+      })()}
     </div>
   );
 
   const renderPurchaseTab = () => (
     <div>
-      {renderBusinessIntro([
-        '项目所需物料在采购信息里发起采购，采购来源保留项目和项目明细记录。',
-        '采购可基于项目物料清单生成，便于追踪项目成本和采购进度。',
-      ])}
-      <table className="aw-table">
-        <thead><tr><th>序号</th><th>采购单号</th><th>来源物料</th><th>供应商</th><th>采购数量</th><th>采购金额</th><th>状态</th></tr></thead>
-        <tbody>
-          {[
-            ['1','PO-2026-0008','半成品物料','海南傲为','500','¥ 25,000.00','采购中'],
-            ['2','PO-2026-0011','铝合金型材','华南铝材','320','¥ 10,240.00','待到货'],
-          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i} className={i === 5 ? 'aw-num' : ''}>{c}</td>)}</tr>)}
-        </tbody>
-      </table>
+      {renderEmptyState({
+        title:'采购信息还是空的',
+        desc:'报价确认后，可从项目物料清单发起采购，并在这里追踪采购进度。',
+        actions:[],
+      })}
     </div>
   );
 
   const renderProductionTab = () => (
     <div>
-      {renderBusinessIntro([
-        '报价确认后可发起生产需求，生产信息记录需求、计划、订单和工单的推进状态。',
-        '生产数据按项目隔离，便于项目内追踪排产、开工、完工和入库。',
-      ])}
-      <table className="aw-table">
-        <thead><tr><th>序号</th><th>生产单据</th><th>产品/半成品</th><th>计划数量</th><th>已完成</th><th>负责人</th><th>状态</th></tr></thead>
-        <tbody>
-          {[
-            ['1','MR-2026-0012','智能输送线总成','20','0','计划员王敏','待排产'],
-            ['2','MO-2026-0026','铝合金外壳','260','120','生产一部','生产中'],
-          ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i}>{c}</td>)}</tr>)}
-        </tbody>
-      </table>
+      {renderEmptyState({
+        title:'生产信息还是空的',
+        desc:'报价确认后，可发起生产需求，并在这里追踪计划、订单、工单和完工进度。',
+        actions:[],
+      })}
     </div>
   );
 
@@ -776,6 +802,93 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
     }
   };
 
+  const closeProjectModal = () => setProjectModal(null);
+  const renderProjectModal = () => {
+    if (!projectModal) return null;
+    if (projectModal === 'bomRef') {
+      return (
+        <StandardModal title="引用BOM" size="lg" onClose={closeProjectModal}
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectBom(true); closeProjectModal(); }}>引用</Btn></>}>
+          <table className="aw-table">
+            <thead><tr><th style={{width:46}}></th><th>BOM编号</th><th>BOM名称</th><th>适用产品</th><th>版本</th><th>状态</th></tr></thead>
+            <tbody>
+              {[
+                ['BOM-STD-001','标准输送线BOM','智能输送线系统','V3.2','已发布'],
+                ['BOM-STD-002','半成品模组BOM','半成品模组','V2.1','已发布'],
+              ].map((r,i)=><tr key={r[0]} style={{background:i===0?'var(--aw-primary-soft)':undefined}}><td><input type="radio" checked={i===0} readOnly /></td>{r.map((c,ci)=><td key={ci}>{c}</td>)}</tr>)}
+            </tbody>
+          </table>
+        </StandardModal>
+      );
+    }
+    if (projectModal === 'bomAdd') {
+      return (
+        <StandardModal title="新增物料清单" size="md" onClose={closeProjectModal}
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectBom(true); closeProjectModal(); }}>保存</Btn></>}>
+          <FormGrid columns={2}>
+            <Field label="BOM名称" req><Input defaultValue="智能输送线项目BOM" /></Field>
+            <Field label="适用产品" req><Input defaultValue="智能输送线系统" /></Field>
+            <Field label="版本号"><Input defaultValue="V1.0" /></Field>
+            <Field label="来源"><Input value="项目新增" readOnly /></Field>
+          </FormGrid>
+        </StandardModal>
+      );
+    }
+    if (projectModal === 'bomImport') {
+      return (
+        <StandardModal title="导入Excel" size="sm" onClose={closeProjectModal}
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectBom(true); closeProjectModal(); }}>开始导入</Btn></>}>
+          <div style={{border:'1px dashed var(--aw-border-strong)',borderRadius:6,padding:'34px 16px',textAlign:'center',color:'var(--aw-fg-3)'}}>
+            <div style={{fontSize:14,color:'var(--aw-fg-1)',fontWeight:600,marginBottom:8}}>上传项目 BOM Excel</div>
+            <div>支持 .xlsx / .xls，导入后可在项目内逐项修正。</div>
+          </div>
+        </StandardModal>
+      );
+    }
+    if (projectModal === 'processRef') {
+      return (
+        <StandardModal title="选择工艺流程" size="lg" onClose={closeProjectModal}
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectProcess(true); closeProjectModal(); }}>确定</Btn></>}>
+          <table className="aw-table">
+            <thead><tr><th style={{width:46}}></th><th>工艺编号</th><th>工艺名称</th><th>适用产品</th><th>版本</th><th>状态</th></tr></thead>
+            <tbody>
+              {[
+                ['CRAFT-STD-001','标准总装工艺','智能输送线系统','V1.8','已发布'],
+                ['CRAFT-STD-002','机加工工艺','铝合金外壳','V2.0','已发布'],
+              ].map((r,i)=><tr key={r[0]} style={{background:i===0?'var(--aw-primary-soft)':undefined}}><td><input type="radio" checked={i===0} readOnly /></td>{r.map((c,ci)=><td key={ci}>{c}</td>)}</tr>)}
+            </tbody>
+          </table>
+        </StandardModal>
+      );
+    }
+    if (projectModal === 'processAdd') {
+      return (
+        <StandardModal title="添加工艺流程" size="md" onClose={closeProjectModal}
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setHasProjectProcess(true); closeProjectModal(); }}>保存</Btn></>}>
+          <FormGrid columns={2}>
+            <Field label="工艺名称" req><Input defaultValue="智能输送线总装工艺" /></Field>
+            <Field label="适用产品" req><Input defaultValue="智能输送线系统" /></Field>
+            <Field label="版本号"><Input defaultValue="V1.0" /></Field>
+            <Field label="来源"><Input value="项目新增" readOnly /></Field>
+          </FormGrid>
+        </StandardModal>
+      );
+    }
+    if (projectModal === 'quoteAdd') {
+      return (
+        <StandardModal title="新增成本项" size="sm" onClose={closeProjectModal}
+          footer={<><Btn onClick={closeProjectModal}>取消</Btn><Btn kind="primary" onClick={() => { setQuoteItems(items => [...items, ['项目管理费','手动录入的项目成本项','¥ 60,000.00']]); closeProjectModal(); }}>保存</Btn></>}>
+          <FormGrid columns={1}>
+            <Field label="成本项" req><Input defaultValue="项目管理费" /></Field>
+            <Field label="金额" req><Input defaultValue="¥ 60,000.00" /></Field>
+            <Field label="说明"><Input defaultValue="手动录入的项目成本项" /></Field>
+          </FormGrid>
+        </StandardModal>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="aw-doc-form">
       <div className="aw-doc-form-body">
@@ -803,6 +916,7 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
           <Tabs items={TABS} active={tab} onChange={setTab} />
           {tabContent()}
         </Card>
+        {renderProjectModal()}
       </div>
     </div>
   );
