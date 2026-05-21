@@ -388,8 +388,8 @@ function ProjectNewView({ onBack }) {
           </div>
         </Card>
 
-        {/* Card 3: 其他 */}
-        <Card title="其他">
+        {/* Card 3: 项目详情 */}
+        <Card title="项目详情">
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 13, color: 'var(--aw-fg-2)', display: 'block', marginBottom: 6 }}>项目描述</label>
             <div className="aw-rt-bar">
