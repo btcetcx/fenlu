@@ -443,6 +443,9 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
   const [projectBomLocked, setProjectBomLocked] = useState(false);
   const [hasProjectProcess, setHasProjectProcess] = useState(false);
   const [quoteItems, setQuoteItems] = useState([]);
+  const [quoteConfirmed, setQuoteConfirmed] = useState(false);
+  const [hasProjectPurchase, setHasProjectPurchase] = useState(false);
+  const [hasProjectProduction, setHasProjectProduction] = useState(false);
   const [projectCostItems, setProjectCostItems] = useState([
     ['差旅费', '客户现场调研', '¥ 8,600.00', '2026-06-09', '李文涛', '已入账'],
     ['测试费', '样机可靠性测试', '¥ 12,000.00', '2026-06-14', '陈思源', '待审核'],
@@ -495,7 +498,11 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
       <div style={{fontSize:16,fontWeight:700,color:'var(--aw-fg-1)',marginBottom:10}}>{title}</div>
       <div style={{fontSize:13,color:'var(--aw-fg-3)',marginBottom:18}}>{desc}</div>
       <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
-        {actions.map(action => <Btn key={action.label} kind={action.kind} onClick={action.onClick}>{action.label}</Btn>)}
+        {actions.map(action => action.disabled ? (
+          <button key={action.label} className="aw-btn" disabled style={{opacity:.55,cursor:'not-allowed'}}>{action.label}</button>
+        ) : (
+          <Btn key={action.label} kind={action.kind} onClick={action.onClick}>{action.label}</Btn>
+        ))}
       </div>
     </div>
   );
@@ -649,14 +656,13 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
       }) : (
         <>
           <div style={{display:'flex',gap:8,marginBottom:12}}>
-            <Btn onClick={()=>setProjectModal('processRef')}>选择工艺流程</Btn>
             <Btn onClick={()=>setProjectModal('processAdd')}>添加工艺流程</Btn>
           </div>
           <table className="aw-table">
             <thead><tr><th>序号</th><th>工艺编号</th><th>工艺名称</th><th>版本</th><th>来源</th><th>状态</th></tr></thead>
             <tbody>
               {[
-                ['1','CRAFT-2026-0012','智能输送线总装工艺','V1.0','项目工艺','可编辑'],
+                ['1','CRAFT-2026-0012','智能输送线总装工艺','V1.0','项目工艺','编辑'],
               ].map(r => <tr key={r[0]}>{r.map((c,i)=><td key={i}>{c}</td>)}</tr>)}
             </tbody>
           </table>
@@ -673,6 +679,10 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
           ...(hasProjectProcess ? [['工艺成本','由项目工艺流程工时与加工费汇总生成','¥ 180,000.00']] : []),
           ...quoteItems,
         ];
+        const baseAmount = rows.reduce((sum, r) => sum + Number(String(r[2]).replace(/[^\d.]/g, '') || 0), 0);
+        const adjustAmount = rows.length ? -12000 : 0;
+        const actualAmount = Math.max(baseAmount + adjustAmount, 0);
+        const money = n => `¥ ${n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         if (!rows.length) return renderEmptyState({
           title:'报价信息还是空的',
           desc:'添加 BOM 和工艺后会自动形成对应成本，也可以手动新增成本项。',
@@ -682,11 +692,24 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
           <>
             <div style={{display:'flex',gap:8,marginBottom:12}}>
               <Btn kind="primary" onClick={()=>setProjectModal('quoteAdd')}>新增成本项</Btn>
+              <Btn kind={quoteConfirmed ? 'secondary' : 'primary'} onClick={()=>setQuoteConfirmed(true)}>{quoteConfirmed ? '已确认报价' : '确认报价'}</Btn>
             </div>
             <table className="aw-table">
               <thead><tr><th>序号</th><th>成本项</th><th>来源说明</th><th>金额</th><th>状态</th></tr></thead>
               <tbody>{rows.map((r,i)=><tr key={`${r[0]}-${i}`}><td>{i + 1}</td><td>{r[0]}</td><td>{r[1]}</td><td className="aw-num">{r[2]}</td><td>{i < 2 ? '系统生成' : '手动新增'}</td></tr>)}</tbody>
             </table>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3, minmax(160px, 1fr))',gap:12,marginTop:12}}>
+              {[
+                ['当前报价金额', money(baseAmount)],
+                ['调整金额', money(adjustAmount)],
+                ['实际报价金额', money(actualAmount)],
+              ].map(([label, value]) => (
+                <div key={label} style={{border:'1px solid var(--aw-border)',borderRadius:6,padding:'12px 14px',background:'#fff'}}>
+                  <div style={{fontSize:12,color:'var(--aw-fg-3)',marginBottom:6}}>{label}</div>
+                  <div className="aw-num" style={{fontSize:18,fontWeight:700,color:label === '实际报价金额' ? 'var(--aw-primary)' : 'var(--aw-fg-1)'}}>{value}</div>
+                </div>
+              ))}
+            </div>
           </>
         );
       })()}
@@ -695,21 +718,43 @@ function ProjectDetailView({ onBack, projectIndex = 0 }) {
 
   const renderPurchaseTab = () => (
     <div>
-      {renderEmptyState({
+      {!hasProjectPurchase ? renderEmptyState({
         title:'采购信息还是空的',
         desc:'报价确认后，可从项目物料清单发起采购，并在这里追踪采购进度。',
-        actions:[],
-      })}
+        actions:[{
+          label:'发起采购',
+          kind: quoteConfirmed ? 'primary' : undefined,
+          disabled: !quoteConfirmed,
+          onClick:()=> quoteConfirmed && setHasProjectPurchase(true),
+        }],
+      }) : (
+        <table className="aw-table">
+          <thead><tr><th>序号</th><th>采购单号</th><th>来源</th><th>采购金额</th><th>状态</th><th>进度</th></tr></thead>
+          <tbody><tr><td>1</td><td>PO-2026-PRJ-001</td><td>项目物料清单</td><td className="aw-num">¥ 420,000.00</td><td>待审核</td><td>已发起</td></tr></tbody>
+        </table>
+      )}
+      {!quoteConfirmed && <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>确认报价后才可以发起采购。</div>}
     </div>
   );
 
   const renderProductionTab = () => (
     <div>
-      {renderEmptyState({
+      {!hasProjectProduction ? renderEmptyState({
         title:'生产信息还是空的',
         desc:'报价确认后，可发起生产需求，并在这里追踪计划、订单、工单和完工进度。',
-        actions:[],
-      })}
+        actions:[{
+          label:'下单生产需求',
+          kind: quoteConfirmed ? 'primary' : undefined,
+          disabled: !quoteConfirmed,
+          onClick:()=> quoteConfirmed && setHasProjectProduction(true),
+        }],
+      }) : (
+        <table className="aw-table">
+          <thead><tr><th>序号</th><th>生产需求号</th><th>来源</th><th>需求数量</th><th>状态</th><th>进度</th></tr></thead>
+          <tbody><tr><td>1</td><td>MRP-2026-PRJ-001</td><td>项目报价确认</td><td className="aw-num">1 套</td><td>待排产</td><td>已下单</td></tr></tbody>
+        </table>
+      )}
+      {!quoteConfirmed && <div style={{fontSize:12,color:'var(--aw-fg-3)',marginTop:10}}>确认报价后才可以下单生产需求。</div>}
     </div>
   );
 
