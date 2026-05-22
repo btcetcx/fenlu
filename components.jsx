@@ -66,7 +66,7 @@ const MODULES = {
   qcGroup:{ name:'检验资源', code:'qcgrp', hasPrint:true, hasPolicy:true },
   qcReport:{ name:'质量分析', code:'qcrpt', hasPrint:true, hasPolicy:false },
   asService:{ name:'售后单', code:'asvc', hasPrint:true, hasPolicy:true },
-  asTask:{ name:'处理任务', code:'astask', hasPrint:true, hasPolicy:true },
+  asTask:{ name:'任务管理', code:'astask', hasPrint:true, hasPolicy:true },
   asRefundExchange:{ name:'退换退款', code:'arx', hasPrint:true, hasPolicy:true },
   asRefundReturn:{ name:'退款退货', code:'arr', hasPrint:true, hasPolicy:true },
   asRefundOnly:{ name:'仅退款', code:'aro', hasPrint:true, hasPolicy:true },
@@ -246,11 +246,16 @@ const NAV = [
 ];
 
 // 12 部门完整配置：侧栏 + 飞单 + 工作台数据
+// Temporarily hidden navigation entries. Keep the underlying configs intact so they can be restored later.
+const HIDDEN_NAV_KEYS = new Set(['oa', 'prdOa']);
+const isNavHidden = item => item && HIDDEN_NAV_KEYS.has(item.k);
+
 const DEPT_CONFIG = {
   prd: {
     title: 'PRD 文档',
     sideItems: [
       {k:'workbench',label:'文档总览'},
+      {k:'prdFlow',label:'业务流程图'},
       {k:'prdRd',label:'研发中心'},
       {k:'prdPur',label:'采购中心'},
       {k:'prdSale',label:'销售中心'},
@@ -281,6 +286,7 @@ const DEPT_CONFIG = {
         {tone:'sand',key:'prdAs',label:'售后闭环',value:1,ic:'edit'},
       ],
       navTiles:[
+        {label:'流程图',sub:'ERP 主业务闭环',n:1,tint:'#DCE7FB',fg:'#5677FC',ic:'flow',moduleKey:'prdFlow'},
         {label:'研发',sub:'研发中心 PRD',n:8,tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},
         {label:'采购',sub:'采购中心 PRD',n:6,tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},
         {label:'销售',sub:'销售中心 PRD',n:8,tint:'#DBF3E6',fg:'#10B981',ic:'list'},
@@ -291,6 +297,7 @@ const DEPT_CONFIG = {
         {label:'人力',sub:'人力中心 PRD',n:8,tint:'#F6EFD9',fg:'#6D5818',ic:'user'},
       ],
       entries:[
+        {label:'业务流程图',tint:'#DCE7FB',fg:'#5677FC',ic:'flow',moduleKey:'prdFlow'},
         {label:'查看研发PRD',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},
         {label:'待确认问题',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},
         {label:'逻辑修复清单',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},
@@ -305,7 +312,7 @@ const DEPT_CONFIG = {
     flyouts: {
       doc:{sections:[{title:'文档库',items:['新增文档','文档列表']},{title:'文档设置',items:['设置文档编号','设置文档分类','设置审批流程','设置自定义字段','设置文档策略','设置打印模板']}]},
       project:{sections:[{title:'项目管理',items:['新增项目','项目列表']},{title:'项目设置',items:['设置项目编号','设置项目分类','设置审批流程','设置自定义字段','设置项目策略','设置打印模板']}]},
-      product:{sections:[{title:'产品管理',items:['新增产品','产品列表']},{title:'产品设置',items:['设置产品编号','设置产品分类','设置审批流程','设置自定义字段','设置产品策略','设置打印模板']}]},
+      product:{sections:[{title:'产品管理',items:['新增产品','产品列表']},{title:'产品设置',items:['产品码管控','设置产品编号','设置产品分类','设置审批流程','设置自定义字段','设置产品策略','设置打印模板']}]},
       material:{sections:[{title:'物料管理',items:['新增物料','物料列表']},{title:'物料设置',items:['设置物料编号','设置物料分类','设置审批流程','设置自定义字段','设置物料策略','设置打印模板']}]},
       process:{sections:[{title:'工序管理',items:['新增工序','工序列表']},{title:'工序设置',items:['设置工序编号','设置工序分类','设置审批流程','设置自定义字段','设置工序策略','设置打印模板']}]},
       craft:{sections:[{title:'工艺管理',items:['新增工艺','工艺列表']},{title:'工艺设置',items:['设置工艺编号','设置工艺分类','设置审批流程','设置自定义字段','设置工艺策略','设置打印模板']}]},
@@ -519,12 +526,12 @@ const DEPT_CONFIG = {
     sideItems: [
       {k:'workbench', label:'工作台'},
       {k:'asService', label:'售后单'},
-      {k:'asTask', label:'处理任务'},
+      {k:'asTask', label:'任务管理'},
       {k:'asQuality', label:'质量闭环'},
     ],
     flyouts: {
-      asService:{sections:[{title:'售后单',items:['新增售后','售后列表','待受理','处理中','已关闭']},{title:'售后设置',items:['售后原因','投诉问题','售后类型','问题类型','处理方式']}]},
-      asTask:{sections:[{title:'处理任务',items:['退货入库','换货出库','退款处理','维修派工','现场服务','客户确认']},{title:'任务规则',items:['任务自定义字段','任务自定义编号','任务审批设置','任务策略设置','设置任务打印模板']}]},
+      asService:{sections:[{title:'售后单',items:['新增售后','售后列表','待受理','处理中','已关闭']},{title:'售后设置',items:['售后原因','投诉问题','售后类型','处理方式']}]},
+      asTask:{sections:[{title:'任务管理',items:['退货入库','换货出库','退款处理','维修派工','现场服务','客户确认']},{title:'任务规则',items:['任务自定义字段','任务自定义编号','任务审批设置','任务策略设置','设置任务打印模板']}]},
       asQuality:{sections:[{title:'质量闭环',items:['新增质量改进','质量改进列表','问题追踪','改善验证']},{title:'质改规则',items:['质量改进自定义字段','质量改进自定义编号','质量改进审批设置','质量改进策略设置','设置质量改进打印模板']}]},
     },
     workbench: {
@@ -546,13 +553,13 @@ const DEPT_CONFIG = {
       ],
       navTiles: [
         {label:'售后单',sub:'受理、SLA、关闭',n:128,tint:'#DCE7FB',fg:'#5677FC',ic:'doc',moduleKey:'asService',action:'售后列表'},
-        {label:'处理任务',sub:'退货、退款、维修',n:26,tint:'#DCE7FB',fg:'#5677FC',ic:'flow',moduleKey:'asTask',action:'退货入库'},
+        {label:'任务管理',sub:'退货、退款、维修',n:26,tint:'#DCE7FB',fg:'#5677FC',ic:'flow',moduleKey:'asTask',action:'退货入库'},
         {label:'维修派工',sub:'上门、维修、回访',n:12,tint:'#DBF3E6',fg:'#10B981',ic:'user',moduleKey:'asTask',action:'维修派工'},
         {label:'质量',sub:'8D、CAPA、验证',n:4,tint:'#F6EFD9',fg:'#6D5818',ic:'check',moduleKey:'asQuality',action:'质量改进列表'},
       ],
       entries: [
         {label:'新增售后',moduleKey:'asService',action:'新增售后',tint:'#DCE7FB',fg:'#5677FC',ic:'doc'},
-        {label:'处理任务',moduleKey:'asTask',action:'退货入库',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},
+        {label:'任务管理',moduleKey:'asTask',action:'退货入库',tint:'#DCE7FB',fg:'#5677FC',ic:'flow'},
         {label:'维修派工',moduleKey:'asTask',action:'维修派工',tint:'#DCE7FB',fg:'#5677FC',ic:'user'},
         {label:'退款处理',moduleKey:'asTask',action:'退款处理',tint:'#DCE7FB',fg:'#5677FC',ic:'cart'},
         {label:'质量闭环',moduleKey:'asQuality',action:'质量改进列表',tint:'#DCE7FB',fg:'#5677FC',ic:'check'},
@@ -686,7 +693,11 @@ const DEPT_CONFIG = {
       hrSchedule:{sections:[{title:'排班管理',items:['新增排班','排班列表','班次管理','考勤组管理','考勤日历']},{title:'排班设置',items:['排班自定义字段','排班自定义编号','排班审批设置','排班策略设置','设置排班打印模板']}]},
       hrPayroll:{sections:[{title:'薪酬管理',items:['新增薪酬','工资列表','工资详情','薪资方案','薪酬类型','薪酬项目']},{title:'薪酬设置',items:['薪酬自定义字段','薪酬自定义编号','薪酬审批设置','薪酬策略设置','设置薪酬打印模板']}]},
       hrArchive:{sections:[{title:'档案管理',items:['新增档案','档案列表','合同档案','证件档案']},{title:'档案设置',items:['档案自定义字段','档案自定义编号','档案审批设置','档案策略设置','设置档案打印模板']}]},
-      hrOffice:{sections:[{title:'人事办公',items:['新增办公申请','办公申请列表','证明开具','物品领用']},{title:'办公设置',items:['人事办公自定义字段','人事办公自定义编号','人事办公审批设置','人事办公策略设置','设置人事办公打印模板']}]}},
+      hrOffice:{sections:[
+        {title:'办公申请',items:['新增办公申请','申请列表']},
+        {title:'通知协同',items:['发布公告','公告列表','预约会议','会议列表','个人日程','团队日程']},
+        {title:'办公设置',items:['人事办公自定义字段','人事办公自定义编号','人事办公审批设置','人事办公策略设置','会议室管理','工作日历']},
+      ]}},
     workbench:{
       kpis:[{tone:'peach',key:'hrEmployee',label:'待入职员工',value:6,ic:'user',moduleKey:'hrEmployee',action:'入职管理'},{tone:'mint',key:'hrAttendance',label:'考勤异常',value:18,ic:'check',moduleKey:'hrAttendance',action:'考勤记录'},{tone:'sky',key:'hrSchedule',label:'待排班人员',value:24,ic:'list',moduleKey:'hrSchedule',action:'排班列表'},{tone:'rose',key:'hrPayroll',label:'薪资待核算',value:3,ic:'flow',moduleKey:'hrPayroll',action:'工资列表'},{tone:'lilac',key:'hrArchive',label:'合同到期提醒',value:5,ic:'doc',moduleKey:'hrArchive',action:'合同档案'},{tone:'sand',key:'hrOffice',label:'待审批申请',value:12,ic:'folder',moduleKey:'hrOffice',action:'办公申请列表'}],
       moreKpis:[{tone:'sky',key:'probation',label:'转正提醒',value:6,ic:'check',moduleKey:'hrEmployee',action:'入职管理'},{tone:'mint',key:'overtime',label:'待审批加班',value:15,ic:'list',moduleKey:'hrAttendance',action:'考勤统计'},{tone:'peach',key:'travel',label:'待审批出差',value:3,ic:'cart',moduleKey:'hrOffice',action:'办公申请列表'},{tone:'rose',key:'salary',label:'薪资异常',value:1,ic:'edit',moduleKey:'hrPayroll',action:'工资详情'},{tone:'lilac',key:'cert',label:'证书到期',value:2,ic:'doc',moduleKey:'hrArchive',action:'证件档案'},{tone:'sand',key:'birthday',label:'本月生日',value:8,ic:'user',moduleKey:'hrEmployee',action:'员工列表'}],
@@ -782,9 +793,38 @@ const HELP_CENTER_ITEMS = [
   },
 ];
 
+const HELP_UPDATE_ITEMS = [
+  {
+    version: '2026.05',
+    date: '2026-05-22',
+    title: '设置中心重整',
+    desc: '新增业务参数分类，多币种配置支持币种档案、汇率规则、期末重估和汇兑损益科目维护。',
+  },
+  {
+    version: '2026.05',
+    date: '2026-05-22',
+    title: '全局帮助入口',
+    desc: '右下角新增半透明帮助悬浮按钮，顶部帮助按钮保留，两个入口打开同一个帮助中心。',
+  },
+  {
+    version: '2026.05',
+    date: '2026-05-21',
+    title: '研发与物料配置增强',
+    desc: '完善产品、工序、BOM 等模块的字段配置与页面刷新策略，减少配置入口混乱。',
+  },
+];
+
+const TOPBAR_TODOS = [
+  { title: 'PRJ-202605-014 项目立项审批', module: '研发中心', owner: '老夏', due: '今天 16:00', level: '高' },
+  { title: 'PO-202605-022 采购订单复核', module: '采购中心', owner: '李文涛', due: '今天 18:00', level: '中' },
+  { title: 'SO-202605-031 销售合同会签', module: '销售中心', owner: '陈思源', due: '明天 10:00', level: '中' },
+  { title: 'INV-202605-008 发票红冲确认', module: '财务中心', owner: '王会计', due: '明天 12:00', level: '低' },
+];
+
 function HelpCenterModal({ onClose }) {
   const [query, setQuery] = useState('');
   const keyword = query.trim().toLowerCase();
+  const showUpdates = !keyword;
   const results = HELP_CENTER_ITEMS.filter(item => {
     if (!keyword) return true;
     return [item.title, item.answer, ...item.tags].join(' ').toLowerCase().includes(keyword);
@@ -809,16 +849,30 @@ function HelpCenterModal({ onClose }) {
           ))}
         </div>
         <div className="aw-help-results">
-          {results.map(item => (
-            <div className="aw-help-answer" key={item.title}>
-              <div className="aw-help-answer-title">{item.title}</div>
-              <div className="aw-help-answer-text">{item.answer}</div>
-              <div className="aw-help-answer-tags">
-                {item.tags.map(tag => <span key={tag}>{tag}</span>)}
+          {showUpdates ? (
+            <div className="aw-help-updates">
+              <div className="aw-help-updates-head">
+                <span>版本更新</span>
+                <span>最近变更</span>
               </div>
+              {HELP_UPDATE_ITEMS.map(item => (
+                <div className="aw-help-update" key={`${item.version}-${item.title}`}>
+                  <div className="aw-help-update-meta"><span>{item.version}</span><span>{item.date}</span></div>
+                  <div className="aw-help-answer-title">{item.title}</div>
+                  <div className="aw-help-answer-text">{item.desc}</div>
+                </div>
+              ))}
             </div>
-          ))}
-          {!results.length && (
+          ) : results.map(item => (
+              <div className="aw-help-answer" key={item.title}>
+                <div className="aw-help-answer-title">{item.title}</div>
+                <div className="aw-help-answer-text">{item.answer}</div>
+                <div className="aw-help-answer-tags">
+                  {item.tags.map(tag => <span key={tag}>{tag}</span>)}
+                </div>
+              </div>
+            ))}
+          {!showUpdates && !results.length && (
             <div className="aw-empty">
               <div className="aw-empty-ic">?</div>
               <div>没有找到相关答案</div>
@@ -831,14 +885,39 @@ function HelpCenterModal({ onClose }) {
   );
 }
 
+function TodoCenterModal({ onClose }) {
+  return (
+    <Modal title="我的待办事项" subtitle={`${TOPBAR_TODOS.length} 项待处理`} size="md" className="aw-todo-modal" onClose={onClose}>
+      <div className="aw-top-todo-list">
+        {TOPBAR_TODOS.map((item, idx) => (
+          <div className="aw-top-todo-item" key={item.title}>
+            <div className="aw-top-todo-num">{idx + 1}</div>
+            <div className="aw-top-todo-main">
+              <div className="aw-top-todo-title">{item.title}</div>
+              <div className="aw-top-todo-meta">
+                <span>{item.module}</span>
+                <span>负责人：{item.owner}</span>
+                <span>截止：{item.due}</span>
+              </div>
+            </div>
+            <Badge tone={item.level === '高' ? 'r' : item.level === '中' ? 'y' : 'b'}>{item.level}</Badge>
+          </div>
+        ))}
+      </div>
+    </Modal>
+  );
+}
+
 function Topbar({ active, onChange }) {
   const [helpOpen, setHelpOpen] = useState(false);
+  const [todoOpen, setTodoOpen] = useState(false);
+  const todoCount = TOPBAR_TODOS.length;
   return (
     <>
       <div className="aw-topbar">
         <div className="brand">海南傲为智慧</div>
         <div className="tabs">
-          {NAV.map(n => (
+          {NAV.filter(n => !isNavHidden(n)).map(n => (
             <span key={n.k} className={'tab' + (active===n.k?' on':'')} onClick={()=>onChange&&onChange(n.k)}>
               <span style={{fontSize:13}}>{n.ic}</span> {n.label}
             </span>
@@ -846,17 +925,26 @@ function Topbar({ active, onChange }) {
         </div>
         <div className="right">
           <button className="ic aw-top-help" type="button" title="帮助中心" onClick={() => setHelpOpen(true)}>?</button>
-          <span className="ic" title="通知" style={{position:'relative'}}>🔔<span style={{position:'absolute',top:-2,right:-4,width:6,height:6,background:'#F5222D',borderRadius:'50%'}}></span></span>
+          <button className="aw-top-notice" type="button" title="我的待办事项" onClick={() => setTodoOpen(true)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+              <path d="M10 21h4" />
+            </svg>
+            {todoCount > 0 && <span className="aw-top-notice-badge">{todoCount}</span>}
+          </button>
           <div className="av">夏</div>
           <span>老夏 ▾</span>
         </div>
       </div>
+      <button className="aw-float-help" type="button" title="帮助中心" onClick={() => setHelpOpen(true)}>?</button>
       {helpOpen && <HelpCenterModal onClose={() => setHelpOpen(false)} />}
+      {todoOpen && <TodoCenterModal onClose={() => setTodoOpen(false)} />}
     </>
   );
 }
 
 function Sidebar({ title, items, active, onChange, flyouts }) {
+  const visibleItems = (items || []).filter(item => !isNavHidden(item));
   const [hover, setHover] = useState(null);
   const [top, setTop] = useState(0);
   const [anchorY, setAnchorY] = useState(0);
@@ -884,7 +972,7 @@ function Sidebar({ title, items, active, onChange, flyouts }) {
   return (
     <div className="aw-side">
       <h4>{title}</h4>
-      {items.map(it => (
+        {visibleItems.map(it => (
         <div key={it.k}
           className={'item' + (active===it.k?' on':'')}
           onClick={()=>onChange&&onChange(it.k)}
@@ -1329,17 +1417,21 @@ function SupplierTree({ picked, setPicked }) {
 
 // ===================== 列表工具栏 =====================
 function SupplierToolbar({ onNew, onSearch }) {
+  const [fieldOpen, setFieldOpen] = useState(false);
   return (
-    <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12,flexWrap:'wrap'}}>
-      <Input placeholder="搜索供应商名称/编号…" style={{width:220}} />
-      <Btn onClick={onNew}>新增供应商</Btn>
-      <span style={{flex:1}} />
-      <RefreshAction style={{fontSize:12,color:'var(--aw-fg-3)'}} />
-      <Btn>筛选</Btn>
-      <Btn>字段配置</Btn>
-      <Btn>导出</Btn>
-      <Btn>导入</Btn>
-    </div>
+    <>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12,flexWrap:'wrap'}}>
+        <Input placeholder="搜索供应商名称/编号…" style={{width:220}} />
+        <Btn onClick={onNew}>新增供应商</Btn>
+        <span style={{flex:1}} />
+        <RefreshAction style={{fontSize:12,color:'var(--aw-fg-3)'}} />
+        <Btn>筛选</Btn>
+        <Btn onClick={() => setFieldOpen(true)}>字段配置</Btn>
+        <Btn>导出</Btn>
+        <Btn>导入</Btn>
+      </div>
+      {fieldOpen && <FieldDrawer onClose={() => setFieldOpen(false)} />}
+    </>
   );
 }
 

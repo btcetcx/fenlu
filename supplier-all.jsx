@@ -37,17 +37,21 @@ function SupplierTree({ picked, setPicked }) {
 
 // ===================== 列表工具栏 =====================
 function SupplierToolbar({ onNew, onSearch }) {
+  const [fieldOpen, setFieldOpen] = useState(false);
   return (
-    <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12,flexWrap:'wrap'}}>
-      <Input placeholder="搜索供应商名称/编号…" style={{width:220}} />
-      <Btn onClick={onNew}>新增供应商</Btn>
-      <span style={{flex:1}} />
-      <RefreshAction style={{fontSize:12,color:'var(--aw-fg-3)'}} />
-      <Btn>筛选</Btn>
-      <Btn>字段配置</Btn>
-      <Btn>导出</Btn>
-      <Btn>导入</Btn>
-    </div>
+    <>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12,flexWrap:'wrap'}}>
+        <Input placeholder="搜索供应商名称/编号…" style={{width:220}} />
+        <Btn onClick={onNew}>新增供应商</Btn>
+        <span style={{flex:1}} />
+        <RefreshAction style={{fontSize:12,color:'var(--aw-fg-3)'}} />
+        <Btn>筛选</Btn>
+        <Btn onClick={() => setFieldOpen(true)}>字段配置</Btn>
+        <Btn>导出</Btn>
+        <Btn>导入</Btn>
+      </div>
+      {fieldOpen && <FieldDrawer onClose={() => setFieldOpen(false)} />}
+    </>
   );
 }
 

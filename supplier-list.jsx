@@ -38,19 +38,23 @@ function SupplierTree({ picked, setPicked }) {
 
 // ===================== 列表工具栏 =====================
 function SupplierToolbar({ onNew, onSearch }) {
+  const [fieldOpen, setFieldOpen] = useState(false);
   return (
-    <div className="aw-doc-tb">
-      <div className="aw-doc-search">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><circle cx="11" cy="11" r="6" /><path d="M16 16l4 4" /></svg>
-        <input placeholder="全局搜索（如供应商、编号、联系人）" />
+    <>
+      <div className="aw-doc-tb">
+        <div className="aw-doc-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.8"><circle cx="11" cy="11" r="6" /><path d="M16 16l4 4" /></svg>
+          <input placeholder="全局搜索（如供应商、编号、联系人）" />
+        </div>
+        <RefreshAction />
+        <button className="aw-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 5h18M6 12h12M10 19h4" /></svg>筛选</button>
+        <button className="aw-btn" onClick={() => setFieldOpen(true)}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="7" height="7" /><rect x="14" y="4" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>字段配置</button>
+        <button className="aw-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 4v12" /><path d="M7 11l5 5 5-5" /><path d="M4 20h16" /></svg>导出</button>
+        <button className="aw-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 20V8" /><path d="M7 13l5-5 5 5" /><path d="M4 4h16" /></svg>导入</button>
+        <button className="aw-btn primary" onClick={onNew}>新增供应商</button>
       </div>
-      <RefreshAction />
-      <button className="aw-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 5h18M6 12h12M10 19h4" /></svg>筛选</button>
-      <button className="aw-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="7" height="7" /><rect x="14" y="4" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>字段配置</button>
-      <button className="aw-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 4v12" /><path d="M7 11l5 5 5-5" /><path d="M4 20h16" /></svg>导出</button>
-      <button className="aw-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 20V8" /><path d="M7 13l5-5 5 5" /><path d="M4 4h16" /></svg>导入</button>
-      <button className="aw-btn primary" onClick={onNew}>新增供应商</button>
-    </div>
+      {fieldOpen && <FieldDrawer onClose={() => setFieldOpen(false)} />}
+    </>
   );
 }
 

@@ -47,6 +47,42 @@ const WH_LOCATION_ROWS = [
   { code:'KW0000003', name:'B区', desc:'原材料冷藏区', capacity:'120³', warehouse:'仓库B', manager:'李库', address:'广东省东莞市松山湖二号园区', status:'禁用' },
 ];
 
+const WH_CODE_ROWS = [
+  { main:'SN-202605-0001', parent:'BOX-202605-010', type:'内部主码', batch:'B20250601', location:'A区-A01-01', quality:'合格', stockState:'在库', source:'RK-20251221001', latest:'库存上架', time:'2026-05-21 10:18' },
+  { main:'SN-202605-0002', parent:'BOX-202605-010', type:'客户码', batch:'B20250601', location:'A区-A01-01', quality:'合格', stockState:'占用', source:'RK-20251221001', latest:'SO-20251221001', time:'2026-05-21 11:04' },
+  { main:'SN-202605-0003', parent:'BOX-202605-011', type:'内部主码', batch:'B20250602', location:'A区-A01-02', quality:'待检', stockState:'冻结', source:'IQC-20251221008', latest:'质检冻结', time:'2026-05-21 13:36' },
+];
+
+function WarehouseCodeLedger({ item }) {
+  return (
+    <PurchaseSection title={`${item.name}物码明细`}>
+      <div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',marginBottom:12}}>
+        <div style={{fontSize:12,color:'var(--aw-fg-3)'}}>支持输入主码、供应商码、客户码、箱码或托盘码反查库存位置与来源单据。</div>
+        <div style={{display:'flex',gap:8}}><Btn>查码</Btn><Btn>冻结码</Btn><Btn>补打标签</Btn></div>
+      </div>
+      <table className="aw-table">
+        <thead><tr><th>物品码</th><th>父级/包装码</th><th>码类型</th><th>批次</th><th>库位</th><th>质量状态</th><th>库存状态</th><th>来源入库单</th><th>最近业务</th><th>绑定时间</th><th>操作</th></tr></thead>
+        <tbody>{WH_CODE_ROWS.map(row => <tr key={row.main}><td className="aw-num">{row.main}</td><td>{row.parent}</td><td>{row.type}</td><td>{row.batch}</td><td>{row.location}</td><td>{row.quality}</td><td><Badge tone={row.stockState === '在库' ? 'g' : row.stockState === '占用' ? 'b' : 'y'}>{row.stockState}</Badge></td><td>{row.source}</td><td>{row.latest}</td><td>{row.time}</td><td><span className="aw-link">追溯</span></td></tr>)}</tbody>
+      </table>
+    </PurchaseSection>
+  );
+}
+
+function WarehouseCodeTrace({ item }) {
+  return (
+    <PurchaseSection title={`${item.name}追溯链路`}>
+      <table className="aw-table">
+        <thead><tr><th>时间</th><th>环节</th><th>单据</th><th>码动作</th><th>库位/对象</th><th>结果</th></tr></thead>
+        <tbody>
+          <tr><td>2026-05-21 09:30</td><td>入库</td><td>RK-20251221001</td><td>生成 15 个主码，绑定 2 个箱码</td><td>A区-A01-01</td><td><Badge tone="g">完成</Badge></td></tr>
+          <tr><td>2026-05-21 10:10</td><td>质检</td><td>IQC-20251221008</td><td>抽样码 SN-202605-0003 冻结</td><td>质检暂存仓</td><td><Badge tone="y">待复检</Badge></td></tr>
+          <tr><td>2026-05-21 11:04</td><td>出库占用</td><td>SO-20251221001</td><td>占用 SN-202605-0002</td><td>销售订单</td><td><Badge tone="b">占用中</Badge></td></tr>
+        </tbody>
+      </table>
+    </PurchaseSection>
+  );
+}
+
 function WhStockTree() {
   const groups = [
     ['成品', ['三级分类', '三级分类']],
@@ -148,7 +184,7 @@ function WarehouseStockListView({ onView }) {
 function WarehouseStockDetailView({ data, onBack }) {
   const item = data || WH_STOCK_ROWS[0];
   const [tab, setTab] = useWhState('产品信息');
-  const tabs = ['产品信息', '库存流水', '占用冻结', '出库记录', '入库记录'];
+  const tabs = ['产品信息', '物码明细', '追溯链路', '库存流水', '占用冻结', '出库记录', '入库记录'];
   const distribution = WH_STOCK_DISTRIBUTION[item.code] || [];
   const distributionTotal = distribution.reduce((sum, row) => sum + Number(row.stock || 0), 0);
   const distributionAvailable = distribution.reduce((sum, row) => sum + Number(row.available || 0), 0);
@@ -215,6 +251,8 @@ function WarehouseStockDetailView({ data, onBack }) {
               </PurchaseSection>
             </>
           )}
+          {tab === '物码明细' && <WarehouseCodeLedger item={item} />}
+          {tab === '追溯链路' && <WarehouseCodeTrace item={item} />}
           {tab === '库存流水' && <WarehouseStockFlowTable item={item} />}
           {tab === '占用冻结' && <WarehouseStockLockTable item={item} />}
           {(tab === '出库记录' || tab === '入库记录') && (

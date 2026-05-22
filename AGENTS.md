@@ -17,7 +17,7 @@ The preview entry is `index.html`. Do not rely on double-clicking the HTML file 
 - Main shared UI and navigation code lives in `components.jsx`, `screens.jsx`, `app.jsx`, and `styles.css`.
 - Feature screens are split into standalone `*-list.jsx`, `*-screen.jsx`, and picker/drawer modules.
 - The `1/` directory currently appears to be a snapshot/copy of the project files and is preserved intentionally until the owner decides whether it should become an archive or be removed.
-- Latest synced version: `v2026.05.21` on branch `main`.
+- Latest synced version: `v2026.05.22` on branch `main`.
 - The PRD page feedback block titled `8. 待确认问题 / 反馈给 Codex` should stay hidden in deliverable/package builds.
 
 ## Conventions
@@ -29,6 +29,7 @@ The preview entry is `index.html`. Do not rely on double-clicking the HTML file 
 - Normal syncs should use a regular commit and push. Use Git tags for clear version checkpoints; avoid force push except when explicitly replacing remote history.
 
 ## Version Notes
+- `v2026.05.22`: Added the PRD business flow page (`业务流程图`) and related navigation/styles. Deployment target is `/www/wwwroot/115.159.71.102/fenlu/1`; deploy only the local repository root main version and exclude the legacy local `1/` snapshot directory, logs, archives, and deployment helper files.
 - `v2026.05.21`: Synced the latest UI updates to GitHub as a versioned checkpoint. Added `.zip` to `.gitignore` so local delivery packages remain local. Local packaging should include the project files but exclude `.git`, runtime logs, and existing `.zip` files.
 
 ## Next Steps

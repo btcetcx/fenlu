@@ -1,3 +1,12 @@
 codex-server.err.log
 codex-server.out.log
+codex-http.err.log
+codex-http.out.log
+*.log
 *.zip
+*.tar.gz
+.deploy-*/
+install-fenli-key.ps1
+local-deploy-manifest.txt
+remote-deploy-manifest.txt
+erp-bom/codex-static-server.cjs

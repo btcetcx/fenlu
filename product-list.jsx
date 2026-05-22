@@ -75,6 +75,99 @@ const OUTBOUND_RECORDS = [
   { code:'CK-20250506-003', warehouse:'原材料仓', qty:500, type:'委外出库', date:'2025-05-06', operator:'王五' },
 ];
 
+const PRODUCT_CODE_POLICY = {
+  enabled: true,
+  defaultMode: '一物一码',
+  allowOverride: true,
+  codeTypes: ['主码', '供应商码', '客户码', '箱码', '托盘码'],
+  inboundRequired: true,
+  outboundRequired: true,
+  defaultRule: 'SN-{YYYYMM}-{SEQ4}',
+  defaultTemplate: '单品二维码标签 V1',
+};
+
+function getProductCodeControl(product = {}) {
+  if (product.code === 'CP-20250101002' || product.code === 'CP-20260521001') {
+    return { mode:'一物多码', source:'产品单独设置', types:['主码','客户码','箱码','托盘码'], inbound:'必须生成/绑定', outbound:'必须扫码校验' };
+  }
+  if (product.parentCat === 'raw') {
+    return { mode:'批次管控', source:'产品默认策略', types:['批次号','供应商码'], inbound:'按批次记录', outbound:'按批次校验' };
+  }
+  if (product.parentCat === 'semi') {
+    return { mode:'一物一码', source:'产品默认策略', types:['主码'], inbound:'必须生成/绑定', outbound:'必须扫码校验' };
+  }
+  return { mode:'一物一码', source:'产品单独设置', types:['主码','箱码'], inbound:'必须生成/绑定', outbound:'必须扫码校验' };
+}
+
+function ProductCodeControlSettingsView({ onBack }) {
+  const [mode, setMode] = useState(PRODUCT_CODE_POLICY.defaultMode);
+  const [override, setOverride] = useState(PRODUCT_CODE_POLICY.allowOverride);
+  const [enabled, setEnabled] = useState(PRODUCT_CODE_POLICY.enabled);
+  const [enabledTypes, setEnabledTypes] = useState(PRODUCT_CODE_POLICY.codeTypes.filter((_, idx) => idx !== 4));
+  const handleModeChange = (nextMode) => {
+    setMode(nextMode);
+    if (nextMode === '一物多码') {
+      setEnabledTypes(prev => Array.from(new Set([...prev, '托盘码'])));
+    }
+  };
+  const toggleCodeType = (type, checked) => {
+    setEnabledTypes(prev => checked ? Array.from(new Set([...prev, type])) : prev.filter(item => item !== type));
+  };
+  const rows = [
+    ['成品默认策略', '一物一码', '入库生成主码，出库逐件扫码', '已启用'],
+    ['半成品默认策略', '一物一码', '生产入库后生成物码，流转保持身份', '已启用'],
+    ['原材料默认策略', '批次管控', '保留批次和供应商码，不强制单件码', '已启用'],
+    ['客户项目产品', '一物多码', '主码 + 客户码 + 箱码', '产品单独设置'],
+  ];
+  return (
+    <div className="aw-doc-form">
+      <div className="aw-doc-form-head">
+        <span className="aw-link" onClick={onBack}>返回产品列表</span>
+        <span style={{ flex:1 }} />
+        <button className="aw-btn">重置</button>
+        <button className="aw-btn primary">保存设置</button>
+      </div>
+      <div className="aw-doc-form-body">
+        <DetailHeaderCard title="产品码管控" status={enabled ? '已启用' : '已停用'} onBack={onBack}
+          detailItems={[
+            ['默认模式', mode],
+            ['产品覆盖', override ? '允许' : '禁止'],
+            ['默认编码规则', PRODUCT_CODE_POLICY.defaultRule],
+            ['标签模板', PRODUCT_CODE_POLICY.defaultTemplate],
+            ['入库控制', PRODUCT_CODE_POLICY.inboundRequired ? '必须绑码' : '可选'],
+            ['出库控制', PRODUCT_CODE_POLICY.outboundRequired ? '必须扫码' : '可选'],
+          ]}
+        />
+        <Card title="功能开关">
+          <div className="aw-doc-grid" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
+            <Field label="启用产品码管控"><label style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:13}}><input type="checkbox" checked={enabled} onChange={e=>setEnabled(e.target.checked)} />启用</label></Field>
+            <Field label="默认管控模式"><Select value={mode} onChange={e=>handleModeChange(e.target.value)}><option>不管控</option><option>批次管控</option><option>一物一码</option><option>一物多码</option></Select></Field>
+            <Field label="允许产品单独设置"><label style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:13}}><input type="checkbox" checked={override} onChange={e=>setOverride(e.target.checked)} />允许</label></Field>
+            <Field label="默认编码规则"><Input defaultValue={PRODUCT_CODE_POLICY.defaultRule} /></Field>
+            <Field label="默认标签模板"><Select defaultValue={PRODUCT_CODE_POLICY.defaultTemplate}><option>单品二维码标签 V1</option><option>箱标 V1</option><option>托盘标 V1</option></Select></Field>
+            <Field label="无码出入库策略"><Select defaultValue="禁止"><option>禁止</option><option>需要审批</option><option>允许</option></Select></Field>
+          </div>
+        </Card>
+        <Card title="可用码类型">
+          <div style={{display:'grid',gridTemplateColumns:'repeat(5,minmax(120px,1fr))',gap:10}}>
+            {PRODUCT_CODE_POLICY.codeTypes.map((type, idx) => (
+              <label key={type} style={{border:'1px solid var(--aw-border)',borderRadius:6,padding:'10px 12px',background:'#fff',display:'flex',gap:8,alignItems:'center',fontSize:13}}>
+                <input type="checkbox" checked={enabledTypes.includes(type)} onChange={e=>toggleCodeType(type, e.target.checked)} /><span>{type}</span>
+              </label>
+            ))}
+          </div>
+        </Card>
+        <Card title="分类默认策略">
+          <table className="aw-table"><thead><tr><th>适用范围</th><th>管控模式</th><th>要求</th><th>状态</th><th>操作</th></tr></thead><tbody>{rows.map(row => <tr key={row[0]}><td>{row[0]}</td><td>{row[1]}</td><td>{row[2]}</td><td><Badge tone="g">{row[3]}</Badge></td><td><span className="aw-link">编辑</span></td></tr>)}</tbody></table>
+        </Card>
+        <Card title="出入库校验">
+          <table className="aw-table"><thead><tr><th>环节</th><th>一物一码</th><th>一物多码</th><th>异常处理</th></tr></thead><tbody><tr><td>入库</td><td>绑码数量必须等于上架数量</td><td>主码必填，关联码按策略控制</td><td>阻止过账，允许暂存</td></tr><tr><td>出库</td><td>扫码数量必须等于发货数量</td><td>箱码可展开到单品码</td><td>阻止出库，走异常审批</td></tr><tr><td>库存</td><td>按物码冻结、占用、追溯</td><td>主码与关联码可互查</td><td>异常码进入冻结池</td></tr></tbody></table>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 const PRICING_RECORDS = [
   { id:1, customer:'深圳鹏程科技', price:258, startDate:'2025-01-01', endDate:'2025-12-31', remark:'年度协议价' },
   { id:2, customer:'广州智造电子', price:255, startDate:'2025-03-01', endDate:'2026-02-28', remark:'批量折扣' },
@@ -380,6 +473,14 @@ function ProductNewView({ onBack }) {
   const [standardUnit, setStandardUnit] = useState('个');
   const [linkedCustomer, setLinkedCustomer] = useState('');
   const [customerPicker, setCustomerPicker] = useState(false);
+  const [codeControlMode, setCodeControlMode] = useState('沿用产品设置');
+  const [relatedCodeTypes, setRelatedCodeTypes] = useState('沿用产品设置');
+  const handleCodeControlModeChange = (nextMode) => {
+    setCodeControlMode(nextMode);
+    if (nextMode === '一物多码') setRelatedCodeTypes('主码 + 客户码 + 箱码');
+    else if (nextMode === '一物一码') setRelatedCodeTypes('主码');
+    else setRelatedCodeTypes('沿用产品设置');
+  };
   const [catLevel1, setCatLevel1] = useState('');
   const [catLevel2, setCatLevel2] = useState('');
   const productCatTree = {
@@ -469,6 +570,22 @@ function ProductNewView({ onBack }) {
             <Field label={<span>产品状态<HelpTip text="研发：允许打样和生产，禁止销售下单；在售：允许全业务；停产：只允许销售现货，禁止采购/生产；停用：仅保留历史与财务调用。" /></span>}>
               <Select><option>研发</option><option>在售</option><option>停产</option><option>停用</option></Select>
             </Field>
+          </div>
+
+          <div style={{ marginTop:16, border:'1px solid #E5E7EB', borderRadius:8, overflow:'hidden', background:'#fff', padding:14 }}>
+            <div style={{fontSize:13,fontWeight:700,color:'#111827',marginBottom:10}}>物码管控</div>
+            <div className="aw-doc-grid" style={{gridTemplateColumns:'1fr 1fr'}}>
+              <Field label={<span>物码管控模式<HelpTip text="默认沿用产品码管控设置，特殊产品可单独指定一物一码或一物多码规则。" /></span>}>
+                <Select value={codeControlMode} onChange={e => handleCodeControlModeChange(e.target.value)}>
+                  <option>沿用产品设置</option><option>不管控</option><option>批次管控</option><option>一物一码</option><option>一物多码</option>
+                </Select>
+              </Field>
+              <Field label="关联码类型">
+                <Select value={relatedCodeTypes} onChange={e => setRelatedCodeTypes(e.target.value)}>
+                  <option>沿用产品设置</option><option>主码</option><option>主码 + 客户码 + 箱码</option><option>主码 + 供应商码 + 箱码</option><option>主码 + 箱码 + 托盘码</option>
+                </Select>
+              </Field>
+            </div>
           </div>
 
           <div style={{ marginTop:16, border:'1px solid #E5E7EB', borderRadius:8, overflow:'hidden', background:'#fff' }}>
@@ -716,9 +833,11 @@ function ProductDetailView({ product, onBack }) {
   };
 
   if (!product) return null;
+  const codeCtrl = getProductCodeControl(product);
 
   const TABS = [
     { k:'info', label:'产品信息' },
+    { k:'code', label:'物码管控' },
     { k:'sales', label:'销售记录' },
     { k:'inbound', label:'入库记录' },
     { k:'outbound', label:'出库记录' },
@@ -758,6 +877,8 @@ function ProductDetailView({ product, onBack }) {
             <div>
               {/* KV grid 2 columns */}
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', rowGap:14, columnGap:32, fontSize:13 }}>
+                <KV k="物码管控" v={codeCtrl.mode + ' / ' + codeCtrl.source} />
+                <KV k="码类型" v={codeCtrl.types.join(' / ')} />
                 <KV k="产品编号" v={product.code} />
                 <KV k="产品名称" v={product.name} />
                 <KV k="别名码" v={product.alias} />
@@ -847,6 +968,27 @@ function ProductDetailView({ product, onBack }) {
                   <p><b>库存策略：</b>安全库存 {product.safeStock}{product.unit}，最低 {product.minStock}{product.unit}，最高 {product.maxStock}{product.unit}，补货周期 {product.replenish} 天，存储于 {product.storage} 库位。</p>
                 </div>
               </div>
+            </div>
+          )}
+
+          {tab === 'code' && (
+            <div>
+              <PurchaseSection title="物码管控摘要">
+                <div className="aw-doc-grid" style={{gridTemplateColumns:'1fr 1fr 1fr'}}>
+                  <KV k="管控模式" v={codeCtrl.mode} />
+                  <KV k="策略来源" v={codeCtrl.source} />
+                  <KV k="码类型" v={codeCtrl.types.join(' / ')} />
+                  <KV k="入库规则" v={codeCtrl.inbound} />
+                  <KV k="出库规则" v={codeCtrl.outbound} />
+                  <KV k="默认标签" v={PRODUCT_CODE_POLICY.defaultTemplate} />
+                </div>
+              </PurchaseSection>
+              <PurchaseSection title="业务校验">
+                <table className="aw-table"><thead><tr><th>环节</th><th>管控点</th><th>失败处理</th><th>状态</th></tr></thead><tbody><tr><td>入库</td><td>按上架数量生成或绑定物码</td><td>阻止过账，允许暂存</td><td><Badge tone="g">已启用</Badge></td></tr><tr><td>库存</td><td>按物码跟踪库位、质量、冻结和占用</td><td>异常码进入冻结池</td><td><Badge tone="g">已启用</Badge></td></tr><tr><td>出库</td><td>扫码数量等于发货数量，校验 OQC 和冻结状态</td><td>阻止出库</td><td><Badge tone="g">已启用</Badge></td></tr></tbody></table>
+              </PurchaseSection>
+              <PurchaseSection title="样例物码">
+                <table className="aw-table"><thead><tr><th>主码</th><th>关联码</th><th>批次</th><th>库位</th><th>状态</th><th>最近单据</th></tr></thead><tbody><tr><td className="aw-num">SN-202605-0001</td><td>BOX-202605-010 / CUS-AW-0001</td><td>B20250601</td><td>A-01-01</td><td><Badge tone="g">在库</Badge></td><td>RK-20251221001</td></tr><tr><td className="aw-num">SN-202605-0002</td><td>BOX-202605-010 / CUS-AW-0002</td><td>B20250601</td><td>A-01-01</td><td><Badge tone="b">已占用</Badge></td><td>SO-20251221001</td></tr><tr><td className="aw-num">SN-202605-0003</td><td>BOX-202605-011</td><td>B20250602</td><td>A-01-02</td><td><Badge tone="y">待质检</Badge></td><td>IQC-20251221008</td></tr></tbody></table>
+              </PurchaseSection>
             </div>
           )}
 
@@ -1031,6 +1173,7 @@ function ProductListScreen({ module: mod, initialAction, onActionConsumed }) {
   useEffect(() => {
     if (initialAction === 'new') { setView('new'); onActionConsumed && onActionConsumed(); }
     else if (initialAction === 'list') { setView('list'); onActionConsumed && onActionConsumed(); }
+    else if (initialAction === '产品码管控') { setView('codeSettings'); onActionConsumed && onActionConsumed(); }
   }, [initialAction]);
 
   // Filter products by category tree selection
@@ -1070,6 +1213,9 @@ function ProductListScreen({ module: mod, initialAction, onActionConsumed }) {
         )}
         {view === 'new' && (
           <ProductNewView onBack={() => setView('list')} />
+        )}
+        {view === 'codeSettings' && (
+          <ProductCodeControlSettingsView onBack={() => setView('list')} />
         )}
         {view === 'detail' && (
           <ProductDetailView

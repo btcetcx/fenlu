@@ -41,6 +41,29 @@ const INBOUND_SOURCE_DOCS = {
   ],
 };
 
+const INBOUND_CODE_ROWS = [
+  { main:'SN-202605-0001', ext:'SUP-HN-7781 / BOX-202605-010', batch:'B20250601', location:'A区-A01-01', quality:'合格', state:'待上架' },
+  { main:'SN-202605-0002', ext:'SUP-HN-7782 / BOX-202605-010', batch:'B20250601', location:'A区-A01-01', quality:'合格', state:'待上架' },
+  { main:'SN-202605-0003', ext:'SUP-HN-7783 / BOX-202605-011', batch:'B20250602', location:'A区-A01-02', quality:'待检', state:'待绑定' },
+];
+
+function InboundCodeControlPanel({ title = '物码绑定' }) {
+  return (
+    <PurchaseSection title={title}>
+      <div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',marginBottom:12}}>
+        <div style={{fontSize:12,color:'var(--aw-fg-3)'}}>启用一物一码/一物多码的产品，入库过账前需要完成主码生成与关联码绑定。</div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <Btn>生成物码</Btn><Btn>导入物码</Btn><Btn>扫码绑定</Btn><Btn>打印标签</Btn>
+        </div>
+      </div>
+      <table className="aw-table">
+        <thead><tr><th>主码</th><th>关联码</th><th>批次</th><th>目标库位</th><th>质量状态</th><th>码状态</th><th>操作</th></tr></thead>
+        <tbody>{INBOUND_CODE_ROWS.map(row => <tr key={row.main}><td className="aw-num">{row.main}</td><td>{row.ext}</td><td>{row.batch}</td><td>{row.location}</td><td>{row.quality}</td><td><Badge tone={row.state === '待绑定' ? 'y' : 'g'}>{row.state}</Badge></td><td><span className="aw-link">查看码</span></td></tr>)}</tbody>
+      </table>
+    </PurchaseSection>
+  );
+}
+
 function getInboundTypeFields(row) {
   const map = {
     '采购入库': [['供应商', row.target], ['采购负责人', row.owner], ['来源单据', row.source]],
@@ -207,6 +230,7 @@ function WarehouseInboundOrderDetail({ data, onBack }) {
                   </table>
                 </div>
               </PurchaseSection>
+              <InboundCodeControlPanel title="物码绑定明细" />
               <PurchaseSection title="附件">
                 <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(180px,1fr))',gap:12}}>{[1,2,3].map(i => <div key={i} style={{border:'1px dashed var(--aw-border-strong)',borderRadius:6,padding:'12px 14px',background:'#fff'}}><div style={{fontSize:13,fontWeight:500,marginBottom:6}}>新建文本文档.PDF</div><div style={{fontSize:11,color:'var(--aw-fg-4)'}}>文件大小：0 Bytes</div><div style={{display:'flex',gap:14,marginTop:14,fontSize:12}}><span className="aw-link">查看</span><span className="aw-link">下载</span></div></div>)}</div>
               </PurchaseSection>
@@ -300,6 +324,7 @@ function DirectInboundView() {
         <div style={{overflow:'auto'}}><table className="aw-table"><thead><tr><th>序号</th><th>来源单据</th><th>来源明细</th><th>物品编码</th><th>物品名称</th><th>规格型号</th><th>单位</th><th>批次号</th><th>应入库数量</th><th>送检数量</th><th>合格数量</th><th>让步数量</th><th>不合格数量</th><th>入库数量</th><th>上架数量</th><th>入库库位</th><th>质检单号</th><th>质检/上架状态</th><th>库存质量</th><th>成本层</th><th>过账状态</th><th>生产日期</th><th style={{width:70}}>操作</th></tr></thead><tbody>{rows.map((row, idx)=><tr key={row.id}><td>{idx+1}</td><td>{row.sourceDoc || '手动入库'}</td><td>{row.sourceLine || '手动明细'}</td><td>{row.code}</td><td>{row.name}</td><td>{row.model}</td><td>{row.unit}</td><td><Input value={row.batch} onChange={e=>updateRow(row.id,'batch',e.target.value)} /></td><td>{row.planQty || '-'}</td><td><Input value={row.qcQty || ''} onChange={e=>updateRow(row.id,'qcQty',e.target.value)} /></td><td><Input value={row.passQty || ''} onChange={e=>updateRow(row.id,'passQty',e.target.value)} /></td><td><Input value={row.concessionQty || ''} onChange={e=>updateRow(row.id,'concessionQty',e.target.value)} /></td><td><Input value={row.rejectQty || ''} onChange={e=>updateRow(row.id,'rejectQty',e.target.value)} /></td><td><Input value={row.inQty} onChange={e=>updateRow(row.id,'inQty',e.target.value)} /></td><td><Input value={row.shelfQty || ''} onChange={e=>updateRow(row.id,'shelfQty',e.target.value)} /></td><td><Select value={row.location} onChange={e=>updateRow(row.id,'location',e.target.value)}><option>A区-A01-01</option><option>A区-A01-02</option><option>B区-B02-01</option><option>待分配库位</option></Select></td><td>{row.qcNo || '待生成'}</td><td><Select value={row.qcState || '待送检'} onChange={e=>updateRow(row.id,'qcState',e.target.value)}><option>待送检</option><option>合格待上架</option><option>让步放行</option><option>拒收入库</option><option>已上架过账</option></Select></td><td><Select value={row.qualityState || '待检'} onChange={e=>updateRow(row.id,'qualityState',e.target.value)}><option>待检</option><option>合格</option><option>让步</option><option>不合格</option></Select></td><td>{row.costLayer || '过账生成'}</td><td><span className={'aw-state '+((row.postStatus || '待过账') === '已过账' ? 'aw-state-g' : 'aw-state-y')}>{row.postStatus || '待过账'}</span></td><td><Input value={row.prodDate} onChange={e=>updateRow(row.id,'prodDate',e.target.value)} /></td><td><span className="aw-link" style={{color:'var(--aw-danger)'}} onClick={()=>setRows(prev=>prev.filter(x=>x.id!==row.id))}>删除</span></td></tr>)}</tbody></table></div>
         <PurchaseAddDetailButton onClick={() => setPicker(true)} />
       </PurchaseSection>
+      <InboundCodeControlPanel title="物码绑定明细" />
       <PurchaseSection title="附件"><div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(180px,1fr))',gap:12}}><div style={{border:'1px solid var(--aw-border)',borderRadius:6,padding:14}}>新建文本文档.PDF<br/><span style={{fontSize:11,color:'var(--aw-fg-4)'}}>文件大小：0 Bytes</span></div><div style={{border:'1px dashed var(--aw-border-strong)',borderRadius:6,padding:30,textAlign:'center'}}><span className="aw-link">点击上传</span> / 拖拽到此区域</div></div></PurchaseSection>
       <PurchaseSection title="详情"><PurchaseRichText placeholder="请输入入库说明、质检要求、上架注意事项等信息" /></PurchaseSection>
       {picker && <ProductPickerModal onClose={() => setPicker(false)} onConfirm={addProducts} />}

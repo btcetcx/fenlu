@@ -43,6 +43,29 @@ const OUTBOUND_SOURCE_DOCS = {
   ],
 };
 
+const OUTBOUND_CODE_ROWS = [
+  { main:'SN-202605-0001', pack:'BOX-202605-010', batch:'B20250601', location:'A区-A01-01', quality:'合格', check:'通过', user:'李文涛', time:'2026-05-21 15:18' },
+  { main:'SN-202605-0002', pack:'BOX-202605-010', batch:'B20250601', location:'A区-A01-01', quality:'合格', check:'通过', user:'李文涛', time:'2026-05-21 15:19' },
+  { main:'SN-202605-0003', pack:'BOX-202605-011', batch:'B20250602', location:'A区-A01-02', quality:'待检', check:'拦截', user:'陈质检', time:'2026-05-21 15:22' },
+];
+
+function OutboundCodePickPanel({ title = '扫码拣货记录' }) {
+  return (
+    <PurchaseSection title={title}>
+      <div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',marginBottom:12}}>
+        <div style={{fontSize:12,color:'var(--aw-fg-3)'}}>出库过账前校验已扫数量、质量状态、冻结占用、OQC 放行和包装码展开数量。</div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <Btn>扫码拣货</Btn><Btn>选择库存码</Btn><Btn>查看已扫码</Btn><Btn>解绑/重扫</Btn>
+        </div>
+      </div>
+      <table className="aw-table">
+        <thead><tr><th>主码</th><th>包装码</th><th>批次</th><th>库位</th><th>质量状态</th><th>校验结果</th><th>扫码人</th><th>扫码时间</th><th>操作</th></tr></thead>
+        <tbody>{OUTBOUND_CODE_ROWS.map(row => <tr key={row.main}><td className="aw-num">{row.main}</td><td>{row.pack}</td><td>{row.batch}</td><td>{row.location}</td><td>{row.quality}</td><td><Badge tone={row.check === '通过' ? 'g' : 'r'}>{row.check}</Badge></td><td>{row.user}</td><td>{row.time}</td><td><span className="aw-link">追溯</span></td></tr>)}</tbody>
+      </table>
+    </PurchaseSection>
+  );
+}
+
 function getOutboundTypeFields(row) {
   const map = {
     '内部领用': [['领用部门', row.target], ['领用人', row.owner], ['出库去向', row.destination]],
@@ -196,6 +219,7 @@ function OutboundOrderDetailView({ data, onBack }) {
                   </table>
                 </div>
               </PurchaseSection>
+              <OutboundCodePickPanel title="扫码拣货记录" />
               <PurchaseSection title="附件">
                 <div style={{display:'grid',gridTemplateColumns:'repeat(3,minmax(180px,1fr))',gap:12}}>
                   {[1,2,3].map(i => <div key={i} style={{border:'1px dashed var(--aw-border-strong)',borderRadius:6,padding:'12px 14px',background:'#fff'}}><div style={{fontSize:13,fontWeight:500,marginBottom:6}}>新建文本文档.PDF</div><div style={{fontSize:11,color:'var(--aw-fg-4)'}}>文件大小：0 Bytes</div><div style={{fontSize:11,color:'var(--aw-fg-4)',marginTop:2}}>上传日期：2024-08-1 17:45:27</div><div style={{display:'flex',gap:14,marginTop:14,fontSize:12}}><span className="aw-link">查看</span><span className="aw-link">下载</span></div></div>)}
@@ -344,6 +368,7 @@ function DirectOutboundView() {
       <PurchaseSection title="详情">
         <PurchaseRichText placeholder="请输入出库说明、用途、流转要求、交接注意事项等信息" />
       </PurchaseSection>
+      <OutboundCodePickPanel title="扫码拣货记录" />
       {picker && <ProductPickerModal onClose={() => setPicker(false)} onConfirm={addProducts} />}
       {sourceType && <OutboundSourcePickerModal type={sourceType} onClose={() => { setSourceType(null); setOutboundType('直接出库'); }} onConfirm={handleSourceConfirm} />}
     </PurchaseFormPage>

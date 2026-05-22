@@ -950,6 +950,7 @@ function CraftDetailScreenV2({ data, onBack }) {
 function CraftListScreen({ onAdd, onView }) {
   const [rows] = React.useState(CRAFT_SAMPLES);
   const [sel, setSel] = React.useState({});
+  const [fieldOpen, setFieldOpen] = React.useState(false);
   const allChecked = rows.length > 0 && rows.every(r => sel[r.id]);
   const toggleAll = () => {
     if (allChecked) setSel({});
@@ -966,7 +967,7 @@ function CraftListScreen({ onAdd, onView }) {
         </div>
         <RefreshAction compact />
         <button className="aw-btn">筛选</button>
-        <button className="aw-btn">字段配置</button>
+        <button className="aw-btn" onClick={() => setFieldOpen(true)}>字段配置</button>
         <button className="aw-btn">导出</button>
         <button className="aw-btn">导入</button>
         <button className="aw-btn primary" onClick={onAdd}>新增工艺</button>
@@ -1004,6 +1005,7 @@ function CraftListScreen({ onAdd, onView }) {
         <div><span className={'aw-chk' + (allChecked ? ' on' : '')} onClick={toggleAll} /> 已选 {Object.values(sel).filter(Boolean).length} / {rows.length} 项 <button className="aw-btn" style={{ marginLeft:10 }}>批量操作</button></div>
         <div>共 {rows.length} 条 <select className="aw-select" style={{ width:86, margin:'0 8px' }}><option>10条/页</option></select><button className="aw-page on">1</button></div>
       </div>
+      {fieldOpen && <FieldDrawer onClose={() => setFieldOpen(false)} />}
     </div>
   );
 }

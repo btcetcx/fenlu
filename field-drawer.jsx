@@ -99,21 +99,66 @@ function Drawer({ title, subtitle, onClose, children, footer, onReset }) {
 // ══════════════════════════════════════════════════════════════
 //  FieldDrawer — field visibility & ordering config
 // ══════════════════════════════════════════════════════════════
-function FieldDrawer({ onClose }) {
-  const [fields, setFields] = useState([
-    { name: '文档编码', checked: true,  disabled: true,  pinned: true  },
-    { name: '文档名称', checked: true,  disabled: true,  pinned: false },
-    { name: '文档类型', checked: true,  disabled: false, pinned: false },
-    { name: '版本号',   checked: true,  disabled: false, pinned: false },
-    { name: '状态',     checked: true,  disabled: false, pinned: false },
-    { name: '编制人',   checked: true,  disabled: false, pinned: false },
-    { name: '更新日期', checked: true,  disabled: false, pinned: false },
-    { name: '生效日期', checked: true,  disabled: false, pinned: false },
-    { name: '失效日期', checked: false, disabled: false, pinned: false },
-    { name: '所属分类', checked: false, disabled: false, pinned: false },
-    { name: '审批状态', checked: false, disabled: false, pinned: false },
-    { name: '备注',     checked: false, disabled: false, pinned: false },
-  ]);
+function normalizeFieldName(text) {
+  return String(text || '').replace(/\s+/g, ' ').trim();
+}
+
+function getHeaderLabel(th) {
+  const source = th.querySelector('.aw-th-inner') || th;
+  const clone = source.cloneNode(true);
+  clone.querySelectorAll('select,input,button,svg,.aw-chk').forEach(node => node.remove());
+  return normalizeFieldName(clone.textContent);
+}
+
+function isVisibleElement(el) {
+  return !!(el && el.offsetParent !== null);
+}
+
+function collectVisibleTableFields() {
+  const activeToolbar = document.activeElement && document.activeElement.closest
+    ? document.activeElement.closest('.aw-doc-tb')
+    : null;
+  const toolbarScope = activeToolbar && activeToolbar.parentElement;
+  const scopedTables = toolbarScope
+    ? Array.from(toolbarScope.querySelectorAll('table.aw-doc-tbl, table.aw-table'))
+    : [];
+  const tables = scopedTables.length ? scopedTables : Array.from(document.querySelectorAll(
+    '.aw-doc-main table.aw-doc-tbl, .aw-doc-main table.aw-table, table.aw-doc-tbl, table.aw-table'
+  ));
+  const table = tables.find(isVisibleElement);
+  if (!table) return [];
+
+  const labels = Array.from(table.querySelectorAll('thead th'))
+    .map(getHeaderLabel)
+    .filter(Boolean)
+    .filter(label => label !== '选择');
+
+  return Array.from(new Set(labels));
+}
+
+function buildFieldState(labels) {
+  const finalLabels = labels.length ? labels : [
+    '文档编码', '文档名称', '类型', '状态', '版本', '编制人', '更新日期', '操作'
+  ];
+  const firstConfigurable = finalLabels.findIndex(label => label !== '序号' && label !== '操作');
+  return finalLabels.map((name, idx) => ({
+    name,
+    checked: true,
+    disabled: idx === firstConfigurable,
+    pinned: idx === firstConfigurable,
+  }));
+}
+
+function FieldDrawer({ onClose, fields: providedFields }) {
+  const getInitialFields = () => {
+    const labels = providedFields && providedFields.length ? providedFields : collectVisibleTableFields();
+    return buildFieldState(
+      labels
+        .map(item => typeof item === 'string' ? item : item.label || item.name)
+        .filter(Boolean)
+    );
+  };
+  const [fields, setFields] = useState(getInitialFields);
 
   const checkedCount = fields.filter(f => f.checked).length;
   const total = fields.length;
@@ -131,7 +176,7 @@ function FieldDrawer({ onClose }) {
 
   const togglePin = (idx) => {
     const f = fields[idx];
-    if (f.disabled && f.name === '文档编码') return; // 文档编码必须固定
+    if (f.disabled) return;
     const next = [...fields];
     next[idx] = { ...f, pinned: !f.pinned };
     setFields(next);
@@ -149,22 +194,7 @@ function FieldDrawer({ onClose }) {
     ));
   };
 
-  const reset = () => {
-    setFields([
-      { name: '文档编码', checked: true,  disabled: true,  pinned: true  },
-      { name: '文档名称', checked: true,  disabled: true,  pinned: false },
-      { name: '文档类型', checked: true,  disabled: false, pinned: false },
-      { name: '版本号',   checked: true,  disabled: false, pinned: false },
-      { name: '状态',     checked: true,  disabled: false, pinned: false },
-      { name: '编制人',   checked: true,  disabled: false, pinned: false },
-      { name: '更新日期', checked: true,  disabled: false, pinned: false },
-      { name: '生效日期', checked: true,  disabled: false, pinned: false },
-      { name: '失效日期', checked: false, disabled: false, pinned: false },
-      { name: '所属分类', checked: false, disabled: false, pinned: false },
-      { name: '审批状态', checked: false, disabled: false, pinned: false },
-      { name: '备注',     checked: false, disabled: false, pinned: false },
-    ]);
-  };
+  const reset = () => setFields(getInitialFields());
 
   // ── Inline SVG icons ──────────────────────────────
   const DragIcon = () => (
