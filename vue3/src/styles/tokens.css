@@ -1,0 +1,32 @@
+:root {
+  --aw-primary: #5677FC;
+  --aw-primary-hover: #4566EB;
+  --aw-primary-active: #3A58D6;
+  --aw-primary-soft: #EEF1FF;
+  --aw-nav-grad-from: #5A77FF;
+  --aw-nav-grad-to: #6E8BFF;
+  --aw-bg: #F5F6FA;
+  --aw-surface: #FFFFFF;
+  --aw-surface-2: #FAFBFC;
+  --aw-border: #E5E7EB;
+  --aw-border-strong: #D1D5DB;
+  --aw-divider: #F0F1F4;
+  --aw-fg-1: #1F2937;
+  --aw-fg-2: #4B5563;
+  --aw-fg-3: #6B7280;
+  --aw-fg-4: #9CA3AF;
+  --aw-success: #10B981;
+  --aw-warning: #F59E0B;
+  --aw-danger: #F5222D;
+  --aw-info: #5677FC;
+  --aw-font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --aw-font-num: "Inter", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  --erp-bg: #f5f7fb;
+  --erp-surface: #ffffff;
+  --erp-border: #e5e7eb;
+  --erp-text: #111827;
+  --erp-text-muted: #64748b;
+  --erp-primary: #1677ff;
+  --erp-radius: 6px;
+  --erp-shadow: 0 8px 24px rgb(15 23 42 / 8%);
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "contract_001",
+    "code": "SC-202605001",
+    "topic": "海南星海年度供货合同",
+    "customerName": "海南星海智能制造有限公司",
+    "sourceCode": "SP-20251221001",
+    "amount": 288000,
+    "currency": "CNY",
+    "signedDate": "2026-05-18",
+    "effectiveDate": "2026-05-20",
+    "expireDate": "2027-05-19",
+    "receivedAmount": 86000,
+    "invoiceAmount": 120000,
+    "executionStatusName": "执行中",
+    "status": "approved",
+    "statusName": "已批准",
+    "ownerName": "老夏"
+  }
+]

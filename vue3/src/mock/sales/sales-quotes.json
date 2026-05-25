@@ -1,0 +1,21 @@
+[
+  {
+    "id": "quote_001",
+    "code": "SP-20251221001",
+    "topic": "荣某定制",
+    "quoteType": "terminalCustomer",
+    "quoteTypeName": "终端客户",
+    "customerId": "cust_001",
+    "customerName": "傲为",
+    "amount": 5960,
+    "currency": "CNY",
+    "priceVersion": "V1",
+    "conversionStatus": "convertedOrder",
+    "conversionStatusName": "已转订单",
+    "quoteDate": "2025-12-21",
+    "expireDate": "2025-12-21",
+    "ownerName": "傲为",
+    "status": "pendingApproval",
+    "statusName": "审核中"
+  }
+]

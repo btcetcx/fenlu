@@ -1,0 +1,29 @@
+[
+  {
+    "id": "so_001",
+    "code": "SO-20251221001",
+    "topic": "荣某定制",
+    "sourceType": "quote",
+    "sourceCode": "SP-20251221001",
+    "customerId": "cust_001",
+    "customerName": "傲为",
+    "amount": 5960,
+    "currency": "CNY",
+    "creditCheckStatus": "passed",
+    "creditCheckName": "通过",
+    "creditHoldStatus": "held",
+    "creditHoldName": "已占用",
+    "receivableAmount": 5960,
+    "invoiceRequestStatus": "requested",
+    "invoiceRequestName": "已申请",
+    "receivedAmount": 3000,
+    "status": "pendingApproval",
+    "statusName": "审核中",
+    "exceptionTag": "",
+    "orderDate": "2025-12-21",
+    "deliveryDate": "2025-12-21",
+    "ownerName": "傲为",
+    "progressStatus": "shipped",
+    "progressName": "已发货"
+  }
+]

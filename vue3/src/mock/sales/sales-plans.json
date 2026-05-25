@@ -1,0 +1,32 @@
+[
+  {
+    "id": "plan_001",
+    "code": "SPP-202605001",
+    "name": "Q2 高精度伺服电机销售计划",
+    "productSummary": "高精度伺服电机",
+    "cycleStart": "2026-04-01",
+    "cycleEnd": "2026-06-30",
+    "ownerType": "department",
+    "ownerName": "销售一部 / 李文涛",
+    "targetQuantity": 120,
+    "targetAmount": 720000,
+    "doneQuantity": 68,
+    "doneAmount": 408000,
+    "achievementRate": 57,
+    "status": "executing",
+    "statusName": "执行中",
+    "lines": [
+      {
+        "productId": "prod_001",
+        "productCode": "P-001",
+        "productName": "高精度伺服电机",
+        "model": "HM-450",
+        "unit": "台",
+        "targetQuantity": 120,
+        "unitPrice": 6000,
+        "targetAmount": 720000,
+        "planMonth": "2026-06"
+      }
+    ]
+  }
+]
