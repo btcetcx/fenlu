@@ -1,0 +1,65 @@
+[
+  {
+    "id": "demand_summary_001",
+    "product": "智能温控终端",
+    "code": "CP-2025010101",
+    "model": "PRO",
+    "unit": "台",
+    "plan": 120,
+    "done": 80,
+    "left": 40,
+    "date": "2026-05-30",
+    "status": "生产中",
+    "sources": [
+      { "sourceDoc": "SO-20260517001", "sourceType": "销售订单", "sourceObject": "海南微为智造产业有限公司", "sourceLine": "SO-20260517001-01", "demandQty": 80, "doneQty": 60, "leftQty": 20, "deliveryDate": "2026-05-30", "status": "生产中" },
+      { "sourceDoc": "MR-20260517001", "sourceType": "生产需求", "sourceObject": "销售订单生产需求", "sourceLine": "MR-20260517001-01", "demandQty": 40, "doneQty": 20, "leftQty": 20, "deliveryDate": "2026-05-30", "status": "已确认" }
+    ]
+  },
+  {
+    "id": "demand_summary_002",
+    "product": "半成品模组",
+    "code": "CP-2025010102",
+    "model": "HM-450",
+    "unit": "件",
+    "plan": 300,
+    "done": 120,
+    "left": 180,
+    "date": "2026-06-05",
+    "status": "待生产",
+    "sources": [
+      { "sourceDoc": "SO-20260517002", "sourceType": "销售订单", "sourceObject": "广州明德贸易有限公司", "sourceLine": "SO-20260517002-01", "demandQty": 180, "doneQty": 60, "leftQty": 120, "deliveryDate": "2026-06-05", "status": "待确认" },
+      { "sourceDoc": "STOCK-PLAN-01", "sourceType": "库存备货", "sourceObject": "半成品安全库存补货", "sourceLine": "STOCK-PLAN-01-01", "demandQty": 120, "doneQty": 60, "leftQty": 60, "deliveryDate": "2026-06-05", "status": "待生产" }
+    ]
+  },
+  {
+    "id": "demand_summary_003",
+    "product": "铝合金外壳",
+    "code": "CP-2025010103",
+    "model": "AL-6061",
+    "unit": "套",
+    "plan": 260,
+    "done": 260,
+    "left": 0,
+    "date": "2026-05-28",
+    "status": "已完工",
+    "sources": [
+      { "sourceDoc": "RD-202605-006", "sourceType": "研发试制", "sourceObject": "结构件试制项目", "sourceLine": "RD-202605-006-01", "demandQty": 160, "doneQty": 160, "leftQty": 0, "deliveryDate": "2026-05-28", "status": "已完工" },
+      { "sourceDoc": "MO-20260517001", "sourceType": "生产订单", "sourceObject": "总装配套需求", "sourceLine": "MO-20260517001-02", "demandQty": 100, "doneQty": 100, "leftQty": 0, "deliveryDate": "2026-05-28", "status": "已完工" }
+    ]
+  },
+  {
+    "id": "demand_summary_004",
+    "product": "样机控制板",
+    "code": "CP-2025010104",
+    "model": "PCB-V2",
+    "unit": "片",
+    "plan": 50,
+    "done": 12,
+    "left": 38,
+    "date": "2026-05-24",
+    "status": "生产中",
+    "sources": [
+      { "sourceDoc": "RD-202605-008", "sourceType": "研发试制", "sourceObject": "样机控制板试制", "sourceLine": "RD-202605-008-01", "demandQty": 50, "doneQty": 12, "leftQty": 38, "deliveryDate": "2026-05-24", "status": "生产中" }
+    ]
+  }
+]

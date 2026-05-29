@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>海南傲为 ERP Vue3 客户列表样板</title>
+    <link rel="stylesheet" href="./src/styles/tokens.css" />
+    <link rel="stylesheet" href="./src/styles/aw-console.css" />
+  </head>
+  <body>
+    <div data-screen-label="ERP Console">
+      <div class="aw-topbar">
+        <div class="brand">海南傲为智慧</div>
+        <div class="tabs">
+          <span class="tab">▣ PRD</span>
+          <span class="tab">⌁ 研发</span>
+          <span class="tab">◈ 采购</span>
+          <a class="tab on" href="./preview-framework.html" onclick="location.href='./preview-framework.html';return false">▣ 销售</a>
+          <span class="tab">☎ 售后</span>
+          <span class="tab">▤ 仓储</span>
+          <span class="tab">⚙ 生产</span>
+          <span class="tab">✓ 质检</span>
+          <span class="tab">¥ 财务</span>
+          <span class="tab">♟ 人力</span>
+          <span class="tab">⚙ 设置</span>
+        </div>
+        <div class="right">
+          <button class="ic aw-top-help" type="button">?</button>
+          <button class="aw-top-notice" type="button">●<span class="aw-top-notice-badge">4</span></button>
+          <div class="av">夏</div>
+          <span>老夏 ▾</span>
+        </div>
+      </div>
+
+      <div class="aw-shell">
+        <aside class="aw-side">
+          <h4>销售中心</h4>
+          <a class="item" href="./preview-framework.html"><span class="dot">○</span> 工作台</a>
+          <div class="item on" data-flyout-trigger="customer"><span class="dot">○</span> 客户管理</div>
+          <div class="item" data-flyout-trigger="salesPlan"><span class="dot">○</span> 销售计划</div>
+          <div class="item" data-flyout-trigger="quote"><span class="dot">○</span> 报价管理</div>
+          <div class="item" data-flyout-trigger="contract"><span class="dot">○</span> 合同管理</div>
+          <div class="item" data-flyout-trigger="order"><span class="dot">○</span> 订单管理</div>
+          <div class="item"><span class="dot">○</span> 销售退货</div>
+          <div class="item"><span class="dot">○</span> 销售换货</div>
+          <div class="item"><span class="dot">○</span> 销售报表</div>
+
+          <div class="aw-flyout" data-flyout="customer" style="top:92px;display:none">
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">客户管理</div>
+              <div class="aw-flyout-items"><a href="./preview-customer-new.html">添加客户</a><a href="./preview-customer-list.html">客户列表</a></div>
+            </div>
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">客户设置</div>
+              <div class="aw-flyout-items">
+                <a href="./preview-customer-setting.html?type=groups">客户分组设置</a><a href="./preview-customer-setting.html?type=fields">客户自定义字段</a><a href="./preview-customer-setting.html?type=numbers">客户自定义编号</a><a href="./preview-customer-setting.html?type=levels">客户等级设置</a>
+                <a href="./preview-customer-setting.html?type=approvals">客户审批设置</a><a href="./preview-customer-setting.html?type=strategies">客户策略设置</a>
+              </div>
+            </div>
+          </div>
+          <div class="aw-flyout" data-flyout="salesPlan" style="top:126px;display:none">
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">计划管理</div>
+              <div class="aw-flyout-items"><a href="./preview-sales-plan-list.html?action=new">添加计划</a><a href="./preview-sales-plan-list.html">计划列表</a></div>
+            </div>
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">计划设置</div>
+              <div class="aw-flyout-items">
+                <a href="./preview-sales-plan-list.html?setting=fields">计划自定义字段</a><a href="./preview-sales-plan-list.html?setting=numbers">计划自定义编号</a>
+                <a href="./preview-sales-plan-list.html?setting=approvals">计划审批设置</a><a href="./preview-sales-plan-list.html?setting=strategies">计划策略设置</a>
+              </div>
+            </div>
+          </div>
+          <div class="aw-flyout" data-flyout="quote" style="top:160px;display:none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">报价管理</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=quotes&action=new">添加报价</a><a href="./preview-sales-basic-list.html?type=quotes">报价列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">报价设置</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=quotes&setting=fields">报价自定义字段</a><a href="./preview-sales-basic-list.html?type=quotes&setting=numbers">报价自定义编号</a><a href="./preview-sales-basic-list.html?type=quotes&setting=approvals">报价审批设置</a><a href="./preview-sales-basic-list.html?type=quotes&setting=strategies">报价策略设置</a><a href="./preview-sales-basic-list.html?type=quotes&setting=print">设置报价打印模板</a></div></div>
+          </div>
+          <div class="aw-flyout" data-flyout="contract" style="top:194px;display:none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">合同管理</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=contracts&action=new">添加合同</a><a href="./preview-sales-basic-list.html?type=contracts">合同列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">合同设置</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=contracts&setting=fields">合同自定义字段</a><a href="./preview-sales-basic-list.html?type=contracts&setting=numbers">合同自定义编号</a><a href="./preview-sales-basic-list.html?type=contracts&setting=approvals">合同审批设置</a><a href="./preview-sales-basic-list.html?type=contracts&setting=strategies">合同策略设置</a><a href="./preview-sales-basic-list.html?type=contracts&setting=print">设置合同打印模板</a></div></div>
+          </div>
+          <div class="aw-flyout" data-flyout="order" style="top:228px;display:none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">订单管理</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=orders&action=new">添加订单</a><a href="./preview-sales-basic-list.html?type=orders">订单列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">订单设置</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=orders&setting=fields">订单自定义字段</a><a href="./preview-sales-basic-list.html?type=orders&setting=numbers">订单自定义编号</a><a href="./preview-sales-basic-list.html?type=orders&setting=approvals">订单审批设置</a><a href="./preview-sales-basic-list.html?type=orders&setting=strategies">订单策略设置</a><a href="./preview-sales-basic-list.html?type=orders&setting=print">设置订单打印模板</a></div></div>
+          </div>
+        </aside>
+
+        <main class="aw-main">
+          <div class="aw-page-head">
+            <span class="aw-page-title">客户管理</span>
+          </div>
+
+          <div class="aw-list-layout">
+            <aside class="aw-doc-tree">
+              <div class="aw-doc-tree-h">客户库 <span class="aw-doc-tree-n">(4)</span></div>
+              <div class="aw-doc-tree-list">
+                <button class="aw-tree-row aw-tree-l2 muted" type="button" disabled>
+                  <span class="aw-tree-caret">▾</span><span class="aw-line-icon line-users"></span><span class="aw-tree-text">客户分组</span>
+                </button>
+                <button class="aw-tree-row aw-tree-l3" type="button" data-filter="重点客户"><span class="aw-line-icon line-node"></span><span class="aw-tree-text">重点客户</span><span class="aw-doc-tree-n">(1)</span></button>
+                <button class="aw-tree-row aw-tree-l3" type="button" data-filter="战略客户"><span class="aw-line-icon line-node"></span><span class="aw-tree-text">战略客户</span><span class="aw-doc-tree-n">(1)</span></button>
+                <button class="aw-tree-row aw-tree-l3" type="button" data-filter="普通客户"><span class="aw-line-icon line-node"></span><span class="aw-tree-text">普通客户</span><span class="aw-doc-tree-n">(1)</span></button>
+                <button class="aw-tree-row aw-tree-l3" type="button" data-filter="渠道客户"><span class="aw-line-icon line-node"></span><span class="aw-tree-text">渠道客户</span><span class="aw-doc-tree-n">(1)</span></button>
+              </div>
+            </aside>
+
+            <section class="aw-list-panel">
+              <div class="aw-list-toolbar">
+                <div class="aw-toolbar-left">
+                  <div class="aw-search"><span class="aw-line-icon line-search"></span><input id="customerSearch" placeholder="全局搜索（如客户名称、联系人、客户经理）" /></div>
+                </div>
+                <div class="aw-toolbar-right">
+                  <button class="aw-refresh-action" type="button"><span class="aw-line-icon line-refresh"></span>刷新数据</button>
+                  <button class="aw-tool-btn" type="button"><span class="aw-line-icon line-filter"></span>筛选</button>
+                  <button class="aw-tool-btn" type="button"><span class="aw-line-icon line-columns"></span>字段配置</button>
+                  <button class="aw-tool-btn" type="button"><span class="aw-line-icon line-upload"></span>导入</button>
+                  <button class="aw-tool-btn" type="button"><span class="aw-line-icon line-download"></span>导出</button>
+                  <button class="aw-btn primary" type="button" onclick="location.href='./preview-customer-new.html'"><span class="aw-line-icon line-plus"></span>新增客户</button>
+                </div>
+              </div>
+
+              <div class="aw-doc-tbl-wrap">
+                <div class="aw-doc-tbl-inner">
+                  <table class="aw-doc-tbl">
+                    <thead>
+                      <tr>
+                        <th class="aw-check-col aw-sticky-left-1"><label class="aw-check"><input id="checkAllTop" type="checkbox" /><span></span></label></th>
+                        <th class="aw-index-col aw-sticky-left-2"><div class="aw-th-inner">序号</div></th>
+                        <th style="width:220px"><div class="aw-th-inner">客户名称</div></th>
+                        <th style="width:120px"><div class="aw-th-inner">客户分组</div></th>
+                        <th style="width:100px"><div class="aw-th-inner">主联系人</div></th>
+                        <th style="width:110px"><div class="aw-th-inner">职位</div></th>
+                        <th style="width:130px"><div class="aw-th-inner">联系方式</div></th>
+                        <th style="width:120px"><div class="aw-th-inner">信用额度</div></th>
+                        <th style="width:120px"><div class="aw-th-inner">已用额度</div></th>
+                        <th style="width:120px"><div class="aw-th-inner">占用额度</div></th>
+                        <th style="width:120px"><div class="aw-th-inner">应收未收</div></th>
+                        <th style="width:120px"><div class="aw-th-inner">可用额度</div></th>
+                        <th style="width:110px"><div class="aw-th-inner">账期</div></th>
+                        <th style="width:100px"><div class="aw-th-inner">信用状态</div></th>
+                        <th style="width:110px"><div class="aw-th-inner">客户经理</div></th>
+                        <th style="width:100px"><div class="aw-th-inner">状态</div></th>
+                        <th class="aw-sticky-right" style="width:90px"><div class="aw-th-inner">操作</div></th>
+                      </tr>
+                    </thead>
+                    <tbody id="customerRows"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="aw-list-footer">
+                <div class="aw-footer-left">
+                  <label class="aw-check"><input id="checkAllBottom" type="checkbox" /><span></span></label>
+                  <span id="customerTotal">共 4 条</span>
+                  <span id="selectedTotal">已选 0 条</span>
+                  <button class="aw-bulk-btn" type="button">批量转移</button>
+                  <button class="aw-bulk-btn" type="button">批量指定</button>
+                </div>
+                <div class="aw-pagination">
+                  <button type="button">上一页</button>
+                  <button class="on" type="button">1</button>
+                  <button type="button">2</button>
+                  <button type="button">3</button>
+                  <button type="button">下一页</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+      <button class="aw-float-help" type="button">?</button>
+    </div>
+
+    <script>
+      const customers = [
+        ["海南星海智能制造有限公司","重点客户","林悦","采购经理","13800138001","200,000.00","68,000.00","32,000.00","36,000.00","64,000.00","月结30天","正常","老夏","已审核","green"],
+        ["深圳市启明科技有限公司","战略客户","何志远","运营总监","13900139002","500,000.00","420,000.00","42,600.00","18,600.00","18,800.00","月结45天","临近额度","李文涛","跟进中","yellow"],
+        ["广州南方装备有限公司","普通客户","苏婉清","项目负责人","13700137003","80,000.00","0.00","0.00","0.00","80,000.00","现结","待授信","陈思源","待审核","yellow"],
+        ["东莞华美包装制品厂","渠道客户","赵一鸣","总经理","13600136004","0.00","0.00","0.00","0.00","0.00","停止赊销","停用","赵强","已停用","gray"]
+      ];
+
+      let currentFilter = "all";
+      const tbody = document.querySelector("#customerRows");
+      const total = document.querySelector("#customerTotal");
+      const selectedTotal = document.querySelector("#selectedTotal");
+      const search = document.querySelector("#customerSearch");
+      const checkAllTop = document.querySelector("#checkAllTop");
+      const checkAllBottom = document.querySelector("#checkAllBottom");
+      const selectedRows = new Set();
+
+      function renderRows() {
+        const term = search.value.trim();
+        const rows = customers.filter((row) => (currentFilter === "all" || row[1] === currentFilter) && (!term || row.join(" ").includes(term)));
+        tbody.innerHTML = rows.map((row, index) => `
+          <tr>
+            <td class="aw-sticky-left-1"><label class="aw-check"><input class="row-check" data-key="${row[0]}" type="checkbox" ${selectedRows.has(row[0]) ? "checked" : ""} /><span></span></label></td>
+            <td class="aw-num aw-sticky-left-2">${index + 1}</td>
+            <td><a class="aw-link" href="./preview-customer-detail.html">${row[0]}</a></td>
+            <td>${row[1]}</td>
+            <td>${row[2]}</td>
+            <td>${row[3]}</td>
+            <td class="aw-num">${row[4]}</td>
+            <td class="aw-num">${row[5]}</td>
+            <td class="aw-num">${row[6]}</td>
+            <td class="aw-num">${row[7]}</td>
+            <td class="aw-num">${row[8]}</td>
+            <td class="aw-num">${row[9]}</td>
+            <td>${row[10]}</td>
+            <td><span class="aw-status ${row[14]}">${row[11]}</span></td>
+            <td>${row[12]}</td>
+            <td><span class="aw-status ${row[14]}">${row[13]}</span></td>
+            <td class="aw-sticky-right"><a class="aw-link" href="./preview-customer-detail.html">查看</a></td>
+          </tr>`).join("");
+        total.textContent = `共 ${rows.length} 条`;
+        tbody.querySelectorAll(".row-check").forEach((checkbox) => {
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) selectedRows.add(checkbox.dataset.key);
+            else selectedRows.delete(checkbox.dataset.key);
+            syncSelection(rows);
+          });
+        });
+        syncSelection(rows);
+      }
+
+      function syncSelection(rows) {
+        const visibleSelected = rows.filter((row) => selectedRows.has(row[0])).length;
+        const allChecked = rows.length > 0 && visibleSelected === rows.length;
+        const indeterminate = visibleSelected > 0 && !allChecked;
+        selectedTotal.textContent = `已选 ${visibleSelected} 条`;
+        [checkAllTop, checkAllBottom].forEach((checkbox) => {
+          checkbox.checked = allChecked;
+          checkbox.indeterminate = indeterminate;
+        });
+      }
+
+      function toggleAllVisible(checked) {
+        const term = search.value.trim();
+        const rows = customers.filter((row) => (currentFilter === "all" || row[1] === currentFilter) && (!term || row.join(" ").includes(term)));
+        rows.forEach((row) => {
+          if (checked) selectedRows.add(row[0]);
+          else selectedRows.delete(row[0]);
+        });
+        renderRows();
+      }
+
+      [checkAllTop, checkAllBottom].forEach((checkbox) => {
+        checkbox.addEventListener("change", () => toggleAllVisible(checkbox.checked));
+      });
+
+      document.querySelectorAll("[data-filter]").forEach((button) => {
+        button.addEventListener("click", () => {
+          currentFilter = button.dataset.filter;
+          document.querySelectorAll("[data-filter]").forEach((item) => item.classList.remove("on"));
+          button.classList.add("on");
+          renderRows();
+        });
+      });
+      search.addEventListener("input", renderRows);
+      renderRows();
+
+      const triggers = document.querySelectorAll("[data-flyout-trigger]");
+      const flyouts = document.querySelectorAll("[data-flyout]");
+      let flyoutTimer = null;
+      function hideFlyouts() { flyouts.forEach((flyout) => { flyout.style.display = "none"; }); }
+      function showFlyout(key, trigger) {
+        clearTimeout(flyoutTimer);
+        hideFlyouts();
+        const flyout = document.querySelector(`[data-flyout="${key}"]`);
+        const rect = trigger.getBoundingClientRect();
+        flyout.style.top = `${Math.max(52, rect.top + rect.height / 2 - 110)}px`;
+        flyout.style.display = "block";
+      }
+      function scheduleHide() { flyoutTimer = setTimeout(hideFlyouts, 150); }
+      triggers.forEach((trigger) => {
+        trigger.addEventListener("mouseenter", () => showFlyout(trigger.dataset.flyoutTrigger, trigger));
+        trigger.addEventListener("mouseleave", scheduleHide);
+      });
+      flyouts.forEach((flyout) => {
+        flyout.addEventListener("mouseenter", () => clearTimeout(flyoutTimer));
+        flyout.addEventListener("mouseleave", scheduleHide);
+      });
+    </script>
+  </body>
+</html>

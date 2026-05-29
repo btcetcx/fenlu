@@ -1,0 +1,18 @@
+.ant-layout-sider-trigger {
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.ant-table-wrapper {
+  padding: 12px;
+  background: var(--erp-surface);
+  border: 1px solid var(--erp-border);
+  border-radius: var(--erp-radius);
+}
+
+.ant-table-thead > tr > th {
+  font-weight: 600;
+}
+
+.ant-btn {
+  box-shadow: none;
+}

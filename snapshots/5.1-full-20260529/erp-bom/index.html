@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERP 业务数据自动化控制台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="control-panel">
+        <div class="brand-row">
+          <div>
+            <p class="eyebrow">ERP SaaS Data Automation</p>
+            <h1>业务数据自动化控制台</h1>
+          </div>
+          <span class="status-pill" id="jobStatus">待生成</span>
+        </div>
+
+        <form id="automationForm" class="target-form">
+          <label>
+            <span>租户</span>
+            <select id="tenantId" required></select>
+          </label>
+          <label>
+            <span>月份</span>
+            <input id="period" type="month" value="2026-08" required />
+          </label>
+          <label>
+            <span>销售目标</span>
+            <input id="targetAmount" type="number" min="10000" step="10000" value="1000000" required />
+          </label>
+          <label>
+            <span>执行模式</span>
+            <select id="runMode">
+              <option value="simulation">模拟生成</option>
+              <option value="posted">正式写入</option>
+            </select>
+          </label>
+          <button type="submit">开始生成</button>
+        </form>
+      </section>
+
+      <section class="summary-grid" id="summaryGrid"></section>
+
+      <section class="workbench">
+        <div class="panel progress-panel">
+          <div class="panel-head">
+            <h2>执行进度</h2>
+            <span id="scenarioId">未创建任务</span>
+          </div>
+          <div class="step-list" id="stepList"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>闭环校验</h2>
+            <span id="validationBadge">等待生成</span>
+          </div>
+          <div class="validation-list" id="validationList"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>生成结果</h2>
+          <div class="tab-bar" role="tablist">
+            <button class="tab active" type="button" data-tab="plan">计划</button>
+            <button class="tab" type="button" data-tab="sales">销售</button>
+            <button class="tab" type="button" data-tab="mrp">MRP</button>
+            <button class="tab" type="button" data-tab="purchase">采购</button>
+            <button class="tab" type="button" data-tab="production">生产</button>
+            <button class="tab" type="button" data-tab="inventory">库存</button>
+            <button class="tab" type="button" data-tab="finance">财务</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead id="resultHead"></thead>
+            <tbody id="resultBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

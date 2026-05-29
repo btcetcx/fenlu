@@ -1,0 +1,271 @@
+{
+  "production-demands": [
+    {
+      "id": "demand_001",
+      "code": "MR-20260517001",
+      "subject": "销售订单生产需求",
+      "sourceType": "销售订单",
+      "sourceCode": "SO-20260517001",
+      "sourceName": "海南微为智能终端销售订单",
+      "customerName": "海南微为智造产业有限公司",
+      "productName": "智能温控终端",
+      "quantity": 120,
+      "doneQuantity": 80,
+      "startDate": "2026-05-17",
+      "endDate": "2026-05-30",
+      "departmentName": "生产一部",
+      "ownerName": "老夏",
+      "priorityName": "普通",
+      "status": "pendingConfirm",
+      "statusName": "待确认",
+      "lines": [
+        { "id": "demand_line_001", "sourceType": "销售订单", "sourceCode": "SO-20260517001", "sourceLine": "SO-20260517001-01", "productCode": "CP-2025010101", "productName": "智能温控终端", "model": "PRO", "unit": "台", "quantity": 120, "demandQuantity": 120, "planQuantity": 120, "bomVersion": "BOM-V3.2", "routeCode": "RT-总装-01", "deliveryDate": "2026-05-30" }
+      ]
+    },
+    {
+      "id": "demand_002",
+      "code": "MR-20260517002",
+      "subject": "安全库存补货需求",
+      "sourceType": "库存备货",
+      "sourceCode": "STOCK-PLAN-01",
+      "sourceName": "成品仓安全库存补货",
+      "customerName": "成品仓补货",
+      "productName": "半成品模组",
+      "quantity": 300,
+      "doneQuantity": 120,
+      "startDate": "2026-05-18",
+      "endDate": "2026-06-05",
+      "departmentName": "生产一部",
+      "ownerName": "计划员王敏",
+      "priorityName": "紧急",
+      "status": "confirmed",
+      "statusName": "已确认",
+      "lines": [
+        { "id": "demand_line_002", "sourceType": "库存备货", "sourceCode": "STOCK-PLAN-01", "sourceLine": "STOCK-PLAN-01-01", "productCode": "CP-2025010102", "productName": "半成品模组", "model": "HM-450", "unit": "件", "quantity": 300, "demandQuantity": 300, "planQuantity": 300, "bomVersion": "BOM-V2.1", "routeCode": "RT-焊接-02", "deliveryDate": "2026-06-05" }
+      ]
+    },
+    {
+      "id": "demand_003",
+      "code": "MR-20260517003",
+      "subject": "样机试制生产",
+      "sourceType": "手动需求",
+      "sourceCode": "RD-202605-008",
+      "sourceName": "研发试制",
+      "customerName": "研发中心",
+      "productName": "铝合金外壳",
+      "quantity": 260,
+      "doneQuantity": 260,
+      "startDate": "2026-05-19",
+      "endDate": "2026-05-28",
+      "departmentName": "二号工厂",
+      "ownerName": "生产主管",
+      "priorityName": "特急",
+      "status": "generatedPlan",
+      "statusName": "已转计划",
+      "lines": [
+        { "id": "demand_line_003", "sourceType": "手动需求", "sourceCode": "RD-202605-008", "sourceLine": "RD-202605-008-01", "productCode": "CP-2025010103", "productName": "铝合金外壳", "model": "AL-6061", "unit": "套", "quantity": 260, "demandQuantity": 260, "planQuantity": 260, "bomVersion": "BOM-V1.8", "routeCode": "RT-机加工-01", "deliveryDate": "2026-05-28" }
+      ]
+    }
+  ],
+  "production-plans": [
+    {
+      "id": "plan_001",
+      "code": "MP-20260517001",
+      "subject": "6月温控终端生产计划",
+      "sourceType": "生产需求",
+      "sourceCode": "MR-20260517001",
+      "sourceName": "销售订单生产需求",
+      "customerName": "海南微为智造产业有限公司",
+      "productName": "智能温控终端",
+      "quantity": 120,
+      "doneQuantity": 72,
+      "startDate": "2026-05-18",
+      "endDate": "2026-06-05",
+      "departmentName": "生产一部",
+      "workshopName": "总装车间",
+      "lineName": "总装产线A",
+      "ownerName": "计划员王敏",
+      "status": "pendingApproval",
+      "statusName": "待审批",
+      "kittingStatusName": "齐套",
+      "lines": [
+        { "id": "plan_line_001", "sourceType": "生产需求", "sourceCode": "MR-20260517001", "sourceLine": "MR-20260517001-01", "productCode": "CP-2025010101", "productName": "智能温控终端", "model": "PRO", "unit": "台", "quantity": 120, "demandQuantity": 120, "planQuantity": 120, "bomVersion": "BOM-V3.2", "routeCode": "RT-总装-01", "deliveryDate": "2026-06-05" }
+      ]
+    },
+    {
+      "id": "plan_002",
+      "code": "MP-20260517002",
+      "subject": "半成品模组补货计划",
+      "sourceType": "生产需求",
+      "sourceCode": "MR-20260517002",
+      "sourceName": "安全库存补货需求",
+      "productName": "半成品模组",
+      "quantity": 300,
+      "doneQuantity": 180,
+      "startDate": "2026-05-20",
+      "endDate": "2026-06-08",
+      "departmentName": "装配车间",
+      "workshopName": "焊接车间",
+      "lineName": "焊接产线A",
+      "ownerName": "计划员王敏",
+      "status": "approved",
+      "statusName": "已批准",
+      "kittingStatusName": "部分缺料",
+      "lines": [
+        { "id": "plan_line_002", "sourceType": "生产需求", "sourceCode": "MR-20260517002", "sourceLine": "MR-20260517002-01", "productCode": "CP-2025010102", "productName": "半成品模组", "model": "HM-450", "unit": "件", "quantity": 300, "demandQuantity": 300, "planQuantity": 300, "bomVersion": "BOM-V2.1", "routeCode": "RT-焊接-02", "deliveryDate": "2026-06-08" }
+      ]
+    }
+  ],
+  "production-orders": [
+    {
+      "id": "order_001",
+      "code": "MO-20260517001",
+      "subject": "202604智能温控终端生产205",
+      "sourceType": "生产计划",
+      "sourceCode": "MP-20260517001",
+      "sourceName": "6月温控终端生产计划",
+      "customerName": "海南微为智造产业有限公司",
+      "productName": "智能温控终端",
+      "quantity": 120,
+      "doneQuantity": 80,
+      "startDate": "2026-05-18",
+      "endDate": "2026-06-03",
+      "departmentName": "生产一部",
+      "workshopName": "总装车间",
+      "lineName": "总装产线A",
+      "ownerName": "生产一部",
+      "bomVersion": "BOM-V3.2",
+      "routeCode": "RT-总装-01",
+      "status": "producing",
+      "statusName": "生产中",
+      "kittingStatusName": "齐套",
+      "lines": [
+        { "id": "order_line_001", "sourceType": "生产计划", "sourceCode": "MP-20260517001", "sourceLine": "MP-20260517001-01", "productCode": "CP-2025010101", "productName": "智能温控终端", "model": "PRO", "unit": "台", "quantity": 120, "bomVersion": "BOM-V3.2", "routeCode": "RT-总装-01", "processName": "总装", "deliveryDate": "2026-06-03" }
+      ]
+    },
+    {
+      "id": "order_002",
+      "code": "MO-20260517002",
+      "subject": "半成品模组生产订单",
+      "sourceType": "手动创建",
+      "sourceCode": "手动创建",
+      "productName": "半成品模组",
+      "quantity": 300,
+      "doneQuantity": 0,
+      "startDate": "2026-05-20",
+      "endDate": "2026-06-08",
+      "departmentName": "生产一部",
+      "workshopName": "焊接车间",
+      "lineName": "焊接产线A",
+      "ownerName": "生产主管",
+      "bomVersion": "BOM-V2.1",
+      "routeCode": "RT-焊接-02",
+      "status": "pendingProduction",
+      "statusName": "待生产",
+      "kittingStatusName": "缺料",
+      "lines": [
+        { "id": "order_line_002", "sourceType": "手动创建", "sourceCode": "手动创建", "sourceLine": "manual-01", "productCode": "CP-2025010102", "productName": "半成品模组", "model": "HM-450", "unit": "件", "quantity": 300, "bomVersion": "BOM-V2.1", "routeCode": "RT-焊接-02", "processName": "焊接", "deliveryDate": "2026-06-08" }
+      ]
+    }
+  ],
+  "production-work-orders": [
+    {
+      "id": "work_order_001",
+      "code": "WO-20260517001",
+      "subject": "总装工序生产工单",
+      "sourceType": "生产订单",
+      "sourceCode": "MO-20260517001",
+      "sourceName": "202604智能温控终端生产205",
+      "productName": "智能温控终端",
+      "quantity": 120,
+      "doneQuantity": 80,
+      "startDate": "2026-05-19",
+      "endDate": "2026-05-26",
+      "departmentName": "生产一部",
+      "workshopName": "总装车间",
+      "lineName": "总装产线A",
+      "ownerName": "三红",
+      "bomVersion": "BOM-V3.2",
+      "routeCode": "RT-总装-01",
+      "status": "producing",
+      "statusName": "生产中",
+      "lines": [
+        { "id": "work_line_001", "sourceType": "生产订单", "sourceCode": "MO-20260517001", "sourceLine": "MO-20260517001-01", "productCode": "CP-2025010101", "productName": "智能温控终端", "model": "PRO", "unit": "台", "quantity": 120, "processName": "总装", "stationName": "总装工位01", "workshopName": "总装车间", "lineName": "总装产线A", "ownerName": "三红", "equipmentName": "装配工装A", "plannedHours": 96, "reportMode": "按产量报工", "deliveryDate": "2026-05-26" }
+      ]
+    },
+    {
+      "id": "work_order_002",
+      "code": "WO-20260517002",
+      "subject": "焊接工序工单",
+      "sourceType": "生产订单",
+      "sourceCode": "MO-20260517002",
+      "sourceName": "半成品模组生产订单",
+      "productName": "半成品模组",
+      "quantity": 300,
+      "doneQuantity": 120,
+      "startDate": "2026-05-19",
+      "endDate": "2026-06-03",
+      "departmentName": "生产一部",
+      "workshopName": "焊接车间",
+      "lineName": "焊接产线A",
+      "ownerName": "李工",
+      "bomVersion": "BOM-V2.1",
+      "routeCode": "RT-焊接-02",
+      "status": "pendingReport",
+      "statusName": "待报工",
+      "lines": [
+        { "id": "work_line_002", "sourceType": "生产订单", "sourceCode": "MO-20260517002", "sourceLine": "MO-20260517002-01", "productCode": "CP-2025010102", "productName": "半成品模组", "model": "HM-450", "unit": "件", "quantity": 300, "processName": "焊接", "stationName": "焊接工位A", "workshopName": "焊接车间", "lineName": "焊接产线A", "ownerName": "李工", "equipmentName": "自动焊机01", "plannedHours": 180, "reportMode": "按产量+工时报工", "deliveryDate": "2026-06-03" }
+      ]
+    }
+  ],
+  "outsource-orders": [
+    {
+      "id": "outsource_001",
+      "code": "OS-20260517001",
+      "subject": "外壳表面处理委外加工",
+      "sourceType": "生产订单",
+      "sourceCode": "MO-20260517001",
+      "sourceName": "202604智能温控终端生产205",
+      "productName": "铝合金外壳",
+      "quantity": 260,
+      "doneQuantity": 0,
+      "startDate": "2026-05-20",
+      "endDate": "2026-05-28",
+      "departmentName": "委外管理组",
+      "ownerName": "深圳协同加工厂",
+      "supplierName": "深圳协同加工厂",
+      "pricingSource": "年度委外价格表",
+      "receiptRequirement": "分批收货，按委外单回写",
+      "qualityRequirement": "委外收货后强制 FQC",
+      "status": "pendingIssue",
+      "statusName": "待发料",
+      "lines": [
+        { "id": "out_line_001", "sourceType": "生产订单", "sourceCode": "MO-20260517001", "sourceLine": "MO-20260517001-03", "productCode": "CP-2025010103", "productName": "铝合金外壳", "model": "AL-6061", "unit": "套", "quantity": 260, "supplierName": "深圳协同加工厂", "price": 12, "amount": 3120, "deliveryDate": "2026-05-28", "remark": "表面处理委外" }
+      ]
+    },
+    {
+      "id": "outsource_002",
+      "code": "OS-20260517002",
+      "subject": "结构件电镀委外",
+      "sourceType": "生产工单",
+      "sourceCode": "WO-20260517002",
+      "sourceName": "焊接工序工单",
+      "productName": "半成品模组",
+      "quantity": 300,
+      "doneQuantity": 80,
+      "startDate": "2026-05-22",
+      "endDate": "2026-06-08",
+      "departmentName": "委外管理组",
+      "ownerName": "东莞精工表面处理厂",
+      "supplierName": "东莞精工表面处理厂",
+      "pricingSource": "供应商报价单 V1",
+      "receiptRequirement": "整批收货",
+      "qualityRequirement": "抽检",
+      "status": "processing",
+      "statusName": "加工中",
+      "lines": [
+        { "id": "out_line_002", "sourceType": "生产工单", "sourceCode": "WO-20260517002", "sourceLine": "WO-20260517002-01", "productCode": "CP-2025010102", "productName": "半成品模组", "model": "HM-450", "unit": "件", "quantity": 300, "supplierName": "东莞精工表面处理厂", "price": 8.5, "amount": 2550, "deliveryDate": "2026-06-08", "remark": "电镀委外" }
+      ]
+    }
+  ]
+}

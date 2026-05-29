@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>售后中心验收镜子</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --surface: #fff;
+        --border: #e5e7eb;
+        --text: #111827;
+        --muted: #64748b;
+        --primary: #1677ff;
+        --green: #0f9f6e;
+        --orange: #d48806;
+        --red: #cf1322;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+        background: var(--bg);
+      }
+
+      .shell {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 24px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      h2 {
+        font-size: 16px;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      main {
+        padding: 20px 24px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .card,
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .card {
+        padding: 14px;
+        min-height: 96px;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .card strong {
+        display: block;
+        font-size: 24px;
+        margin-top: 10px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .links {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      a.link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 42px;
+        padding: 0 12px;
+        color: #0958d9;
+        text-decoration: none;
+        background: #f0f7ff;
+        border: 1px solid #badcff;
+        border-radius: 6px;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 12px;
+        border-collapse: collapse;
+        background: #fff;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+
+      th {
+        background: #f8fafc;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        padding: 0 8px;
+        color: #0958d9;
+        background: #e6f4ff;
+        border: 1px solid #91caff;
+        border-radius: 4px;
+      }
+
+      .green {
+        color: var(--green);
+      }
+
+      .orange {
+        color: var(--orange);
+      }
+
+      .red {
+        color: var(--red);
+      }
+
+      @media (max-width: 980px) {
+        .grid,
+        .links {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <div>
+          <h1>售后中心验收镜子</h1>
+          <p class="muted">静态页面只做人工验收入口，真实交付以 Vue 工程和 mock/API adapter 为准。</p>
+        </div>
+        <span class="tag">After Sales</span>
+      </header>
+
+      <main>
+        <section class="grid">
+          <a class="card" href="/after-sales/services?category=pendingAcceptance">
+            <span class="muted">待受理售后单</span>
+            <strong>1</strong>
+          </a>
+          <a class="card" href="/after-sales/tasks">
+            <span class="muted">待处理任务</span>
+            <strong>5</strong>
+          </a>
+          <a class="card" href="/after-sales/services?sla=overdue">
+            <span class="muted">超时未处理</span>
+            <strong class="red">1</strong>
+          </a>
+          <a class="card" href="/after-sales/quality">
+            <span class="muted">待质量闭环</span>
+            <strong class="orange">1</strong>
+          </a>
+        </section>
+
+        <section class="panel">
+          <h2>入口矩阵</h2>
+          <div class="links">
+            <a class="link" href="/after-sales">工作台 <span>进入</span></a>
+            <a class="link" href="/after-sales/services">售后单列表 <span>进入</span></a>
+            <a class="link" href="/after-sales/services?action=new">新增售后 <span>进入</span></a>
+            <a class="link" href="/after-sales/services?id=as_001">售后详情 <span>进入</span></a>
+            <a class="link" href="/after-sales/tasks">任务管理 <span>进入</span></a>
+            <a class="link" href="/after-sales/tasks?id=task_doc_001">任务详情 <span>进入</span></a>
+            <a class="link" href="/after-sales/quality">质量闭环 <span>进入</span></a>
+            <a class="link" href="/after-sales/quality?id=qa_001">质量详情 <span>进入</span></a>
+            <a class="link" href="/after-sales/settings">售后设置 <span>进入</span></a>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>验收链路</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>验收项</th>
+                <th>入口</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>工作台卡片跳转</td>
+                <td>/after-sales</td>
+                <td><span class="tag">已接入</span></td>
+              </tr>
+              <tr>
+                <td>新增售后选择来源并预览派生单据</td>
+                <td>/after-sales/services?action=new</td>
+                <td><span class="tag">已接入</span></td>
+              </tr>
+              <tr>
+                <td>派生单据状态反写售后主单</td>
+                <td>/after-sales/services?id=as_001</td>
+                <td><span class="tag">已接入</span></td>
+              </tr>
+              <tr>
+                <td>任务列表和派生单据一致</td>
+                <td>/after-sales/tasks</td>
+                <td><span class="tag">已接入</span></td>
+              </tr>
+              <tr>
+                <td>质量闭环从售后升级并持续追踪</td>
+                <td>/after-sales/quality</td>
+                <td><span class="tag">已接入</span></td>
+              </tr>
+              <tr>
+                <td>售后设置第一阶段字典维护</td>
+                <td>/after-sales/settings</td>
+                <td><span class="tag">已接入</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>海南傲为 ERP Vue3 客户设置样板</title>
+    <link rel="stylesheet" href="./src/styles/tokens.css" />
+    <link rel="stylesheet" href="./src/styles/aw-console.css" />
+  </head>
+  <body>
+    <div data-screen-label="ERP Console">
+      <div class="aw-topbar">
+        <div class="brand">海南傲为智慧</div>
+        <div class="tabs"><span class="tab">▣ PRD</span><span class="tab">⌁ 研发</span><span class="tab">◈ 采购</span><a class="tab on" href="./preview-framework.html" onclick="location.href='./preview-framework.html';return false">▣ 销售</a><span class="tab">☎ 售后</span><span class="tab">▤ 仓储</span><span class="tab">⚙ 生产</span><span class="tab">✓ 质检</span><span class="tab">¥ 财务</span><span class="tab">♟ 人力</span><span class="tab">⚙ 设置</span></div>
+        <div class="right"><button class="ic aw-top-help" type="button">?</button><button class="aw-top-notice" type="button">●<span class="aw-top-notice-badge">4</span></button><div class="av">夏</div><span>老夏 ▾</span></div>
+      </div>
+      <div class="aw-shell">
+        <aside class="aw-side">
+          <h4>销售中心</h4>
+          <a class="item" href="./preview-framework.html"><span class="dot">○</span> 工作台</a><div class="item on" data-flyout-trigger="customer"><span class="dot">○</span> 客户管理</div><div class="item"><span class="dot">○</span> 销售计划</div><div class="item"><span class="dot">○</span> 报价管理</div><div class="item"><span class="dot">○</span> 合同管理</div><div class="item"><span class="dot">○</span> 订单管理</div><div class="item"><span class="dot">○</span> 销售退货</div><div class="item"><span class="dot">○</span> 销售换货</div><div class="item"><span class="dot">○</span> 销售报表</div>
+          <div class="aw-flyout" data-flyout="customer" style="top:92px;display:none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">客户管理</div><div class="aw-flyout-items"><a href="./preview-customer-new.html">添加客户</a><a href="./preview-customer-list.html">客户列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">客户设置</div><div class="aw-flyout-items"><a href="./preview-customer-setting.html?type=groups">客户分组设置</a><a href="./preview-customer-setting.html?type=fields">客户自定义字段</a><a href="./preview-customer-setting.html?type=numbers">客户自定义编号</a><a href="./preview-customer-setting.html?type=levels">客户等级设置</a><a href="./preview-customer-setting.html?type=approvals">客户审批设置</a><a href="./preview-customer-setting.html?type=strategies">客户策略设置</a></div></div>
+          </div>
+        </aside>
+        <main class="aw-main">
+          <div class="aw-page-head"><span class="aw-page-title" id="pageTitle">客户设置</span></div>
+          <div class="aw-setting-page">
+            <section class="aw-detail-toolbar">
+              <button class="aw-back-btn" type="button" onclick="location.href='./preview-customer-list.html'"><span class="aw-line-icon line-back"></span>返回客户列表</button>
+              <div class="aw-detail-actions">
+                <button id="refreshBtn" class="aw-tool-btn" type="button">刷新</button>
+                <button id="addBtn" class="aw-btn primary" type="button" onclick="handleAddSetting()">新增</button>
+                <div id="approvalTopActions" class="aw-detail-actions" style="display:none">
+                  <button class="aw-tool-btn" type="button" onclick="closeApprovalEditor()">取消</button>
+                  <button class="aw-tool-btn" type="button">编辑</button>
+                  <button class="aw-btn primary" type="button" onclick="confirmApprovalEditor()">保存</button>
+                </div>
+              </div>
+            </section>
+            <section id="groupSplit" class="aw-setting-split" style="display:none">
+              <aside class="aw-setting-tree"><div class="aw-setting-tree-title aw-setting-tree-title-row"><span>客户分类</span><button id="addRootBtn" class="aw-icon-btn" type="button" title="新增客户分类" onclick="openRootModal()">+</button></div><div id="groupTree"></div></aside>
+              <section class="aw-form-card aw-setting-list-card">
+                <div class="aw-setting-head">
+                  <div><div class="aw-detail-section-title" id="groupTitle">重点客户</div><p id="groupRemark">重点维护高价值客户，默认执行A级授信和月结30天策略。</p></div>
+                  <div class="aw-search aw-setting-search"><span class="aw-line-icon line-search"></span><input id="groupSearch" placeholder="搜索下级分类名称/编号" /></div>
+                </div>
+                <div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl"><thead><tr><th style="width:70px">序号</th><th>分组名称</th><th>上级分组</th><th>分组编号</th><th style="width:100px">客户数量</th><th style="width:90px">状态</th><th style="width:150px">操作</th></tr></thead><tbody id="groupBody"></tbody></table></div></div>
+              </section>
+            </section>
+            <section id="fieldSplit" class="aw-setting-split" style="display:none">
+              <aside class="aw-setting-tree"><div class="aw-setting-tree-title">字段位置</div><div id="fieldTree"></div></aside>
+              <section class="aw-form-card aw-setting-list-card">
+                <div class="aw-setting-head">
+                  <div><div class="aw-detail-section-title" id="fieldTitle">基础信息</div><p>配置要显示在当前区域内的客户自定义字段。</p></div>
+                  <div class="aw-search aw-setting-search"><span class="aw-line-icon line-search"></span><input id="fieldSearch" placeholder="搜索字段名称/编码" /></div>
+                </div>
+                <div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl"><thead><tr><th style="width:70px">序号</th><th>字段名称</th><th>字段编码</th><th>字段类型</th><th style="width:110px">是否必填</th><th style="width:110px">是否启用</th><th style="width:150px">操作</th></tr></thead><tbody id="fieldBody"></tbody></table></div></div>
+              </section>
+            </section>
+            <section id="numberSplit" class="aw-code-builder" style="display:none">
+              <section class="aw-form-card aw-code-preview-card">
+                <div class="aw-code-preview-hero">
+                  <div class="aw-barcode" aria-hidden="true"></div>
+                  <div><span>当前样式：</span><strong id="numberPreview">AA</strong></div>
+                </div>
+                <div class="aw-code-picked-head"><strong>已选编号项</strong><span id="numberPickCount">1 / 5</span></div>
+                <div id="numberPicked"></div>
+              </section>
+              <section class="aw-form-card aw-code-config-card">
+                <div class="aw-code-rule-grid">
+                  <label class="aw-field"><span><b>*</b>规则名称</span><input id="numberRuleName" placeholder="填写编号规则名称" /></label>
+                  <label class="aw-field"><span><b>*</b>规则编码</span><input id="numberRuleCode" placeholder="填写编号规则编码" /></label>
+                  <label class="aw-field"><span>间隔符</span><input id="numberSeparator" value="-" oninput="setNumberSeparator(this.value)" /></label>
+                </div>
+                <div class="aw-divider-line"></div>
+                <div class="aw-detail-section-title">编号项</div>
+                <p class="aw-setting-note">前缀固定占 1 个名额，其余最多选择 4 项</p>
+                <div id="numberCandidates" class="aw-code-candidates"></div>
+                <div class="aw-divider-line"></div>
+                <div class="aw-setting-note">扩展项</div>
+                <div id="numberExtraCandidates" class="aw-code-candidates"></div>
+              </section>
+              <div class="aw-code-footer"><button class="aw-tool-btn" type="button" onclick="resetNumberRule()">重置</button><button class="aw-btn primary" type="button">保存</button></div>
+            </section>
+            <section id="normalSettingCard" class="aw-form-card">
+              <div class="aw-setting-head">
+                <div><div class="aw-detail-section-title" id="settingTitle">客户分组设置</div><p id="settingDesc"></p></div>
+                <div class="aw-search aw-setting-search"><span class="aw-line-icon line-search"></span><input id="settingSearch" placeholder="搜索" /></div>
+              </div>
+              <div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl"><thead><tr id="settingHead"></tr></thead><tbody id="settingBody"></tbody></table></div></div>
+            </section>
+            <section id="approvalEditorCard" class="aw-form-card aw-approval-editor" style="display:none">
+              <div class="aw-detail-section-title">审批规则设置</div>
+              <div class="aw-approval-basic-grid">
+                <label class="aw-field"><span><b>*</b>流程名称</span><input id="approvalNameInline" placeholder="请输入流程名称" /></label>
+              </div>
+              <div class="aw-detail-section-title">审批节点</div>
+              <div id="approvalInlineNodes" class="aw-approval-flow-strip"></div>
+            </section>
+            <section id="strategyPolicyCard" class="aw-form-card aw-policy-card" style="display:none">
+              <div class="aw-policy-head"><strong id="strategyPolicyTitle">客户策略设置</strong><span>用于控制业务逻辑、审批触发、转单回写和异常拦截规则</span></div>
+              <div id="strategyPolicyTabs" class="aw-tabs"></div>
+              <div id="strategyPolicyRows" class="aw-policy-list"></div>
+              <div class="aw-policy-foot"><button class="aw-tool-btn" type="button">重置默认</button><button class="aw-btn primary" type="button">保存</button></div>
+            </section>
+          </div>
+        </main>
+      </div>
+      <button class="aw-float-help" type="button">?</button>
+      <div id="rootModal" class="aw-modal-mask" style="display:none">
+        <div class="aw-modal aw-category-modal">
+          <div class="aw-modal-head"><strong>新增客户分类</strong><button id="closeRootModal" class="aw-modal-close" type="button" onclick="closeRootModalBox()">×</button></div>
+          <div class="aw-modal-body">
+            <label class="aw-field"><span>分类名称</span><input id="rootName" placeholder="请输入分类名称" /></label>
+            <label class="aw-field"><span>分类编号</span><input id="rootCode" placeholder="请输入分类编号" /></label>
+            <label class="aw-field aw-field-full"><span>分类备注</span><textarea id="rootRemark" placeholder="请输入分类备注"></textarea></label>
+          </div>
+          <div class="aw-modal-foot"><button id="cancelRootModal" class="aw-tool-btn" type="button" onclick="closeRootModalBox()">取消</button><button id="confirmRootModal" class="aw-btn primary" type="button" onclick="confirmRootCategory()">确定</button></div>
+        </div>
+      </div>
+      <div id="childModal" class="aw-modal-mask" style="display:none">
+        <div class="aw-modal aw-category-modal">
+          <div class="aw-modal-head"><strong>新增下级分类</strong><button class="aw-modal-close" type="button" onclick="closeChildModalBox()">×</button></div>
+          <div class="aw-modal-body">
+            <label class="aw-field"><span>分类名称</span><input id="childName" placeholder="请输入分类名称" /></label>
+            <label class="aw-field"><span>分类编号</span><input id="childCode" placeholder="请输入分类编号" /></label>
+            <label class="aw-field aw-field-full"><span>分类备注</span><textarea id="childRemark" placeholder="请输入分类备注"></textarea></label>
+          </div>
+          <div class="aw-modal-foot"><button class="aw-tool-btn" type="button" onclick="closeChildModalBox()">取消</button><button class="aw-btn primary" type="button" onclick="confirmChildCategory()">确定</button></div>
+        </div>
+      </div>
+      <div id="fieldModal" class="aw-modal-mask" style="display:none">
+        <div class="aw-modal aw-field-modal">
+          <div class="aw-modal-head"><strong>新增字段</strong><button class="aw-modal-close" type="button" onclick="closeFieldModal()">×</button></div>
+          <div class="aw-modal-body aw-field-config-body">
+            <label class="aw-field"><span><b>*</b>字段名称</span><input id="fieldName" placeholder="请输入字段名称" /></label>
+            <label class="aw-field"><span><b>*</b>字段编码</span><input id="fieldCode" placeholder="请输入字段编码" /></label>
+            <label class="aw-field"><span>字段类型</span><select id="fieldType"><option>文本</option><option>数字</option><option>日期</option><option>下拉</option><option>多选</option><option>附件</option></select></label>
+            <label class="aw-field aw-field-full"><span>是否必填</span><label class="aw-switch-line"><input id="fieldRequired" type="checkbox" /><i></i><em>是否必填</em></label></label>
+            <label class="aw-field"><span>默认值</span><input id="fieldDefault" placeholder="请输入默认值" /></label>
+            <label class="aw-field"><span>提示文字</span><input id="fieldPlaceholder" placeholder="请输入提示文字" /></label>
+            <div class="aw-field aw-field-full">
+              <div class="aw-form-sub-title">权限设置</div>
+              <div id="permissionCount" class="aw-permission-count">已设置权限人员（0）</div>
+              <div id="permissionBox" class="aw-permission-box"><div class="aw-permission-empty">暂未添加权限人员，点击下方按钮添加</div></div>
+              <button class="aw-btn primary aw-permission-add" type="button" onclick="openPersonPicker()">添加负责人</button>
+            </div>
+          </div>
+          <div class="aw-modal-foot"><button class="aw-tool-btn" type="button" onclick="closeFieldModal()">取消</button><button class="aw-btn primary" type="button" onclick="confirmFieldModal()">确定</button></div>
+        </div>
+      </div>
+      <div id="personPickerModal" class="aw-modal-mask" style="display:none">
+        <div class="aw-modal aw-person-picker-modal">
+          <div class="aw-modal-head"><strong>选择负责人</strong><button class="aw-modal-close" type="button" onclick="closePersonPicker()">×</button></div>
+          <div class="aw-picker-body">
+            <aside class="aw-picker-side">
+              <div class="aw-picker-search"><span class="aw-line-icon line-search"></span><input placeholder="搜索" /></div>
+              <div id="pickerTree"></div>
+            </aside>
+            <section class="aw-picker-main">
+              <div class="aw-picker-title"><strong id="pickerDeptTitle">采购部</strong><span id="pickerDeptCount">共 4 人</span></div>
+              <table class="aw-doc-tbl"><thead><tr><th style="width:44px"><input id="pickerAll" type="checkbox" onchange="togglePickerAll()" /></th><th>姓名</th><th>编号</th><th>角色</th><th>联系电话</th></tr></thead><tbody id="pickerBody"></tbody></table>
+            </section>
+          </div>
+          <div class="aw-modal-foot"><button class="aw-tool-btn" type="button" onclick="closePersonPicker()">取消</button><button class="aw-btn primary" type="button" onclick="confirmPickedPersons()">确认</button></div>
+        </div>
+      </div>
+      <div id="levelModal" class="aw-modal-mask" style="display:none">
+        <div class="aw-modal aw-category-modal">
+          <div class="aw-modal-head"><strong>新增等级</strong><button class="aw-modal-close" type="button" onclick="closeLevelModal()">×</button></div>
+          <div class="aw-modal-body">
+            <label class="aw-field"><span><b>*</b>等级名称</span><input id="levelName" placeholder="请输入等级名称" /></label>
+            <label class="aw-field"><span>是否启用</span><label class="aw-switch-line"><input id="levelEnabled" type="checkbox" checked /><i></i><em>是否启用</em></label></label>
+            <label class="aw-field aw-field-full"><span>备注</span><textarea id="levelRemark" placeholder="请输入备注"></textarea></label>
+          </div>
+          <div class="aw-modal-foot"><button class="aw-tool-btn" type="button" onclick="closeLevelModal()">取消</button><button class="aw-btn primary" type="button" onclick="confirmLevelModal()">确定</button></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const configs = {
+        groups:{title:"客户分组设置",desc:"维护客户分组、默认等级、默认状态和信用政策。",add:"新增下级分类",search:"搜索分组名称/编号",cols:[["name","分组名称"],["parent","上级分组"],["code","分组编号"],["policy","默认属性"],["count","客户数量"],["enabled","状态"]],rows:[{id:1,name:"重点客户",parent:"无",code:"CUST_GRP_KEY",policy:"A级 | 已审核 | 月结30天",remark:"重点维护高价值客户，默认执行A级授信和月结30天策略。",count:86,enabled:true},{id:2,name:"战略客户",parent:"无",code:"CUST_GRP_STRATEGIC",policy:"A级 | 跟进中 | 授信额度",remark:"用于长期合作、年度框架及重点项目客户，支持独立授信策略。",count:42,enabled:true},{id:3,name:"普通客户",parent:"无",code:"CUST_GRP_NORMAL",policy:"B级 | 已审核 | 现结",remark:"标准交易客户分类，默认按常规审核和现结规则执行。",count:95,enabled:true},{id:4,name:"渠道客户",parent:"无",code:"CUST_GRP_CHANNEL",policy:"B级 | 已审核 | 月结15天",remark:"经销商、代理商等渠道客户，默认使用渠道账期和分销策略。",count:15,enabled:true},{id:11,name:"华南重点客户",parent:"重点客户",code:"CUST_GRP_KEY_SC",policy:"A级 | 已审核 | 月结30天",count:28,enabled:true},{id:12,name:"海南重点客户",parent:"重点客户",code:"CUST_GRP_KEY_HN",policy:"A级 | 已审核 | 授信额度",count:18,enabled:true},{id:21,name:"年度框架客户",parent:"战略客户",code:"CUST_GRP_STR_FRAME",policy:"A级 | 跟进中 | 授信额度",count:12,enabled:true},{id:31,name:"临时交易客户",parent:"普通客户",code:"CUST_GRP_NORMAL_TEMP",policy:"C级 | 待审核 | 现结",count:23,enabled:true},{id:41,name:"经销商客户",parent:"渠道客户",code:"CUST_GRP_CHANNEL_DEALER",policy:"B级 | 已审核 | 月结15天",count:9,enabled:true}]},
+        fields:{title:"客户自定义字段",desc:"配置客户档案扩展字段，包含字段类型、必填、启用和排序。",add:"新增字段",search:"搜索字段名称/编码",cols:[["name","字段名称"],["code","字段编码"],["type","字段类型"],["required","是否必填"],["scope","所属分组"],["enabled","状态"]],rows:[{name:"客户来源",code:"customer_source",type:"下拉",required:"否",scope:"客户信息",enabled:true},{name:"合作偏好",code:"cooperation_preference",type:"文本",required:"否",scope:"客户详情",enabled:true},{name:"风险等级",code:"risk_level",type:"下拉",required:"是",scope:"基础信息",enabled:true},{name:"开户地址",code:"invoice_address",type:"文本",required:"否",scope:"财务信息",enabled:true},{name:"收货偏好",code:"delivery_preference",type:"文本",required:"否",scope:"地址信息",enabled:true}]},
+        numbers:{title:"客户自定义编号",desc:"维护客户编号规则，支持前缀、日期段、流水号和预览。",add:"设置规则",search:"搜索模块、表单、前缀、负责人",cols:[["name","规则名称"],["prefix","前缀"],["dateRule","日期规则"],["serial","流水位数"],["preview","编号预览"],["enabled","状态"]],rows:[{id:1,module:"销售中心",form:"客户表单",object:"客户",prefix:"CUS",sample:"CUS-202605-001",status:"启用",owner:"销售管理员",updated:"2026-05-15",dateRule:"年月",serial:"3位",separator:"-"},{id:2,module:"销售中心",form:"报价单",object:"报价",prefix:"QT",sample:"QT-202605-001",status:"启用",owner:"销售管理员",updated:"2026-05-15",dateRule:"年月",serial:"3位",separator:"-"},{id:3,module:"销售中心",form:"销售订单",object:"订单",prefix:"SO",sample:"SO-202605-001",status:"启用",owner:"销售管理员",updated:"2026-05-15",dateRule:"年月",serial:"3位",separator:"-"},{id:4,module:"采购中心",form:"供应商表单",object:"供应商",prefix:"SUP",sample:"SUP-202605-001",status:"启用",owner:"采购管理员",updated:"2026-05-16",dateRule:"年月",serial:"3位",separator:"-"},{id:5,module:"仓储中心",form:"入库单",object:"入库",prefix:"IN",sample:"IN-202605-001",status:"启用",owner:"仓储管理员",updated:"2026-05-14",dateRule:"年月",serial:"3位",separator:"-"},{id:6,module:"仓储中心",form:"调拨单",object:"调拨",prefix:"TR",sample:"TR-202605-001",status:"停用",owner:"仓储管理员",updated:"2026-05-12",dateRule:"年月",serial:"3位",separator:"-"},{id:7,module:"生产中心",form:"生产工单",object:"生产工单",prefix:"WO",sample:"WO-202605-001",status:"启用",owner:"生产管理员",updated:"2026-05-13",dateRule:"年月",serial:"3位",separator:"-"}]},
+        levels:{title:"客户等级设置",desc:"维护客户等级和启用状态。",add:"新增等级",search:"搜索等级名称",cols:[["name","等级名称"],["remark","备注"],["enabled","是否启用"]],rows:[{name:"A级",remark:"高价值客户等级",enabled:true},{name:"B级",remark:"稳定交易客户等级",enabled:true},{name:"C级",remark:"新客户或待评估客户等级",enabled:true}]},
+        approvals:{title:"客户审批设置",desc:"配置客户新增、资料变更、授信调整等审批流程。",add:"新增审批规则",search:"搜索流程名称/适用分类",cols:[["name","流程名称"],["category","适用分类"],["nodeCount","节点数"],["creator","创建人"],["updatedAt","更新时间"]],rows:[{id:1,name:"客户建档审批流程",category:"客户管理",nodes:[{name:"销售主管审批",approvers:"老夏",method:"顺签"},{name:"财务审批",approvers:"陈思源",method:"或签"}],creator:"老夏",updatedAt:"2026-05-17 14:30"},{id:2,name:"客户授信调整审批流程",category:"授信管理",nodes:[{name:"销售主管审批",approvers:"老夏",method:"顺签"},{name:"财务经理审批",approvers:"陈思源",method:"会签"}],creator:"陈思源",updatedAt:"2026-05-18 09:15"}]},
+        strategies:{title:"客户策略设置",desc:"维护客户信用、账期、停用和风险控制策略。",add:"新增策略",search:"搜索策略名称",cols:[["name","策略名称"],["type","策略类型"],["rule","策略规则"],["scope","适用范围"],["enabled","状态"]],rows:[{name:"超额拦截",type:"信用策略",rule:"超过可用额度需审批或提前收款",scope:"授信客户",enabled:true},{name:"逾期提醒",type:"账期策略",rule:"逾期未回款自动提醒销售负责人",scope:"月结客户",enabled:true}]}
+      };
+      const customerApprovalOptions = ["客户建档审批流程","客户授信调整审批流程"];
+      const customerGroupCounts = { "重点客户":1, "战略客户":1, "普通客户":1, "渠道客户":1 };
+      const strategyPolicyConfig = {
+        title: "客户策略设置",
+        tabs: [
+          { k:"archive", label:"客户建档", rows:[
+            { title:"客户建档审批流程", sub:"新增客户提交后按指定审批流处理；可用于校验客户名称、信用代码、客户分组和客户经理。", type:"select", value:"客户建档审批流程", options:customerApprovalOptions },
+            { title:"客户经理绑定规则", sub:"客户经理必须从销售人员中选择；客户被报价、合同、订单引用后，客户经理变更需要保留操作记录。", defaultOn:true },
+            { title:"客户分组变更审批流程", sub:"客户分组影响报价适用范围，变更分组时可指定审批流。", type:"select", value:"客户建档审批流程", options:customerApprovalOptions }
+          ]},
+          { k:"finance", label:"财务与默认信息", rows:[
+            { title:"默认地址调整审批流程", sub:"新增订单自动带入客户档案默认联系人、默认收货地址、客户经理和销售电话；如订单中调整默认收货地址，按指定审批流处理。", type:"select", value:"客户授信调整审批流程", options:customerApprovalOptions },
+            { title:"客户停用控制", sub:"客户停用后，报价、合同、订单新增页的客户选择器拦截该客户并提示停用原因；历史单据仍可查看、回款和开票。", defaultOn:true }
+          ]},
+          { k:"approval", label:"审批规则", rows:[
+            { title:"客户修改审批流程", sub:"客户已提交、已审批或已生效后，如果修改关键字段，按指定审批流处理。", type:"select", value:"客户建档审批流程", options:customerApprovalOptions },
+            { title:"客户终止审批流程", sub:"客户提前终止、异常关闭、作废或撤回时，必须填写原因并按指定审批流处理。", type:"select", value:"客户授信调整审批流程", options:customerApprovalOptions }
+          ]}
+        ]
+      };
+      let activeStrategyTab = strategyPolicyConfig.tabs[0].k;
+      const params = new URLSearchParams(location.search);
+      const key = params.get("type") || "groups";
+      const config = configs[key] || configs.groups;
+      let rows = config.rows.map((row, index) => ({ id:index + 1, ...row }));
+      let activeRootId = rows.find((row) => row.parent === "无")?.id;
+      const isGroupSetting = key === "groups";
+      const isFieldSetting = key === "fields";
+      const isNumberSetting = key === "numbers";
+      const isLevelSetting = key === "levels";
+      const isApprovalSetting = key === "approvals";
+      const isStrategySetting = key === "strategies";
+      const fieldScopes = ["基础信息","客户信息","财务信息","地址信息","附件信息","客户详情"];
+      let activeFieldScope = fieldScopes[0];
+      let fieldPermissions = [];
+      const numberCandidateData = [
+        { k:"y4", label:"年（4位）", preview:"2025", group:"year" },
+        { k:"y2", label:"年（2位）", preview:"25", group:"year" },
+        { k:"m", label:"月（2位）", preview:"05" },
+        { k:"d", label:"日（2位）", preview:"15" },
+        { k:"s3", label:"流水号（3位）", preview:"001", group:"seq" },
+        { k:"s1", label:"流水号（1位）", preview:"1", group:"seq" },
+        { k:"cc1", label:"自定义代码1", preview:"C1" },
+        { k:"cc2", label:"自定义代码2", preview:"C2" }
+      ];
+      let numberSelected = [];
+      let numberSeparatorValue = "-";
+      let numberPrefixValue = "AA";
+      let numberSearchFlags = {};
+      let numberCodeValues = { cc1:"C1", cc2:"C2" };
+      let numberLabelValues = { cc1:"自定义代码1", cc2:"自定义代码2" };
+      const pickerPersonsMap = {
+        "傲为智慧有限公司": [],
+        "采购部": [{id:"100001",name:"丁昌容",role:"采购人员",phone:"13500001111"},{id:"100002",name:"纪广",role:"采购人员",phone:"13500002222"},{id:"100003",name:"庞慧",role:"采购人员",phone:"13500003333"},{id:"100004",name:"顾伦",role:"采购人员",phone:"13500004444"}],
+        "采购一部": [{id:"100001",name:"丁昌容",role:"采购人员",phone:"13500001111"},{id:"100002",name:"纪广",role:"采购人员",phone:"13500002222"}],
+        "采购二部": [{id:"100003",name:"庞慧",role:"采购人员",phone:"13500003333"},{id:"100004",name:"顾伦",role:"采购人员",phone:"13500004444"}],
+        "设计部": [{id:"200001",name:"林悦",role:"UI设计师",phone:"13600001111"},{id:"200002",name:"何志远",role:"平面设计师",phone:"13600002222"}],
+        "产品部": [{id:"300001",name:"苏婉清",role:"产品经理",phone:"13700001111"},{id:"300002",name:"赵一鸣",role:"产品经理",phone:"13700002222"}],
+        "销售部": [{id:"400001",name:"陈志强",role:"销售经理",phone:"13800001111"},{id:"400002",name:"刘芳",role:"销售代表",phone:"13800002222"}]
+      };
+      const pickerDepartments = ["傲为智慧有限公司","采购部","采购一部","采购二部","设计部","产品部","销售部"];
+      let pickerDept = "采购部";
+      let pickedPersons = [];
+      let pickerMode = "field";
+      let approvalPickerIndex = null;
+      let approvalLockedNames = [];
+      window.openRootModal = function openRootModal() {
+        document.getElementById("rootModal").style.display = "flex";
+      };
+      window.closeRootModalBox = function closeRootModalBox() {
+        document.getElementById("rootModal").style.display = "none";
+      };
+      window.openChildModal = function openChildModal() {
+        document.getElementById("childName").value = "";
+        document.getElementById("childCode").value = "";
+        document.getElementById("childRemark").value = "";
+        document.getElementById("childModal").style.display = "flex";
+      };
+      window.closeChildModalBox = function closeChildModalBox() {
+        document.getElementById("childModal").style.display = "none";
+      };
+      window.confirmRootCategory = function confirmRootCategory() {
+        const rootNameEl = document.getElementById("rootName");
+        const rootCodeEl = document.getElementById("rootCode");
+        const rootRemarkEl = document.getElementById("rootRemark");
+        const name = rootNameEl.value.trim();
+        if (!name) return;
+        const id = Date.now();
+        rows.push({ id, name, parent:"无", code:rootCodeEl.value.trim() || "CUST_GRP_ROOT", policy:"未设置", remark:rootRemarkEl.value.trim() || "暂无分类备注", count:0, enabled:true });
+        activeRootId = id;
+        rootNameEl.value = "";
+        rootCodeEl.value = "";
+        rootRemarkEl.value = "";
+        closeRootModalBox();
+        render();
+      };
+      window.confirmChildCategory = function confirmChildCategory() {
+        const childNameEl = document.getElementById("childName");
+        const childCodeEl = document.getElementById("childCode");
+        const childRemarkEl = document.getElementById("childRemark");
+        const name = childNameEl.value.trim();
+        if (!name) return;
+        const parent = activeRoot();
+        rows.push({ id:Date.now(), name, parent:parent?.name || "无", code:childCodeEl.value.trim() || "CUST_GRP_CHILD", policy:"未设置", remark:childRemarkEl.value.trim(), count:0, enabled:true });
+        closeChildModalBox();
+        render();
+      };
+      window.openFieldModal = function openFieldModal() {
+        document.getElementById("fieldModal").style.display = "flex";
+        renderFieldPermissions();
+      };
+      window.closeFieldModal = function closeFieldModal() {
+        document.getElementById("fieldModal").style.display = "none";
+      };
+      window.renderFieldPermissions = function renderFieldPermissions() {
+        const box = document.getElementById("permissionBox");
+        document.getElementById("permissionCount").textContent = `已设置权限人员（${fieldPermissions.length}）`;
+        box.innerHTML = fieldPermissions.length ? `<table class="aw-permission-table"><thead><tr><th>姓名</th><th>部门</th><th>职位</th><th style="width:110px">是否可见</th></tr></thead><tbody>${fieldPermissions.map((person, index) => `<tr><td>${person.name}</td><td>${person.dept || ""}</td><td>${person.role || ""}</td><td><label class="aw-switch-line mini"><input type="checkbox" ${person.visible ? "checked" : ""} onchange="fieldPermissions[${index}].visible=this.checked"><i></i></label></td></tr>`).join("")}</tbody></table>` : `<div class="aw-permission-empty">暂未添加权限人员，点击下方按钮添加</div>`;
+      };
+      window.addPermissionPerson = function addPermissionPerson() {
+        fieldPermissions.push({ name:`负责人${fieldPermissions.length + 1}`, visible:true });
+        renderFieldPermissions();
+      };
+      window.openPersonPicker = function openPersonPicker() {
+        pickerMode = "field";
+        approvalLockedNames = [];
+        pickedPersons = [];
+        document.getElementById("personPickerModal").style.display = "flex";
+        renderPersonPicker();
+      };
+      window.closePersonPicker = function closePersonPicker() {
+        document.getElementById("personPickerModal").style.display = "none";
+        approvalLockedNames = [];
+      };
+      window.renderPersonPicker = function renderPersonPicker() {
+        const persons = pickerPersonsMap[pickerDept] || [];
+        pickerTree.innerHTML = pickerDepartments.map((dept) => `<button class="aw-picker-tree-row ${dept === pickerDept ? "on" : ""}" type="button" onclick="pickerDept='${dept}';pickedPersons=[];renderPersonPicker()"><span>${dept === "傲为智慧有限公司" || dept === "采购部" ? "▼" : ""}</span>${dept}</button>`).join("");
+        pickerDeptTitle.textContent = pickerDept;
+        pickerDeptCount.textContent = `共 ${persons.length} 人`;
+        const selectablePersons = persons.filter((person) => !approvalLockedNames.includes(person.name));
+        pickerAll.checked = selectablePersons.length > 0 && selectablePersons.every((person) => pickedPersons.some((item) => item.id === person.id));
+        pickerBody.innerHTML = persons.map((person) => {
+          const locked = pickerMode === "approval" && approvalLockedNames.includes(person.name);
+          const checked = locked || pickedPersons.some((item) => item.id === person.id);
+          return `<tr class="${locked ? "is-locked" : ""}" onclick="togglePickedPerson('${person.id}')"><td><input type="checkbox" ${checked ? "checked" : ""} ${locked ? "disabled" : ""} onclick="event.stopPropagation()" onchange="togglePickedPerson('${person.id}')" /></td><td>${person.name}</td><td>${person.id}</td><td>${person.role}</td><td>${person.phone}</td></tr>`;
+        }).join("");
+      };
+      window.togglePickedPerson = function togglePickedPerson(id) {
+        const person = (pickerPersonsMap[pickerDept] || []).find((item) => item.id === id);
+        if (!person) return;
+        if (pickerMode === "approval" && approvalLockedNames.includes(person.name)) return;
+        pickedPersons = pickedPersons.some((item) => item.id === id) ? pickedPersons.filter((item) => item.id !== id) : [...pickedPersons, person];
+        renderPersonPicker();
+      };
+      window.togglePickerAll = function togglePickerAll() {
+        const persons = pickerPersonsMap[pickerDept] || [];
+        const selectablePersons = pickerMode === "approval" ? persons.filter((person) => !approvalLockedNames.includes(person.name)) : persons;
+        const allChecked = selectablePersons.length > 0 && selectablePersons.every((person) => pickedPersons.some((item) => item.id === person.id));
+        pickedPersons = allChecked ? [] : [...selectablePersons];
+        renderPersonPicker();
+      };
+      window.confirmPickedPersons = function confirmPickedPersons() {
+        if (pickerMode === "approval" && approvalPickerIndex !== null) {
+          syncApprovalInlineFromDom();
+          const names = pickedPersons.map((person) => person.name);
+          const existing = (approvalNodes[approvalPickerIndex]?.approvers || "").split(/[，,]/).map((name) => name.trim()).filter(Boolean);
+          approvalNodes[approvalPickerIndex].approvers = [...new Set([...existing, ...names])].join("，");
+          pickerMode = "field";
+          approvalPickerIndex = null;
+          closePersonPicker();
+          renderApprovalInlineNodes();
+          return;
+        }
+        pickedPersons.forEach((person) => {
+          if (!fieldPermissions.some((item) => item.name === person.name)) fieldPermissions.push({ name:person.name, dept:pickerDept, role:person.role, visible:true });
+        });
+        closePersonPicker();
+        renderFieldPermissions();
+      };
+      window.confirmFieldModal = function confirmFieldModal() {
+        const nameEl = document.getElementById("fieldName");
+        const codeEl = document.getElementById("fieldCode");
+        const typeEl = document.getElementById("fieldType");
+        const requiredEl = document.getElementById("fieldRequired");
+        const defaultEl = document.getElementById("fieldDefault");
+        const placeholderEl = document.getElementById("fieldPlaceholder");
+        const name = nameEl.value.trim();
+        if (!name) return;
+        rows.push({ id:Date.now(), name, code:codeEl.value.trim() || "custom_field", type:typeEl.value, required:requiredEl.checked ? "是" : "否", defaultValue:defaultEl.value.trim(), placeholder:placeholderEl.value.trim(), permissions:fieldPermissions.map((item) => ({...item})), scope:activeFieldScope, enabled:true });
+        nameEl.value = "";
+        codeEl.value = "";
+        typeEl.value = "文本";
+        requiredEl.checked = false;
+        defaultEl.value = "";
+        placeholderEl.value = "";
+        fieldPermissions = [];
+        renderFieldPermissions();
+        closeFieldModal();
+        render();
+      };
+      window.openLevelModal = function openLevelModal() {
+        document.getElementById("levelModal").style.display = "flex";
+      };
+      window.closeLevelModal = function closeLevelModal() {
+        document.getElementById("levelModal").style.display = "none";
+      };
+      window.confirmLevelModal = function confirmLevelModal() {
+        const nameEl = document.getElementById("levelName");
+        const enabledEl = document.getElementById("levelEnabled");
+        const remarkEl = document.getElementById("levelRemark");
+        const name = nameEl.value.trim();
+        if (!name) return;
+        rows.push({ id:Date.now(), name, remark:remarkEl.value.trim(), enabled:enabledEl.checked });
+        nameEl.value = "";
+        remarkEl.value = "";
+        enabledEl.checked = true;
+        closeLevelModal();
+        render();
+      };
+      let editingApprovalId = null;
+      let approvalNodes = [];
+      let activeApprovalNode = 1;
+      function syncApprovalInlineFromDom() {
+        approvalNodes = [...document.querySelectorAll(".aw-approval-card")].map((card) => ({
+          name: card.querySelector(".approval-node-name-inline").value.trim(),
+          approvers: card.querySelector(".approval-node-approvers-inline").dataset.value || "",
+          method: card.querySelector("input[type='radio']:checked")?.value || "依次审批"
+        }));
+      }
+      window.renderApprovalInlineNodes = function renderApprovalInlineNodes() {
+        approvalInlineNodes.innerHTML = approvalNodes.map((node, index) => {
+          const picked = (node.approvers || "").split(/[，,]/).map((name) => name.trim()).filter(Boolean);
+          return `${index > 0 ? `<div class="aw-approval-arrow">→</div>` : ""}<div class="aw-approval-card ${activeApprovalNode === index ? "on" : ""}" onclick="activeApprovalNode=${index};renderApprovalInlineNodes()"><button class="aw-approval-remove" type="button" onclick="event.stopPropagation();removeApprovalInlineNode(${index})">×</button><div class="aw-approval-card-title">节点 ${index + 1}</div><label>节点名称<input class="approval-node-name-inline" value="${node.name || ""}" placeholder="填写审批节点名称" onclick="event.stopPropagation()" oninput="syncApprovalInlineFromDom()" /></label><label>审批人<div class="approval-node-approvers-inline aw-approval-person-input" data-value="${node.approvers || ""}" onclick="event.stopPropagation();openApprovalApproverPicker(${index})">请选择负责人  +</div>${picked.length ? `<div class="aw-approval-picked">${picked.map((name) => `<span>${name}<button type="button" onclick="event.stopPropagation();removeApprovalApprover(${index}, '${name}')">×</button></span>`).join("")}</div>` : ""}</label><div class="aw-approval-methods"><div>审批方式</div>${["依次审批","会签","或签"].map((method) => `<label onclick="event.stopPropagation();setApprovalMethod(${index}, '${method}')"><input type="radio" name="approvalMethod${index}" value="${method}" ${node.method === method ? "checked" : ""} onclick="event.stopPropagation();setApprovalMethod(${index}, '${method}')" /><span>${method}</span><em>${method === "依次审批" ? "按先后顺序，一人同意才流转到下一人" : method === "会签" ? "所选人员必须全部审批后进入下一节点" : "选中的人里只要有一人同意即可"}</em></label>`).join("")}</div></div>`;
+        }).join("") + `<button class="aw-approval-add-card" type="button" onclick="addApprovalInlineNode()">+ 添加节点</button>`;
+      };
+      window.setApprovalMethod = function setApprovalMethod(index, method) {
+        syncApprovalInlineFromDom();
+        if (!approvalNodes[index]) return;
+        approvalNodes[index].method = method;
+        activeApprovalNode = index;
+        renderApprovalInlineNodes();
+      };
+      window.removeApprovalApprover = function removeApprovalApprover(index, name) {
+        syncApprovalInlineFromDom();
+        const names = (approvalNodes[index]?.approvers || "").split(/[，,]/).map((item) => item.trim()).filter(Boolean);
+        approvalNodes[index].approvers = names.filter((item) => item !== name).join("，");
+        renderApprovalInlineNodes();
+      };
+      window.openApprovalApproverPicker = function openApprovalApproverPicker(index) {
+        syncApprovalInlineFromDom();
+        pickerMode = "approval";
+        approvalPickerIndex = index;
+        approvalLockedNames = (approvalNodes[index]?.approvers || "").split(/[，,]/).map((name) => name.trim()).filter(Boolean);
+        pickedPersons = [];
+        document.getElementById("personPickerModal").style.display = "flex";
+        renderPersonPicker();
+      };
+      window.openApprovalEditor = function openApprovalEditor(id) {
+        const row = rows.find((item) => item.id === Number(id));
+        editingApprovalId = row?.id || null;
+        approvalNameInline.value = row?.name || "";
+        approvalNodes = row?.nodes?.map((node) => ({ name:node.name, approvers:node.approvers, method:node.method === "顺签" ? "依次审批" : node.method })) || [
+          { name:"", approvers:"", method:"依次审批" },
+          { name:"", approvers:"", method:"依次审批" },
+          { name:"", approvers:"", method:"依次审批" }
+        ];
+        activeApprovalNode = Math.min(1, approvalNodes.length - 1);
+        normalSettingCard.style.display = "none";
+        approvalEditorCard.style.display = "block";
+        refreshBtn.style.display = "none";
+        addBtn.style.display = "none";
+        approvalTopActions.style.display = "flex";
+        renderApprovalInlineNodes();
+      };
+      window.closeApprovalEditor = function closeApprovalEditor() {
+        approvalEditorCard.style.display = "none";
+        normalSettingCard.style.display = "block";
+        render();
+      };
+      window.addApprovalInlineNode = function addApprovalInlineNode() {
+        syncApprovalInlineFromDom();
+        approvalNodes.push({ name:"", approvers:"", method:"依次审批" });
+        activeApprovalNode = approvalNodes.length - 1;
+        renderApprovalInlineNodes();
+      };
+      window.removeApprovalInlineNode = function removeApprovalInlineNode(index) {
+        syncApprovalInlineFromDom();
+        if (approvalNodes.length <= 1) return;
+        approvalNodes = approvalNodes.filter((_, idx) => idx !== index);
+        activeApprovalNode = Math.max(0, Math.min(activeApprovalNode, approvalNodes.length - 1));
+        renderApprovalInlineNodes();
+      };
+      window.confirmApprovalEditor = function confirmApprovalEditor() {
+        syncApprovalInlineFromDom();
+        const name = approvalNameInline.value.trim();
+        if (!name) return;
+        const currentApprovalRow = rows.find((item) => item.id === editingApprovalId);
+        const next = { id:editingApprovalId || Date.now(), name, category:currentApprovalRow?.category || "客户管理", nodes:approvalNodes.filter((node) => node.name || node.approvers).map((node) => ({...node})), creator:"老夏", updatedAt:"2026-05-26 10:00" };
+        rows = editingApprovalId ? rows.map((row) => row.id === editingApprovalId ? next : row) : [...rows, next];
+        closeApprovalEditor();
+      };
+      function rootRows() {
+        return rows.filter((row) => row.parent === "无");
+      }
+      function activeRoot() {
+        return rootRows().find((row) => row.id === activeRootId) || rootRows()[0];
+      }
+      function childRows() {
+        const root = activeRoot();
+        const text = groupSearch.value.trim();
+        const children = rows.filter((row) => row.parent === root?.name);
+        return text ? children.filter((row) => Object.values(row).some((value) => String(value).includes(text))) : children;
+      }
+      function categoryCustomerCount(name) {
+        return customerGroupCounts[name] || 0;
+      }
+      function renderGroupSetting() {
+        normalSettingCard.style.display = "none";
+        groupSplit.style.display = "grid";
+        groupTitle.textContent = activeRoot()?.name || "客户分组设置";
+        groupRemark.textContent = activeRoot()?.remark || "暂无分类备注";
+        groupTree.innerHTML = rootRows().map((row) => `<button class="aw-setting-tree-row ${row.id === activeRootId ? "on" : ""}" type="button" data-id="${row.id}" onclick="selectGroup(${row.id})"><span class="aw-line-icon line-users"></span><span>${row.name}</span><em>${categoryCustomerCount(row.name)}</em></button>`).join("");
+        groupBody.innerHTML = childRows().map((row, index) => `<tr><td>${index + 1}</td><td>${row.name}</td><td>${row.parent}</td><td>${row.code}</td><td>${categoryCustomerCount(row.name)}</td><td><label class="aw-switch-line mini"><input type="checkbox" ${row.enabled ? "checked" : ""} onchange="toggleGroupEnabled(${row.id}, this.checked)"><i></i></label></td><td><span class="aw-link">编辑</span><span class="aw-action-split">|</span><span class="aw-link delete-row" data-id="${row.id}" style="color:var(--aw-danger)">删除</span></td></tr>`).join("");
+        document.querySelectorAll(".aw-setting-tree-row").forEach((item) => item.onclick = () => { activeRootId = Number(item.dataset.id); groupSearch.value = ""; render(); });
+        bindRowActions();
+      }
+      window.selectGroup = function selectGroup(id) {
+        activeRootId = Number(id);
+        groupSearch.value = "";
+        render();
+      };
+      function bindRowActions() {
+        document.querySelectorAll(".delete-row").forEach((item) => item.onclick = () => { if (rows.length <= 1) return; rows = rows.filter((r) => r.id !== Number(item.dataset.id)); render(); });
+      }
+      window.toggleGroupEnabled = function toggleGroupEnabled(id, checked) {
+        const row = rows.find((item) => item.id === id);
+        if (row) row.enabled = checked;
+      };
+      function fieldRows() {
+        const text = fieldSearch.value.trim();
+        const scoped = rows.filter((row) => row.scope === activeFieldScope);
+        return text ? scoped.filter((row) => Object.values(row).some((value) => String(value).includes(text))) : scoped;
+      }
+      function renderFieldSetting() {
+        normalSettingCard.style.display = "none";
+        groupSplit.style.display = "none";
+        fieldSplit.style.display = "grid";
+        fieldTitle.textContent = activeFieldScope;
+        fieldTree.innerHTML = fieldScopes.map((scope) => `<button class="aw-setting-tree-row ${scope === activeFieldScope ? "on" : ""}" type="button" onclick="selectFieldScope('${scope}')"><span class="aw-line-icon line-doc"></span><span>${scope}</span><em>${rows.filter((row) => row.scope === scope).length}</em></button>`).join("");
+        fieldBody.innerHTML = fieldRows().map((row, index) => `<tr><td>${index + 1}</td><td>${row.name}</td><td>${row.code}</td><td>${row.type}</td><td><label class="aw-switch-line mini"><input type="checkbox" ${row.required === "是" ? "checked" : ""} onchange="toggleFieldRequired(${row.id}, this.checked)"><i></i></label></td><td><label class="aw-switch-line mini"><input type="checkbox" ${row.enabled ? "checked" : ""} onchange="toggleFieldEnabled(${row.id}, this.checked)"><i></i></label></td><td><span class="aw-link">编辑</span><span class="aw-action-split">|</span><span class="aw-link delete-row" data-id="${row.id}" style="color:var(--aw-danger)">删除</span></td></tr>`).join("");
+        bindRowActions();
+      }
+      window.toggleFieldRequired = function toggleFieldRequired(id, checked) {
+        const row = rows.find((item) => item.id === id);
+        if (row) row.required = checked ? "是" : "否";
+      };
+      window.toggleFieldEnabled = function toggleFieldEnabled(id, checked) {
+        const row = rows.find((item) => item.id === id);
+        if (row) row.enabled = checked;
+      };
+      window.selectFieldScope = function selectFieldScope(scope) {
+        activeFieldScope = scope;
+        fieldSearch.value = "";
+        render();
+      };
+      function numberPreviewValue(key) {
+        return key === "cc1" || key === "cc2" ? numberCodeValues[key] : numberCandidateData.find((item) => item.k === key)?.preview || "";
+      }
+      function renderNumberSetting() {
+        normalSettingCard.style.display = "none";
+        groupSplit.style.display = "none";
+        fieldSplit.style.display = "none";
+        numberSplit.style.display = "grid";
+        addBtn.textContent = "保存";
+        const rest = numberSelected.map(numberPreviewValue).join(numberSeparatorValue);
+        numberPreview.innerHTML = rest ? `<span class="aw-code-preview-prefix">${numberPrefixValue}${numberSeparatorValue}</span><span class="aw-code-preview-items">${rest}</span>` : `<span class="aw-code-preview-prefix">${numberPrefixValue}</span>`;
+        numberPickCount.textContent = `${numberSelected.length + 1} / 5`;
+        numberPicked.innerHTML = `<div class="aw-code-picked fixed"><span class="aw-line-icon line-lock"></span><strong>前缀</strong><input value="${numberPrefixValue}" oninput="setNumberPrefix(this.value)" /><label class="aw-switch-line mini"><em>搜索项</em><input type="checkbox" ${numberSearchFlags.prefix ? "checked" : ""} onchange="toggleNumberSearch('prefix')" /><i></i></label></div>` +
+          (numberSelected.length ? numberSelected.map((key, index) => {
+            const item = numberCandidateData.find((candidate) => candidate.k === key);
+            const custom = key === "cc1" || key === "cc2";
+            return `<div class="aw-code-picked" draggable="true" ondragstart="startNumberDrag(${index})" ondragover="event.preventDefault()" ondrop="dropNumberItem(${index})"><span class="aw-code-drag">⠿</span><strong>${item.label}</strong>${custom ? `<input value="${numberLabelValues[key]}" oninput="setNumberLabel('${key}',this.value)" /><input value="${numberCodeValues[key]}" oninput="setNumberCode('${key}',this.value)" />` : ""}<label class="aw-switch-line mini"><em>搜索项</em><input type="checkbox" ${numberSearchFlags[key] ? "checked" : ""} onchange="toggleNumberSearch('${key}')" /><i></i></label><button type="button" onclick="removeNumberItem('${key}')">×</button></div>`;
+          }).join("") : `<div class="aw-code-empty">暂未选择编号项</div>`);
+        numberCandidates.innerHTML = `<button class="aw-code-card fixed" type="button"><em>1</em><strong>前缀</strong><span>预览值：${numberPrefixValue}</span><i class="aw-line-icon line-lock"></i></button>` + [0,1,2,3,4,5].map((idx) => renderNumberCard(numberCandidateData[idx])).join("");
+        numberExtraCandidates.innerHTML = [6,7].map((idx) => renderNumberCard(numberCandidateData[idx])).join("");
+      };
+      function renderNumberCard(item) {
+        const selected = numberSelected.includes(item.k);
+        const disabled = numberSelected.length >= 4 && !selected;
+        const order = numberSelected.indexOf(item.k) + 2;
+        return `<button class="aw-code-card ${selected ? "on" : ""}" ${disabled ? "disabled" : ""} type="button" onclick="toggleNumberItem('${item.k}')">${selected ? `<em>${order}</em>` : ""}<strong>${item.label}</strong><span>${item.preview}</span></button>`;
+      }
+      window.toggleNumberItem = function toggleNumberItem(key) {
+        const item = numberCandidateData.find((candidate) => candidate.k === key);
+        if (numberSelected.includes(key)) {
+          numberSelected = numberSelected.filter((itemKey) => itemKey !== key);
+          delete numberSearchFlags[key];
+        } else if (numberSelected.length < 4) {
+          if (item.group) numberSelected = numberSelected.filter((itemKey) => numberCandidateData.find((candidate) => candidate.k === itemKey)?.group !== item.group);
+          numberSelected.push(key);
+        }
+        render();
+      };
+      window.removeNumberItem = function removeNumberItem(key) {
+        numberSelected = numberSelected.filter((itemKey) => itemKey !== key);
+        delete numberSearchFlags[key];
+        if (key === "cc1" || key === "cc2") {
+          numberCodeValues[key] = key === "cc1" ? "C1" : "C2";
+          numberLabelValues[key] = key === "cc1" ? "自定义代码1" : "自定义代码2";
+        }
+        render();
+      };
+      window.setNumberPrefix = function setNumberPrefix(value) { numberPrefixValue = value || "AA"; render(); };
+      window.setNumberSeparator = function setNumberSeparator(value) { numberSeparatorValue = value; render(); };
+      window.setNumberCode = function setNumberCode(key, value) { numberCodeValues[key] = value; render(); };
+      window.setNumberLabel = function setNumberLabel(key, value) { numberLabelValues[key] = value; render(); };
+      window.toggleNumberSearch = function toggleNumberSearch(key) { numberSearchFlags[key] = !numberSearchFlags[key]; render(); };
+      let numberDragIndex = null;
+      window.startNumberDrag = function startNumberDrag(index) { numberDragIndex = index; };
+      window.dropNumberItem = function dropNumberItem(index) {
+        if (numberDragIndex === null || numberDragIndex === index) return;
+        const next = [...numberSelected];
+        const [moved] = next.splice(numberDragIndex, 1);
+        next.splice(index, 0, moved);
+        numberSelected = next;
+        numberDragIndex = null;
+        render();
+      };
+      window.resetNumberRule = function resetNumberRule() {
+        numberSelected = [];
+        numberSeparatorValue = "-";
+        numberPrefixValue = "AA";
+        numberSearchFlags = {};
+        numberCodeValues = { cc1:"C1", cc2:"C2" };
+        numberLabelValues = { cc1:"自定义代码1", cc2:"自定义代码2" };
+        numberSeparator.value = "-";
+        render();
+      };
+      function render() {
+        pageTitle.textContent = config.title;
+        settingTitle.textContent = config.title;
+        settingDesc.textContent = config.desc;
+        settingSearch.placeholder = config.search;
+        addBtn.textContent = config.add;
+        refreshBtn.style.display = "";
+        addBtn.style.display = isStrategySetting ? "none" : "";
+        approvalTopActions.style.display = "none";
+        if (isGroupSetting) {
+          fieldSplit.style.display = "none";
+          strategyPolicyCard.style.display = "none";
+          renderGroupSetting();
+          return;
+        }
+        if (isFieldSetting) {
+          numberSplit.style.display = "none";
+          strategyPolicyCard.style.display = "none";
+          renderFieldSetting();
+          return;
+        }
+        if (isNumberSetting) {
+          strategyPolicyCard.style.display = "none";
+          renderNumberSetting();
+          return;
+        }
+        if (isStrategySetting) {
+          groupSplit.style.display = "none";
+          fieldSplit.style.display = "none";
+          numberSplit.style.display = "none";
+          normalSettingCard.style.display = "none";
+          approvalEditorCard.style.display = "none";
+          renderStrategyPolicy();
+          return;
+        }
+        groupSplit.style.display = "none";
+        fieldSplit.style.display = "none";
+        numberSplit.style.display = "none";
+        strategyPolicyCard.style.display = "none";
+        normalSettingCard.style.display = "block";
+        settingHead.innerHTML = `<th style="width:70px">序号</th>${config.cols.map(([, label]) => `<th>${label}</th>`).join("")}<th style="width:150px">操作</th>`;
+        settingBody.innerHTML = rows.map((row, index) => `<tr><td>${index + 1}</td>${config.cols.map(([field]) => `<td>${field === "enabled" ? `<label class="aw-switch-line mini"><input type="checkbox" ${row.enabled ? "checked" : ""} onchange="toggleGenericEnabled(${row.id}, this.checked)"><i></i></label>` : field === "nodeCount" ? (row.nodes?.length || 0) : (row[field] ?? "")}</td>`).join("")}<td><span class="aw-link" ${isApprovalSetting ? `onclick="openApprovalEditor(${row.id})"` : ""}>编辑</span><span class="aw-action-split">|</span><span class="aw-link delete-row" data-id="${row.id}" style="color:var(--aw-danger)">删除</span></td></tr>`).join("");
+        bindRowActions();
+      }
+      function renderStrategyPolicy() {
+        strategyPolicyCard.style.display = "block";
+        strategyPolicyTitle.textContent = strategyPolicyConfig.title;
+        strategyPolicyTabs.innerHTML = strategyPolicyConfig.tabs.map((tab) => `<button class="t ${tab.k === activeStrategyTab ? "on" : ""}" type="button" onclick="selectStrategyTab('${tab.k}')">${tab.label}</button>`).join("");
+        const current = strategyPolicyConfig.tabs.find((tab) => tab.k === activeStrategyTab) || strategyPolicyConfig.tabs[0];
+        strategyPolicyRows.innerHTML = current.rows.map((row, index) => {
+          const control = row.type === "select"
+            ? `<select class="aw-select">${row.options.map((option) => `<option ${option === row.value ? "selected" : ""}>${option}</option>`).join("")}</select>`
+            : `<div class="aw-policy-radio"><label class="aw-radio on" onclick="setPolicyRadio(this,true)"><span class="aw-dot"></span>启用</label><label class="aw-radio" onclick="setPolicyRadio(this,false)"><span class="aw-dot"></span>关闭</label></div>`;
+          return `<div class="aw-policy-row"><div><div class="aw-policy-row-title">${row.title}</div><div class="aw-policy-row-sub">${row.sub}</div></div><div class="aw-policy-row-control">${control}</div></div>`;
+        }).join("");
+      }
+      window.setPolicyRadio = function setPolicyRadio(el) {
+        const box = el.closest(".aw-policy-radio");
+        box.querySelectorAll(".aw-radio").forEach((item) => item.classList.remove("on"));
+        el.classList.add("on");
+      };
+      window.selectStrategyTab = function selectStrategyTab(tab) {
+        activeStrategyTab = tab;
+        renderStrategyPolicy();
+      };
+      window.toggleGenericEnabled = function toggleGenericEnabled(id, checked) {
+        const row = rows.find((item) => item.id === id);
+        if (row) row.enabled = checked;
+      };
+      function handleAddSetting() {
+        if (isGroupSetting) {
+          openChildModal();
+          return;
+        }
+        if (isFieldSetting) {
+          openFieldModal();
+          return;
+        }
+        if (isNumberSetting) {
+          renderNumberSetting();
+          return;
+        }
+        if (isLevelSetting) {
+          openLevelModal();
+          return;
+        }
+        if (isApprovalSetting) {
+          openApprovalEditor();
+          return;
+        }
+        rows.push({ id:Date.now(), name:"新配置项", code:"AUTO_CODE", scene:"新审批场景", rule:"待配置", type:"文本", enabled:true });
+        render();
+      }
+      window.handleAddSetting = handleAddSetting;
+      addBtn.onclick = handleAddSetting;
+      settingSearch.oninput = () => { const text = settingSearch.value.trim(); rows = text ? config.rows.map((row, index) => ({ id:index + 1, ...row })).filter((row) => Object.values(row).some((value) => String(value).includes(text))) : config.rows.map((row, index) => ({ id:index + 1, ...row })); render(); };
+      groupSearch.oninput = render;
+      fieldSearch.oninput = render;
+      render();
+      const triggers=document.querySelectorAll("[data-flyout-trigger]");const flyouts=document.querySelectorAll("[data-flyout]");let flyoutTimer=null;function hideFlyouts(){flyouts.forEach(f=>f.style.display="none")}function showFlyout(key,trigger){clearTimeout(flyoutTimer);hideFlyouts();const f=document.querySelector(`[data-flyout="${key}"]`);const r=trigger.getBoundingClientRect();f.style.top=`${Math.max(52,r.top+r.height/2-110)}px`;f.style.display="block"}function scheduleHide(){flyoutTimer=setTimeout(hideFlyouts,150)}triggers.forEach(t=>{t.addEventListener("mouseenter",()=>showFlyout(t.dataset.flyoutTrigger,t));t.addEventListener("mouseleave",scheduleHide)});flyouts.forEach(f=>{f.addEventListener("mouseenter",()=>clearTimeout(flyoutTimer));f.addEventListener("mouseleave",scheduleHide)});
+    </script>
+  </body>
+</html>

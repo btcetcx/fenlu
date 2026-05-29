@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>海南傲为 ERP Vue3 新增客户样板</title>
+    <link rel="stylesheet" href="./src/styles/tokens.css" />
+    <link rel="stylesheet" href="./src/styles/aw-console.css" />
+  </head>
+  <body>
+    <div data-screen-label="ERP Console">
+      <div class="aw-topbar">
+        <div class="brand">海南傲为智慧</div>
+        <div class="tabs"><span class="tab">▣ PRD</span><span class="tab">⌁ 研发</span><span class="tab">◈ 采购</span><a class="tab on" href="./preview-framework.html" onclick="location.href='./preview-framework.html';return false">▣ 销售</a><span class="tab">☎ 售后</span><span class="tab">▤ 仓储</span><span class="tab">⚙ 生产</span><span class="tab">✓ 质检</span><span class="tab">¥ 财务</span><span class="tab">♟ 人力</span><span class="tab">⚙ 设置</span></div>
+        <div class="right"><button class="ic aw-top-help" type="button">?</button><button class="aw-top-notice" type="button">●<span class="aw-top-notice-badge">4</span></button><div class="av">夏</div><span>老夏 ▾</span></div>
+      </div>
+      <div class="aw-shell">
+        <aside class="aw-side">
+          <h4>销售中心</h4>
+          <a class="item" href="./preview-framework.html"><span class="dot">○</span> 工作台</a><div class="item on" data-flyout-trigger="customer"><span class="dot">○</span> 客户管理</div><div class="item"><span class="dot">○</span> 销售计划</div><div class="item"><span class="dot">○</span> 报价管理</div><div class="item"><span class="dot">○</span> 合同管理</div><div class="item"><span class="dot">○</span> 订单管理</div><div class="item"><span class="dot">○</span> 销售退货</div><div class="item"><span class="dot">○</span> 销售换货</div><div class="item"><span class="dot">○</span> 销售报表</div>
+          <div class="aw-flyout" data-flyout="customer" style="top:92px;display:none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">客户管理</div><div class="aw-flyout-items"><a href="./preview-customer-new.html">添加客户</a><a href="./preview-customer-list.html">客户列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">客户设置</div><div class="aw-flyout-items"><a href="./preview-customer-setting.html?type=groups">客户分组设置</a><a href="./preview-customer-setting.html?type=fields">客户自定义字段</a><a href="./preview-customer-setting.html?type=numbers">客户自定义编号</a><a href="./preview-customer-setting.html?type=levels">客户等级设置</a><a href="./preview-customer-setting.html?type=approvals">客户审批设置</a><a href="./preview-customer-setting.html?type=strategies">客户策略设置</a></div></div>
+          </div>
+        </aside>
+        <main class="aw-main">
+          <div class="aw-page-head"><span class="aw-page-title">新增客户</span></div>
+          <div class="aw-form-page">
+            <section class="aw-detail-toolbar">
+              <button class="aw-back-btn" type="button" onclick="location.href='./preview-customer-list.html'"><span class="aw-line-icon line-back"></span>返回列表</button>
+              <div class="aw-detail-actions"><button class="aw-tool-btn" type="button">保存草稿</button><button class="aw-tool-btn" type="button">重置</button><button class="aw-btn primary" type="button">保存客户</button></div>
+            </section>
+            <section class="aw-form-card">
+              <div class="aw-detail-section-title">基础信息</div>
+              <div class="aw-form-grid">
+                <div class="aw-field"><label class="req">客户名称</label><input class="aw-input" placeholder="请输入客户全称" /></div>
+                <div class="aw-field"><label class="req">客户分类</label><select class="aw-select"><option>请选择</option><option>重点客户</option><option>战略客户</option><option>普通客户</option><option>渠道客户</option></select></div>
+                <div class="aw-field"><label class="req">客户经理</label><div class="aw-field-row"><input class="aw-input" placeholder="点击绑定销售人员" readonly /><button class="aw-tool-btn" type="button">绑定销售人员</button></div></div>
+                <div class="aw-field"><label>拼音码</label><input class="aw-input" placeholder="根据客户名称自动生成，可手动修改" /></div>
+                <div class="aw-field"><label>信用代码</label><input class="aw-input" placeholder="请输入统一社会信用代码" /></div>
+                <div class="aw-field"><label>客户编号</label><input class="aw-input" value="系统自动生成" disabled /></div>
+                <div class="aw-field"><label>客户等级</label><select class="aw-select"><option>请选择</option><option>A级</option><option>B级</option><option>C级</option></select></div>
+                <div class="aw-field"><label>所属行业</label><select class="aw-select"><option>请选择</option><option>智能制造</option><option>电子科技</option><option>装备制造</option><option>包装材料</option></select></div>
+              </div>
+            </section>
+            <section class="aw-form-card">
+              <div class="aw-detail-section-title">客户信息</div>
+              <div class="aw-detail-tabs">
+                <button class="aw-detail-tab on" type="button" data-customer-tab="contact">联系人信息</button><button class="aw-detail-tab" type="button" data-customer-tab="finance">财务信息</button><button class="aw-detail-tab" type="button" data-customer-tab="address">地址信息</button><button class="aw-detail-tab" type="button" data-customer-tab="attach">附件信息</button>
+              </div>
+              <div class="aw-tab-panel" data-customer-panel="contact"><div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl">
+                <thead><tr><th style="width:60px">序号</th><th>联系人</th><th>职位</th><th>联系方式</th><th>邮箱</th><th style="width:90px">默认</th><th style="width:90px">操作</th></tr></thead>
+                <tbody id="contactRows"></tbody>
+              </table></div></div><button id="addContact" class="aw-tool-btn" type="button" style="margin-top:10px">新增联系人</button></div>
+              <div class="aw-tab-panel" data-customer-panel="finance" style="display:none"><div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl">
+                <thead><tr><th style="width:60px">序号</th><th>账户名称</th><th>开户银行</th><th>银行账号</th><th>收款说明</th><th style="width:90px">默认</th><th style="width:90px">操作</th></tr></thead>
+                <tbody><tr><td>1</td><td><input class="aw-input" placeholder="请输入账户名称" /></td><td><input class="aw-input" placeholder="请输入开户银行" /></td><td><input class="aw-input" placeholder="请输入银行账号" /></td><td><input class="aw-input" placeholder="收款说明" /></td><td><label class="aw-check"><input type="checkbox" checked /><span></span></label></td><td><span class="aw-link" style="color:var(--aw-danger)">删除</span></td></tr></tbody>
+              </table></div></div><button class="aw-tool-btn" type="button" style="margin-top:10px">新增财务信息</button></div>
+              <div class="aw-tab-panel" data-customer-panel="address" style="display:none"><div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl">
+                <thead><tr><th style="width:60px">序号</th><th>地址类型</th><th>联系人</th><th>联系电话</th><th>详细地址</th><th style="width:90px">默认</th><th style="width:90px">操作</th></tr></thead>
+                <tbody><tr><td>1</td><td><select class="aw-select"><option>收货地址</option><option>开票地址</option><option>办公地址</option></select></td><td><input class="aw-input" placeholder="请输入联系人" /></td><td><input class="aw-input" placeholder="请输入联系电话" /></td><td><input class="aw-input" placeholder="请输入详细地址" /></td><td><label class="aw-check"><input type="checkbox" checked /><span></span></label></td><td><span class="aw-link" style="color:var(--aw-danger)">删除</span></td></tr></tbody>
+              </table></div></div><button class="aw-tool-btn" type="button" style="margin-top:10px">新增地址</button></div>
+              <div class="aw-tab-panel" data-customer-panel="attach" style="display:none"><div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl">
+                <thead><tr><th style="width:60px">序号</th><th>附件名称</th><th>附件类型</th><th>上传日期</th><th>备注</th><th style="width:120px">操作</th></tr></thead>
+                <tbody><tr><td>1</td><td><input class="aw-input" placeholder="请输入附件名称" /></td><td><select class="aw-select"><option>资质文件</option><option>营业执照</option><option>合同附件</option></select></td><td><input class="aw-input" placeholder="系统自动生成" disabled /></td><td><input class="aw-input" placeholder="请输入备注" /></td><td><span class="aw-link">上传</span><span class="aw-link" style="color:var(--aw-danger);margin-left:10px">删除</span></td></tr></tbody>
+              </table></div></div><button class="aw-tool-btn" type="button" style="margin-top:10px">新增附件信息</button></div>
+              <div class="aw-sub-title" style="margin-top:18px">账期设置</div>
+              <div class="aw-payment-grid">
+                <div class="aw-payment-card on" data-payment="cash" onclick="window.awSetPayment('cash')"><div><span class="aw-payment-radio checked"></span> <strong>现结</strong></div><input class="aw-input aw-payment-input" value="下单时即时结清货款" onclick="event.stopPropagation()" /></div>
+                <div class="aw-payment-card" data-payment="monthly" onclick="window.awSetPayment('monthly')"><div><span class="aw-payment-radio"></span> <strong>月结</strong></div><input class="aw-input aw-payment-input" placeholder="如每个月25号结算" onclick="event.stopPropagation()" /></div>
+                <div class="aw-payment-card" data-payment="cycle" onclick="window.awSetPayment('cycle')"><div><span class="aw-payment-radio"></span> <strong>周期</strong></div><input class="aw-input aw-payment-input" placeholder="如30、60、90按照指定天数结算" onclick="event.stopPropagation()" /></div>
+                <div class="aw-payment-card" data-payment="credit" onclick="window.awSetPayment('credit')"><div><span class="aw-payment-radio"></span> <strong>额度</strong></div><input class="aw-input aw-payment-input" placeholder="如200000" onclick="event.stopPropagation()" /><div class="aw-field-hint" style="margin-top:6px">超出额度需提前收款或审批</div></div>
+              </div>
+            </section>
+            <section class="aw-form-card">
+              <div class="aw-detail-section-title">客户详情</div>
+              <div class="aw-rt-bar">
+                <span>文件</span><span>编辑</span><span>插入</span><span>视图</span><span>格式</span><span>表格</span>
+              </div>
+              <div class="aw-rt-bar aw-rt-tools">
+                <span>B</span><span><i>I</i></span><span><u>U</u></span><span>S</span>
+                <i></i>
+                <span>左对齐</span><span>居中</span><span>•</span><span>1.</span><span>链接</span><span>图片</span><span>表格</span>
+              </div>
+              <div class="aw-rt-area" contenteditable="true">请输入客户背景、合作偏好、风险说明等信息</div>
+            </section>
+          </div>
+        </main>
+      </div>
+      <button class="aw-float-help" type="button">?</button>
+    </div>
+    <script>
+      let contactRows = [{ id: 1, isDefault: true }];
+      const contactBody = document.querySelector("#contactRows");
+      function renderContacts() {
+        contactBody.innerHTML = contactRows.map((row, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td><input class="aw-input" placeholder="请输入联系人姓名" /></td>
+            <td><input class="aw-input" placeholder="请输入职位" /></td>
+            <td><input class="aw-input" placeholder="请输入手机号/电话" /></td>
+            <td><input class="aw-input" placeholder="请输入邮箱" /></td>
+            <td><label class="aw-check"><input class="contact-default" data-id="${row.id}" type="checkbox" ${row.isDefault ? "checked" : ""} /><span></span></label></td>
+            <td><span class="aw-link delete-contact" data-id="${row.id}" style="color:var(--aw-danger)">删除</span></td>
+          </tr>
+        `).join("");
+        contactBody.querySelectorAll(".delete-contact").forEach((item) => {
+          item.addEventListener("click", () => {
+            if (contactRows.length <= 1) return;
+            contactRows = contactRows.filter((row) => row.id !== Number(item.dataset.id));
+            if (!contactRows.some((row) => row.isDefault)) contactRows[0].isDefault = true;
+            renderContacts();
+          });
+        });
+        contactBody.querySelectorAll(".contact-default").forEach((item) => {
+          item.addEventListener("change", () => {
+            contactRows = contactRows.map((row) => ({ ...row, isDefault: row.id === Number(item.dataset.id) }));
+            renderContacts();
+          });
+        });
+      }
+      document.querySelector("#addContact").addEventListener("click", () => {
+        contactRows.push({ id: Date.now(), isDefault: contactRows.length === 0 });
+        renderContacts();
+      });
+      renderContacts();
+
+      const tabTableRows = {
+        finance: [{ id: 1 }],
+        address: [{ id: 1 }],
+        attach: [{ id: 1 }]
+      };
+      const tabTableTemplates = {
+        finance: (row, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td><input class="aw-input" placeholder="请输入账户名称" /></td>
+            <td><input class="aw-input" placeholder="请输入开户银行" /></td>
+            <td><input class="aw-input" placeholder="请输入银行账号" /></td>
+            <td><input class="aw-input" placeholder="收款说明" /></td>
+            <td><label class="aw-check"><input type="checkbox" ${index === 0 ? "checked" : ""} /><span></span></label></td>
+            <td><span class="aw-link delete-tab-row" data-panel="finance" data-id="${row.id}" style="color:var(--aw-danger)">删除</span></td>
+          </tr>
+        `,
+        address: (row, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td><select class="aw-select"><option>收货地址</option><option>开票地址</option><option>办公地址</option></select></td>
+            <td><input class="aw-input" placeholder="请输入联系人" /></td>
+            <td><input class="aw-input" placeholder="请输入联系电话" /></td>
+            <td><input class="aw-input" placeholder="请输入详细地址" /></td>
+            <td><label class="aw-check"><input type="checkbox" ${index === 0 ? "checked" : ""} /><span></span></label></td>
+            <td><span class="aw-link delete-tab-row" data-panel="address" data-id="${row.id}" style="color:var(--aw-danger)">删除</span></td>
+          </tr>
+        `,
+        attach: (row, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td><input class="aw-input" placeholder="请输入附件名称" /></td>
+            <td><select class="aw-select"><option>资质文件</option><option>营业执照</option><option>合同附件</option></select></td>
+            <td><input class="aw-input" placeholder="系统自动生成" disabled /></td>
+            <td><input class="aw-input" placeholder="请输入备注" /></td>
+            <td><span class="aw-link">上传</span><span class="aw-link delete-tab-row" data-panel="attach" data-id="${row.id}" style="color:var(--aw-danger);margin-left:10px">删除</span></td>
+          </tr>
+        `
+      };
+      function renderTabTable(panelKey) {
+        const panel = document.querySelector(`[data-customer-panel="${panelKey}"]`);
+        const tbody = panel.querySelector("tbody");
+        tbody.innerHTML = tabTableRows[panelKey].map(tabTableTemplates[panelKey]).join("");
+        tbody.querySelectorAll(".delete-tab-row").forEach((item) => {
+          item.addEventListener("click", () => {
+            if (tabTableRows[panelKey].length <= 1) return;
+            tabTableRows[panelKey] = tabTableRows[panelKey].filter((row) => row.id !== Number(item.dataset.id));
+            renderTabTable(panelKey);
+          });
+        });
+      }
+      ["finance", "address", "attach"].forEach((panelKey) => {
+        const panel = document.querySelector(`[data-customer-panel="${panelKey}"]`);
+        const addButton = panel.querySelector(".aw-tool-btn");
+        addButton.addEventListener("click", () => {
+          tabTableRows[panelKey].push({ id: Date.now() });
+          renderTabTable(panelKey);
+        });
+        renderTabTable(panelKey);
+      });
+
+      document.querySelectorAll("[data-customer-tab]").forEach((tabButton) => {
+        tabButton.addEventListener("click", () => {
+          document.querySelectorAll("[data-customer-tab]").forEach((item) => item.classList.toggle("on", item === tabButton));
+          document.querySelectorAll("[data-customer-panel]").forEach((panel) => {
+            panel.style.display = panel.dataset.customerPanel === tabButton.dataset.customerTab ? "" : "none";
+          });
+        });
+      });
+
+      function setPayment(type) {
+        document.querySelectorAll(".aw-payment-card").forEach((card) => {
+          const active = card.dataset.payment === type;
+          card.classList.toggle("on", active);
+          card.querySelector(".aw-payment-radio").classList.toggle("checked", active);
+        });
+      }
+      document.querySelectorAll(".aw-payment-card").forEach((card) => {
+        card.addEventListener("click", () => setPayment(card.dataset.payment));
+      });
+      setPayment("cash");
+      window.awSetPayment = function (type) {
+        document.querySelectorAll(".aw-payment-card").forEach((card) => {
+          const active = card.dataset.payment === type;
+          card.classList.toggle("on", active);
+          card.querySelector(".aw-payment-radio").classList.toggle("checked", active);
+        });
+      };
+      window.awSetPayment("cash");
+
+      const triggers=document.querySelectorAll("[data-flyout-trigger]");const flyouts=document.querySelectorAll("[data-flyout]");let flyoutTimer=null;function hideFlyouts(){flyouts.forEach(f=>f.style.display="none")}function showFlyout(key,trigger){clearTimeout(flyoutTimer);hideFlyouts();const f=document.querySelector(`[data-flyout="${key}"]`);const r=trigger.getBoundingClientRect();f.style.top=`${Math.max(52,r.top+r.height/2-110)}px`;f.style.display="block"}function scheduleHide(){flyoutTimer=setTimeout(hideFlyouts,150)}triggers.forEach(t=>{t.addEventListener("mouseenter",()=>showFlyout(t.dataset.flyoutTrigger,t));t.addEventListener("mouseleave",scheduleHide)});flyouts.forEach(f=>{f.addEventListener("mouseenter",()=>clearTimeout(flyoutTimer));f.addEventListener("mouseleave",scheduleHide)});
+    </script>
+  </body>
+</html>

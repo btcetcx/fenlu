@@ -1,0 +1,1 @@
+import{_ as t,e as o,z as s,v as a}from"./index-DysZEDr2.js";const n={},r={class:"aw-setting-page"};function c(e,l){return a(),o("div",r,[s(e.$slots,"toolbar"),s(e.$slots,"default")])}const i=t(n,[["render",c]]);export{i as A};

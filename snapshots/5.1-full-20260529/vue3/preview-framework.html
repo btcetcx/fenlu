@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>海南傲为 ERP Vue3 框架半成品</title>
+    <link rel="stylesheet" href="./src/styles/tokens.css" />
+    <link rel="stylesheet" href="./src/styles/aw-console.css" />
+  </head>
+  <body>
+    <div data-screen-label="ERP Console">
+      <div class="aw-topbar">
+        <div class="brand">海南傲为智慧</div>
+        <div class="tabs">
+          <span class="tab"><span style="font-size:13px">▣</span> PRD</span>
+          <span class="tab"><span style="font-size:13px">✎</span> 研发</span>
+          <span class="tab"><span style="font-size:13px">📦</span> 采购</span>
+          <a class="tab on" href="./preview-framework.html" onclick="location.href='./preview-framework.html';return false"><span style="font-size:13px">💼</span> 销售</a>
+          <span class="tab"><span style="font-size:13px">☎</span> 售后</span>
+          <span class="tab"><span style="font-size:13px">🗄</span> 仓储</span>
+          <span class="tab"><span style="font-size:13px">⚙</span> 生产</span>
+          <span class="tab"><span style="font-size:13px">✓</span> 质检</span>
+          <span class="tab"><span style="font-size:13px">¥</span> 财务</span>
+          <span class="tab"><span style="font-size:13px">👤</span> 人力</span>
+          <span class="tab"><span style="font-size:13px">⚙</span> 设置</span>
+        </div>
+        <div class="right">
+          <button class="ic aw-top-help" type="button">?</button>
+          <button class="aw-top-notice" type="button">◖<span class="aw-top-notice-badge">4</span></button>
+          <div class="av">夏</div>
+          <span>老夏 ▾</span>
+        </div>
+      </div>
+
+      <div class="aw-shell">
+        <aside class="aw-side">
+          <h4>销售中心</h4>
+          <a class="item on" href="./preview-framework.html"><span class="dot">○</span> 工作台</a>
+          <div class="item" data-flyout-trigger="customer"><span class="dot">○</span> 客户管理</div>
+          <div class="item" data-flyout-trigger="salesPlan"><span class="dot">○</span> 销售计划</div>
+          <div class="item" data-flyout-trigger="quote"><span class="dot">○</span> 报价管理</div>
+          <div class="item" data-flyout-trigger="contract"><span class="dot">○</span> 合同管理</div>
+          <div class="item" data-flyout-trigger="order"><span class="dot">○</span> 订单管理</div>
+          <div class="item"><span class="dot">○</span> 销售退货</div>
+          <div class="item"><span class="dot">○</span> 销售换货</div>
+          <div class="item"><span class="dot">○</span> 销售报表</div>
+
+          <div class="aw-flyout" data-flyout="customer" style="top: 92px; display: none">
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">客户管理</div>
+              <div class="aw-flyout-items">
+                <a href="./preview-customer-new.html">添加客户</a><a href="./preview-customer-list.html">客户列表</a>
+              </div>
+            </div>
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">客户设置</div>
+              <div class="aw-flyout-items">
+                <a href="./preview-customer-setting.html?type=groups">客户分组设置</a><a href="./preview-customer-setting.html?type=fields">客户自定义字段</a><a href="./preview-customer-setting.html?type=numbers">客户自定义编号</a><a href="./preview-customer-setting.html?type=levels">客户等级设置</a>
+                <a href="./preview-customer-setting.html?type=approvals">客户审批设置</a><a href="./preview-customer-setting.html?type=strategies">客户策略设置</a>
+              </div>
+            </div>
+          </div>
+          <div class="aw-flyout" data-flyout="salesPlan" style="top: 126px; display: none">
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">计划管理</div>
+              <div class="aw-flyout-items">
+                <a href="./preview-sales-plan-list.html?action=new">添加计划</a><a href="./preview-sales-plan-list.html">计划列表</a>
+              </div>
+            </div>
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">计划设置</div>
+              <div class="aw-flyout-items">
+                <a href="./preview-sales-plan-list.html?setting=fields">计划自定义字段</a><a href="./preview-sales-plan-list.html?setting=numbers">计划自定义编号</a>
+                <a href="./preview-sales-plan-list.html?setting=approvals">计划审批设置</a><a href="./preview-sales-plan-list.html?setting=strategies">计划策略设置</a><a href="./preview-sales-plan-list.html?setting=print">设置计划打印模板</a>
+              </div>
+            </div>
+          </div>
+          <div class="aw-flyout" data-flyout="quote" style="top: 160px; display: none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">报价管理</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=quotes&action=new">添加报价</a><a href="./preview-sales-basic-list.html?type=quotes">报价列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">报价设置</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=quotes&setting=fields">报价自定义字段</a><a href="./preview-sales-basic-list.html?type=quotes&setting=numbers">报价自定义编号</a><a href="./preview-sales-basic-list.html?type=quotes&setting=approvals">报价审批设置</a><a href="./preview-sales-basic-list.html?type=quotes&setting=strategies">报价策略设置</a><a href="./preview-sales-basic-list.html?type=quotes&setting=print">设置报价打印模板</a></div></div>
+          </div>
+          <div class="aw-flyout" data-flyout="contract" style="top: 194px; display: none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">合同管理</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=contracts&action=new">添加合同</a><a href="./preview-sales-basic-list.html?type=contracts">合同列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">合同设置</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=contracts&setting=fields">合同自定义字段</a><a href="./preview-sales-basic-list.html?type=contracts&setting=numbers">合同自定义编号</a><a href="./preview-sales-basic-list.html?type=contracts&setting=approvals">合同审批设置</a><a href="./preview-sales-basic-list.html?type=contracts&setting=strategies">合同策略设置</a><a href="./preview-sales-basic-list.html?type=contracts&setting=print">设置合同打印模板</a></div></div>
+          </div>
+          <div class="aw-flyout" data-flyout="order" style="top: 228px; display: none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">订单管理</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=orders&action=new">添加订单</a><a href="./preview-sales-basic-list.html?type=orders">订单列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">订单设置</div><div class="aw-flyout-items"><a href="./preview-sales-basic-list.html?type=orders&setting=fields">订单自定义字段</a><a href="./preview-sales-basic-list.html?type=orders&setting=numbers">订单自定义编号</a><a href="./preview-sales-basic-list.html?type=orders&setting=approvals">订单审批设置</a><a href="./preview-sales-basic-list.html?type=orders&setting=strategies">订单策略设置</a><a href="./preview-sales-basic-list.html?type=orders&setting=print">设置订单打印模板</a></div></div>
+          </div>
+        </aside>
+
+        <main class="aw-main">
+          <div class="aw-page-head">
+            <span class="aw-page-title">工作台</span>
+            <button class="aw-workbench-board-btn" type="button"><span>▧</span><span>大屏看板</span></button>
+          </div>
+
+          <div class="aw-card">
+            <div class="section-title">
+              <span>待办事项</span>
+              <button id="todoRefresh" class="aw-card-meta aw-card-meta-btn" type="button"><span class="aw-refresh-dot">↻</span>刷新</button>
+              <button id="todoAll" class="aw-card-meta aw-card-meta-btn" type="button">全部</button>
+              <button id="kpiToggle" class="aw-card-meta aw-card-meta-btn" type="button">展开</button>
+            </div>
+            <div class="aw-kpi-grid">
+              <div class="aw-kpi aw-draggable-card mint" draggable="true"><div class="l">待执行计划</div><div class="n">12</div><div class="a">点击查看</div><div class="ic">▤</div></div>
+              <div class="aw-kpi aw-draggable-card peach" draggable="true"><div class="l">待跟进报价</div><div class="n">9</div><div class="a">点击查看</div><div class="ic">📄</div></div>
+              <div class="aw-kpi aw-draggable-card mint" draggable="true"><div class="l">待审批合同</div><div class="n">6</div><div class="a">点击查看</div><div class="ic">✓</div></div>
+              <div class="aw-kpi aw-draggable-card sky" draggable="true"><div class="l">待处理订单</div><div class="n">18</div><div class="a">点击查看</div><div class="ic">🛒</div></div>
+              <div class="aw-kpi aw-draggable-card rose" draggable="true"><div class="l">待审核客户</div><div class="n">4</div><div class="a">点击查看</div><div class="ic">👤</div></div>
+              <div class="aw-kpi aw-draggable-card lilac" draggable="true"><div class="l">待出库订单</div><div class="n">12</div><div class="a">点击查看</div><div class="ic">▦</div></div>
+              <div class="aw-kpi aw-draggable-card sand" draggable="true"><div class="l">待处理退货</div><div class="n">3</div><div class="a">点击查看</div><div class="ic">↩</div></div>
+              <div class="aw-kpi aw-draggable-card aw-kpi-extra sky" draggable="true" style="display:none"><div class="l">待回款提醒</div><div class="n">11</div><div class="a">点击查看</div><div class="ic">⌕</div></div>
+              <div class="aw-kpi aw-draggable-card aw-kpi-extra mint" draggable="true" style="display:none"><div class="l">待开票记录</div><div class="n">7</div><div class="a">点击查看</div><div class="ic">📄</div></div>
+              <div class="aw-kpi aw-draggable-card aw-kpi-extra peach" draggable="true" style="display:none"><div class="l">客户拜访计划</div><div class="n">5</div><div class="a">点击查看</div><div class="ic">👤</div></div>
+              <div class="aw-kpi aw-draggable-card aw-kpi-extra rose" draggable="true" style="display:none"><div class="l">逾期未回款</div><div class="n">2</div><div class="a">点击查看</div><div class="ic">!</div></div>
+              <div class="aw-kpi aw-draggable-card aw-kpi-extra lilac" draggable="true" style="display:none"><div class="l">样品跟进</div><div class="n">8</div><div class="a">点击查看</div><div class="ic">▣</div></div>
+              <div class="aw-kpi aw-draggable-card aw-kpi-extra sand" draggable="true" style="display:none"><div class="l">销售预测</div><div class="n">14</div><div class="a">点击查看</div><div class="ic">▤</div></div>
+            </div>
+          </div>
+
+          <div class="aw-card">
+            <div class="section-title">
+              <span>业务导航</span>
+              <span class="aw-card-meta">拖动卡片</span>
+              <span class="aw-card-meta">调整顺序</span>
+            </div>
+            <div class="aw-tile-grid">
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">238</span><div class="aw-tile-icon" style="background:#DCE7FB;color:#5677FC">👤</div><div class="aw-tile-label">客户</div><div class="aw-tile-sub">客户管理</div></div>
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">12</span><div class="aw-tile-icon" style="background:#DBF3E6;color:#10B981">▤</div><div class="aw-tile-label">计划</div><div class="aw-tile-sub">销售计划</div></div>
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">46</span><div class="aw-tile-icon" style="background:#DCE7FB;color:#5677FC">📄</div><div class="aw-tile-label">报价</div><div class="aw-tile-sub">报价管理</div></div>
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">32</span><div class="aw-tile-icon" style="background:#DCE7FB;color:#5677FC">✓</div><div class="aw-tile-label">合同</div><div class="aw-tile-sub">合同管理</div></div>
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">78</span><div class="aw-tile-icon" style="background:#DCE7FB;color:#5677FC">🛒</div><div class="aw-tile-label">订单</div><div class="aw-tile-sub">订单管理</div></div>
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">5</span><div class="aw-tile-icon" style="background:#FBDFDF;color:#D14D4D">↩</div><div class="aw-tile-label">退货</div><div class="aw-tile-sub">销售退货</div></div>
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">2</span><div class="aw-tile-icon" style="background:#E8DEFB;color:#8957D8">⇄</div><div class="aw-tile-label">换货</div><div class="aw-tile-sub">销售换货</div></div>
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">0</span><div class="aw-tile-icon" style="background:#DBF3E6;color:#10B981">⌕</div><div class="aw-tile-label">报表</div><div class="aw-tile-sub">销售报表</div></div>
+              <div class="aw-tile aw-draggable-card" draggable="true"><span class="aw-tile-badge">19</span><div class="aw-tile-icon" style="background:#FEF3CD;color:#B26A24">¥</div><div class="aw-tile-label">回款</div><div class="aw-tile-sub">支付记录</div></div>
+            </div>
+          </div>
+
+          <div class="aw-card">
+            <div class="section-title">
+              <span>便捷入口</span>
+              <span class="aw-card-meta">拖动卡片</span>
+              <span class="aw-card-meta">调整顺序</span>
+            </div>
+            <div class="aw-entry-grid">
+              <div class="aw-entry aw-draggable-card" draggable="true"><div class="aw-entry-icon">👤</div><div class="aw-entry-label">新增客户</div></div>
+              <div class="aw-entry aw-draggable-card" draggable="true"><div class="aw-entry-icon">▤</div><div class="aw-entry-label">制定计划</div></div>
+              <div class="aw-entry aw-draggable-card" draggable="true"><div class="aw-entry-icon">📄</div><div class="aw-entry-label">新增报价</div></div>
+              <div class="aw-entry aw-draggable-card" draggable="true"><div class="aw-entry-icon">✓</div><div class="aw-entry-label">新增合同</div></div>
+              <div class="aw-entry aw-draggable-card" draggable="true"><div class="aw-entry-icon">🛒</div><div class="aw-entry-label">销售订单</div></div>
+              <div class="aw-entry aw-draggable-card" draggable="true"><div class="aw-entry-icon">✓</div><div class="aw-entry-label">我的审批</div></div>
+              <div class="aw-entry aw-draggable-card" draggable="true"><div class="aw-entry-icon">+</div><div class="aw-entry-label">新增入口</div></div>
+            </div>
+          </div>
+
+          <div class="aw-workbench-feed-grid">
+            <div class="aw-card">
+              <div class="section-title"><span>公告 / 消息中心</span><span class="aw-card-meta">全部</span><span class="aw-card-meta">重要</span></div>
+              <div class="aw-feed">
+                <div class="aw-feed-row"><span class="aw-feed-tag aw-feed-tag-rose">重要</span><span class="aw-feed-text">Q2 销售计划执行节奏调整，请各销售经理更新本周跟进记录</span><span class="aw-feed-time">2小时前</span></div>
+                <div class="aw-feed-row"><span class="aw-feed-tag aw-feed-tag-sky">制度</span><span class="aw-feed-text">新版《客户信用额度管理办法》正式发布</span><span class="aw-feed-time">1天前</span></div>
+                <div class="aw-feed-row"><span class="aw-feed-tag aw-feed-tag-peach">公告</span><span class="aw-feed-text">五一假期期间值班安排及应急联络表</span><span class="aw-feed-time">3天前</span></div>
+                <div class="aw-feed-row"><span class="aw-feed-tag aw-feed-tag-mint">系统</span><span class="aw-feed-text">ERP系统将于本周六凌晨进行版本升级维护</span><span class="aw-feed-time">1周前</span></div>
+                <div class="aw-feed-row"><span class="aw-feed-tag aw-feed-tag-mint">活动</span><span class="aw-feed-text">销售中心月度复盘会议将在周五下午举行</span><span class="aw-feed-time">1周前</span></div>
+              </div>
+            </div>
+            <div class="aw-card">
+              <div class="section-title"><span>最近访问</span><span class="aw-card-meta">查看全部</span></div>
+              <div class="aw-recent-row"><span class="aw-recent-ic">▣</span><div><b>SO-202605-031 销售合同会签 <em>销售 · 合同管理 · 12分钟前</em></b></div></div>
+              <div class="aw-recent-row"><span class="aw-recent-ic">▣</span><div><b>CUS-2026-001 海南星海智能制造有限公司 <em>销售 · 客户管理 · 1小时前</em></b></div></div>
+              <div class="aw-recent-row"><span class="aw-recent-ic">▣</span><div><b>SP-20251221001 荣某定制报价 <em>销售 · 报价管理 · 今天 09:24</em></b></div></div>
+              <div class="aw-recent-row"><span class="aw-recent-ic">▣</span><div><b>PO-202605-022 采购订单复核 <em>采购 · 采购管理 · 昨天 17:08</em></b></div></div>
+              <div class="aw-recent-row"><span class="aw-recent-ic">▣</span><div><b>SO-202605-026 广州智造电子 <em>销售 · 订单管理 · 昨天 15:30</em></b></div></div>
+            </div>
+          </div>
+        </main>
+      </div>
+      <button class="aw-float-help" type="button">?</button>
+    </div>
+    <div id="todoModal" class="aw-mask" style="display:none">
+      <div class="aw-modal lg">
+        <div class="head">
+          <span class="aw-modal-title">全部待办事项<span class="aw-modal-sub">13 项待处理</span></span>
+          <button id="todoClose" class="aw-modal-close" type="button">×</button>
+        </div>
+        <div class="body">
+          <div class="aw-todo-list">
+            <div class="aw-todo-row"><div class="aw-todo-ic">▤</div><div class="aw-todo-main"><div class="aw-todo-title">待执行计划 <span class="aw-todo-code">销售中心</span></div><div class="aw-todo-meta">共 12 条待处理记录，可进入对应模块查看</div></div><strong>12</strong><button class="aw-btn mini">查看</button></div>
+            <div class="aw-todo-row"><div class="aw-todo-ic">📄</div><div class="aw-todo-main"><div class="aw-todo-title">待跟进报价 <span class="aw-todo-code">销售中心</span></div><div class="aw-todo-meta">共 9 条待处理记录，可进入对应模块查看</div></div><strong>9</strong><button class="aw-btn mini">查看</button></div>
+            <div class="aw-todo-row"><div class="aw-todo-ic">✓</div><div class="aw-todo-main"><div class="aw-todo-title">待审批合同 <span class="aw-todo-code">销售中心</span></div><div class="aw-todo-meta">共 6 条待处理记录，可进入对应模块查看</div></div><strong>6</strong><button class="aw-btn mini">查看</button></div>
+            <div class="aw-todo-row"><div class="aw-todo-ic">🛒</div><div class="aw-todo-main"><div class="aw-todo-title">待处理订单 <span class="aw-todo-code">销售中心</span></div><div class="aw-todo-meta">共 18 条待处理记录，可进入对应模块查看</div></div><strong>18</strong><button class="aw-btn mini">查看</button></div>
+            <div class="aw-todo-row"><div class="aw-todo-ic">👤</div><div class="aw-todo-main"><div class="aw-todo-title">待审核客户 <span class="aw-todo-code">销售中心</span></div><div class="aw-todo-meta">共 4 条待处理记录，可进入对应模块查看</div></div><strong>4</strong><button class="aw-btn mini">查看</button></div>
+            <div class="aw-todo-row"><div class="aw-todo-ic">▦</div><div class="aw-todo-main"><div class="aw-todo-title">待出库订单 <span class="aw-todo-code">销售中心</span></div><div class="aw-todo-meta">共 12 条待处理记录，可进入对应模块查看</div></div><strong>12</strong><button class="aw-btn mini">查看</button></div>
+            <div class="aw-todo-row"><div class="aw-todo-ic">↩</div><div class="aw-todo-main"><div class="aw-todo-title">待处理退货 <span class="aw-todo-code">销售中心</span></div><div class="aw-todo-meta">共 3 条待处理记录，可进入对应模块查看</div></div><strong>3</strong><button class="aw-btn mini">查看</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const triggers = document.querySelectorAll("[data-flyout-trigger]");
+      const flyouts = document.querySelectorAll("[data-flyout]");
+      let flyoutTimer = null;
+
+      function hideFlyouts() {
+        flyouts.forEach((flyout) => {
+          flyout.style.display = "none";
+        });
+      }
+
+      function showFlyout(key, trigger) {
+        clearTimeout(flyoutTimer);
+        hideFlyouts();
+        const flyout = document.querySelector(`[data-flyout="${key}"]`);
+        if (!flyout) return;
+        const rect = trigger.getBoundingClientRect();
+        flyout.style.top = `${Math.max(52, rect.top + rect.height / 2 - 110)}px`;
+        flyout.style.display = "block";
+      }
+
+      function scheduleHide() {
+        flyoutTimer = setTimeout(hideFlyouts, 150);
+      }
+
+      triggers.forEach((trigger) => {
+        trigger.addEventListener("mouseenter", () => showFlyout(trigger.dataset.flyoutTrigger, trigger));
+        trigger.addEventListener("mouseleave", scheduleHide);
+      });
+
+      flyouts.forEach((flyout) => {
+        flyout.addEventListener("mouseenter", () => clearTimeout(flyoutTimer));
+        flyout.addEventListener("mouseleave", scheduleHide);
+      });
+
+      const kpiToggle = document.querySelector("#kpiToggle");
+      const extraKpis = document.querySelectorAll(".aw-kpi-extra");
+      let kpiExpanded = false;
+      kpiToggle.addEventListener("click", () => {
+        kpiExpanded = !kpiExpanded;
+        extraKpis.forEach((item) => {
+          item.style.display = kpiExpanded ? "" : "none";
+        });
+        kpiToggle.textContent = kpiExpanded ? "收起" : "展开";
+      });
+
+      const todoRefresh = document.querySelector("#todoRefresh");
+      todoRefresh.addEventListener("click", () => {
+        if (todoRefresh.classList.contains("refreshing")) return;
+        todoRefresh.classList.add("refreshing");
+        setTimeout(() => todoRefresh.classList.remove("refreshing"), 900);
+      });
+
+      const todoModal = document.querySelector("#todoModal");
+      document.querySelector("#todoAll").addEventListener("click", () => {
+        todoModal.style.display = "flex";
+      });
+      document.querySelector("#todoClose").addEventListener("click", () => {
+        todoModal.style.display = "none";
+      });
+      todoModal.addEventListener("click", (event) => {
+        if (event.target === todoModal) todoModal.style.display = "none";
+      });
+
+      document.querySelectorAll(".aw-kpi-grid,.aw-tile-grid,.aw-entry-grid").forEach((grid) => {
+        let dragged = null;
+        grid.addEventListener("dragstart", (event) => {
+          const card = event.target.closest(".aw-draggable-card");
+          if (!card) return;
+          dragged = card;
+          event.dataTransfer.effectAllowed = "move";
+        });
+        grid.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          const target = event.target.closest(".aw-draggable-card");
+          if (!dragged || !target || target === dragged || target.parentElement !== grid) return;
+          const rect = target.getBoundingClientRect();
+          const after = event.clientY > rect.top + rect.height / 2 || event.clientX > rect.left + rect.width / 2;
+          grid.insertBefore(dragged, after ? target.nextSibling : target);
+        });
+        grid.addEventListener("drop", (event) => {
+          event.preventDefault();
+          dragged = null;
+        });
+      });
+    </script>
+  </body>
+</html>

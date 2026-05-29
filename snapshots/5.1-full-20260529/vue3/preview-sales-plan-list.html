@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>海南傲为 ERP 销售计划预览</title>
+    <link rel="stylesheet" href="./src/styles/tokens.css" />
+    <link rel="stylesheet" href="./src/styles/aw-console.css" />
+    <style>
+      .aw-form-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+      .aw-field label { display:block; color:var(--aw-fg-3); font-size:12px; margin-bottom:6px; }
+      .aw-field .aw-switch-line { display:inline-flex; align-items:center; gap:8px; height:34px; margin-bottom:0; color:var(--aw-fg-2); font-size:13px; }
+      .aw-field .aw-switch-line.mini { height:28px; }
+      .aw-field .aw-switch-line input { position:absolute; width:auto; height:auto; padding:0; border:0; opacity:0; pointer-events:none; }
+      .aw-field label.req::after { content:" *"; color:var(--aw-danger); }
+      .aw-rich-preview { color:var(--aw-fg-2); font-size:13px; line-height:1.9; }
+      .aw-rich-preview p { margin:0 0 8px; }
+      .aw-kpi-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:14px; }
+      .aw-form-summary { display:flex; gap:24px; margin-top:10px; color:var(--aw-fg-2); font-size:13px; }
+      .aw-form-summary strong { color:var(--aw-danger); }
+      .aw-help-dot { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; margin-left:4px; border-radius:50%; background:var(--aw-fill-2); color:var(--aw-fg-3); font-size:12px; font-weight:600; cursor:help; }
+      .aw-modal-close { border:0; background:transparent; font-size:18px; cursor:pointer; }
+      @media (max-width: 900px) { .aw-form-grid, .aw-kpi-grid { grid-template-columns:1fr; } }
+    </style>
+  </head>
+  <body>
+    <div data-screen-label="ERP Console">
+      <div class="aw-topbar">
+        <div class="brand">海南傲为智慧</div>
+        <div class="tabs">
+          <span class="tab">PRD</span><span class="tab">研发</span><span class="tab">采购</span>
+          <a class="tab on" href="./preview-framework.html">销售</a>
+          <span class="tab">售后</span><span class="tab">仓储</span><span class="tab">生产</span><span class="tab">质检</span><span class="tab">财务</span><span class="tab">人力</span><span class="tab">设置</span>
+        </div>
+        <div class="right"><button class="ic aw-top-help" type="button">?</button><div class="av">老</div><span>老大</span></div>
+      </div>
+
+      <div class="aw-shell">
+        <aside class="aw-side">
+          <h4>销售中心</h4>
+          <a class="item" href="./preview-framework.html"><span class="dot"></span> 工作台</a>
+          <a class="item" href="./preview-customer-list.html"><span class="dot"></span> 客户管理</a>
+          <div class="item on" data-flyout-trigger="salesPlan"><span class="dot"></span> 销售计划</div>
+          <a class="item" href="./preview-sales-basic-list.html?type=quotes"><span class="dot"></span> 报价管理</a>
+          <a class="item" href="./preview-sales-basic-list.html?type=contracts"><span class="dot"></span> 合同管理</a>
+          <a class="item" href="./preview-sales-basic-list.html?type=orders"><span class="dot"></span> 订单管理</a>
+          <div class="item"><span class="dot"></span> 销售退货</div>
+          <div class="item"><span class="dot"></span> 销售换货</div>
+          <div class="item"><span class="dot"></span> 销售报表</div>
+
+          <div class="aw-flyout" data-flyout="salesPlan" style="top:126px;display:none">
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">计划管理</div>
+              <div class="aw-flyout-items"><a href="./preview-sales-plan-list.html?action=new">添加计划</a><a href="./preview-sales-plan-list.html">计划列表</a></div>
+            </div>
+            <div class="aw-flyout-sec">
+              <div class="aw-flyout-h">计划设置</div>
+              <div class="aw-flyout-items">
+                <a href="./preview-sales-plan-list.html?setting=fields">计划自定义字段</a>
+                <a href="./preview-sales-plan-list.html?setting=numbers">计划自定义编号</a>
+                <a href="./preview-sales-plan-list.html?setting=approvals">计划审批设置</a>
+                <a href="./preview-sales-plan-list.html?setting=strategies">计划策略设置</a>
+                <a href="./preview-sales-plan-list.html?setting=print">设置计划打印模板</a>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="aw-main">
+          <div class="aw-page-head"><span class="aw-page-title">销售计划</span></div>
+          <div id="screen"></div>
+        </main>
+      </div>
+      <button class="aw-float-help" type="button">?</button>
+    </div>
+
+    <script>
+      const plans = [
+        { id:"plan_001", name:"Q2 高精度伺服电机销售计划", code:"SPP-202605001", product:"高精度伺服电机", cycle:"2026-04-01 ~ 2026-06-30", owner:"销售一部 / 李文涛", qty:120, amount:720000, doneQty:68, doneAmount:408000, rate:57, status:"执行中", tone:"blue" },
+        { id:"plan_002", name:"华南半成品物料专项计划", code:"SPP-202605002", product:"半成品物料", cycle:"2026-05-01 ~ 2026-05-31", owner:"销售二部 / 陈思源", qty:500, amount:25000, doneQty:360, doneAmount:18000, rate:72, status:"执行中", tone:"blue" },
+        { id:"plan_003", name:"重点客户铝合金型材计划", code:"SPP-202605003", product:"铝合金型材", cycle:"2026-05-15 ~ 2026-07-15", owner:"人员 / 赵强", qty:800, amount:25600, doneQty:800, doneAmount:25600, rate:100, status:"已完成", tone:"green" },
+        { id:"plan_004", name:"渠道客户包装材料计划", code:"SPP-202605004", product:"外箱包装", cycle:"2026-06-01 ~ 2026-06-30", owner:"渠道组 / 苏婉清", qty:2000, amount:9000, doneQty:0, doneAmount:0, rate:0, status:"未开始", tone:"gray" }
+      ];
+      const products = [
+        { productCode:"P-HM-450", productName:"高精度伺服电机", model:"HM-450", unit:"台", price:"6000.00" },
+        { productCode:"P-SEMI-001", productName:"半成品物料", model:"HM-451", unit:"KG", price:"50.00" },
+        { productCode:"P-AL-6061", productName:"铝合金型材", model:"AL-6061", unit:"KG", price:"32.00" }
+      ];
+      const salesRows = [
+        ["SO-20260517001","傲为","高精度伺服电机","李文涛",18,108000,"2026-05-04","已发货"],
+        ["SO-20260517008","深圳市启明科技有限公司","高精度伺服电机","李文涛",25,150000,"2026-05-11","生产中"],
+        ["SO-20260517116","广州明德贸易有限公司","高精度伺服电机","陈思源",25,150000,"2026-05-16","已确认"]
+      ];
+      const params = new URLSearchParams(location.search);
+      const root = document.querySelector("#screen");
+      const money = (v) => Number(v || 0).toLocaleString("zh-CN");
+      const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (s) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[s]));
+
+      function renderList() {
+        root.innerHTML = `
+          <div class="aw-list-layout aw-list-layout-no-tree"><section class="aw-list-panel">
+            <div class="aw-list-toolbar">
+              <div class="aw-toolbar-left"><div class="aw-search"><span class="aw-line-icon line-search"></span><input id="planSearch" placeholder="全局搜索（如计划名称、产品、负责人）" /></div></div>
+              <div class="aw-toolbar-right">
+                <button class="aw-refresh-action" type="button"><span class="aw-line-icon line-refresh"></span>刷新数据</button>
+                <button class="aw-tool-btn" type="button"><span class="aw-line-icon line-filter"></span>筛选</button>
+                <button class="aw-tool-btn" type="button"><span class="aw-line-icon line-columns"></span>字段配置</button>
+                <button class="aw-tool-btn" type="button"><span class="aw-line-icon line-upload"></span>导入</button>
+                <button class="aw-tool-btn" type="button"><span class="aw-line-icon line-download"></span>导出</button>
+                <a class="aw-btn primary" href="./preview-sales-plan-list.html?action=new"><span class="aw-line-icon line-plus"></span>添加计划</a>
+              </div>
+            </div>
+            <div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl">
+              <thead><tr>
+                <th class="aw-check-col aw-sticky-left-1"><label class="aw-check"><input id="checkAllTop" type="checkbox" /><span></span></label></th>
+                <th class="aw-index-col aw-sticky-left-2"><div class="aw-th-inner">序号</div></th>
+                <th style="width:240px"><div class="aw-th-inner">计划名称</div></th><th style="width:150px"><div class="aw-th-inner">计划编号</div></th>
+                <th style="width:180px"><div class="aw-th-inner">计划产品</div></th><th style="width:210px"><div class="aw-th-inner">计划周期</div></th>
+                <th style="width:150px"><div class="aw-th-inner">负责对象</div></th><th style="width:110px"><div class="aw-th-inner">目标数量</div></th>
+                <th style="width:120px"><div class="aw-th-inner">目标金额</div></th>
+                <th style="width:120px"><div class="aw-th-inner">完成金额</div></th><th style="width:100px"><div class="aw-th-inner">达成率</div></th>
+                <th style="width:100px"><div class="aw-th-inner">计划状态</div></th><th class="aw-sticky-right" style="width:90px"><div class="aw-th-inner">操作</div></th>
+              </tr></thead><tbody id="planRows"></tbody>
+            </table></div></div>
+            <div class="aw-list-footer"><div class="aw-footer-left">
+              <label class="aw-check"><input id="checkAllBottom" type="checkbox" /><span></span></label>
+              <span id="planTotal"></span><span id="selectedTotal">已选 0 条</span>
+              <button class="aw-bulk-btn" type="button">批量指定</button><button class="aw-bulk-btn" type="button">批量提交</button>
+            </div><div class="aw-pagination"><button type="button">上一页</button><button class="on" type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button">下一页</button></div></div>
+          </section></div>`;
+        bindList();
+      }
+
+      function bindList() {
+        const tbody = document.querySelector("#planRows");
+        const search = document.querySelector("#planSearch");
+        const total = document.querySelector("#planTotal");
+        const selectedTotal = document.querySelector("#selectedTotal");
+        const checkAllTop = document.querySelector("#checkAllTop");
+        const checkAllBottom = document.querySelector("#checkAllBottom");
+        const selected = new Set();
+        const visibleRows = () => plans.filter((row) => !search.value.trim() || Object.values(row).join(" ").includes(search.value.trim()));
+        function sync(rows) {
+          const visibleSelected = rows.filter((row) => selected.has(row.id)).length;
+          selectedTotal.textContent = `已选 ${visibleSelected} 条`;
+          [checkAllTop, checkAllBottom].forEach((box) => {
+            box.checked = rows.length > 0 && visibleSelected === rows.length;
+            box.indeterminate = visibleSelected > 0 && visibleSelected < rows.length;
+          });
+        }
+        function renderRows() {
+          const rows = visibleRows();
+          tbody.innerHTML = rows.map((row, index) => `
+            <tr>
+              <td class="aw-check-col aw-sticky-left-1"><label class="aw-check"><input class="row-check" data-key="${row.id}" type="checkbox" ${selected.has(row.id) ? "checked" : ""} /><span></span></label></td>
+              <td class="aw-num aw-index-col aw-sticky-left-2">${index + 1}</td>
+              <td><a class="aw-link" href="./preview-sales-plan-list.html?id=${row.id}">${esc(row.name)}</a></td><td>${row.code}</td><td>${esc(row.product)}</td><td>${row.cycle}</td><td>${esc(row.owner)}</td>
+              <td class="aw-num">${row.qty}</td><td class="aw-num">${money(row.amount)}</td><td class="aw-num">${money(row.doneAmount)}</td>
+              <td><span class="aw-status ${row.rate >= 100 ? "green" : row.rate > 0 ? "blue" : "gray"}">${row.rate}%</span></td>
+              <td><span class="aw-status ${row.tone}">${row.status}</span></td><td class="aw-action-col aw-sticky-right"><a class="aw-link" href="./preview-sales-plan-list.html?id=${row.id}">查看</a></td>
+            </tr>`).join("");
+          total.textContent = `共 ${rows.length} 条`;
+          tbody.querySelectorAll(".row-check").forEach((box) => box.addEventListener("change", () => {
+            box.checked ? selected.add(box.dataset.key) : selected.delete(box.dataset.key);
+            sync(rows);
+          }));
+          sync(rows);
+        }
+        [checkAllTop, checkAllBottom].forEach((box) => box.addEventListener("change", () => {
+          visibleRows().forEach((row) => box.checked ? selected.add(row.id) : selected.delete(row.id));
+          renderRows();
+        }));
+        search.addEventListener("input", renderRows);
+        renderRows();
+      }
+
+      function renderCreate() {
+        root.innerHTML = `
+          <div class="aw-form-page">
+            <section class="aw-detail-toolbar"><a class="aw-back-btn" href="./preview-sales-plan-list.html"><span class="aw-line-icon line-back"></span>返回计划列表</a><div class="aw-detail-actions"><button class="aw-tool-btn">保存草稿</button><button class="aw-tool-btn">重置</button><button class="aw-btn primary">提交审批</button></div></section>
+            <section class="aw-form-card"><div class="aw-detail-section-title">基础信息</div><div class="aw-form-grid">
+              ${field("计划名称","请输入销售计划名称",true)}${field("计划编号","自动生成",false,true)}${field('计划状态 <span class="aw-help-dot" title="新增销售计划默认待审批；审批通过后进入未开始或执行跟踪，执行中、暂停和关闭由后续动作推进。">?</span>',"待审批",false,true)}
+              ${field("计划开始日期","请选择",true)}${field("计划结束日期","请选择",true)}${selectField("统计口径",["按订单确认","按发货","按回款"])}
+              ${selectField("指定方式",["销售部门","具体人员"],true)}${selectField("销售部门",["销售一部","销售二部","渠道组","华南大区"])}${selectField("销售人员",["请选择","李文涛","陈思源","赵强","苏婉清"])}
+              ${selectField("客户范围",["全部客户","重点客户","战略客户","渠道客户"])}${field("考核权重","如 30%")}${field("预警阈值","如 低于 70% 预警")}
+            </div></section>
+            <section class="aw-form-card"><div class="aw-detail-section-title">计划产品</div><div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl">
+              <thead><tr><th>序号</th><th>产品编号</th><th>产品名称</th><th>规格型号</th><th>单位</th><th>目标数量</th><th>计划单价</th><th>目标金额</th><th>计划交付月</th><th>操作</th></tr></thead><tbody id="detailRows"></tbody>
+            </table></div></div><button class="aw-tool-btn" id="openPicker" type="button" style="margin-top:10px">新增明细</button><div class="aw-form-summary" id="summary"></div></section>
+            <section class="aw-form-card"><div class="aw-detail-section-title">计划详情</div><textarea class="aw-input" style="min-height:130px" placeholder="请输入计划背景、目标拆解、执行策略、风险说明等信息"></textarea></section>
+          </div>
+          <div id="pickerHost"></div>`;
+        bindCreate();
+      }
+
+      function field(label, placeholder, req, readonly) {
+        return `<div class="aw-field"><label class="${req ? "req" : ""}">${label}</label><input class="aw-input" ${readonly ? "readonly disabled" : ""} placeholder="${placeholder}" value="${readonly ? placeholder : ""}" /></div>`;
+      }
+      function selectField(label, options, req) {
+        return `<div class="aw-field"><label class="${req ? "req" : ""}">${label}</label><select class="aw-select">${options.map((o) => `<option>${o}</option>`).join("")}</select></div>`;
+      }
+
+      function bindCreate() {
+        const rows = [];
+        const tbody = document.querySelector("#detailRows");
+        const summary = document.querySelector("#summary");
+        function renderRows() {
+          tbody.innerHTML = rows.map((row, index) => `
+            <tr><td>${index + 1}</td><td><input class="aw-input" value="${row.productCode}"></td><td><input class="aw-input" value="${row.productName}"></td><td><input class="aw-input" value="${row.model}"></td><td><input class="aw-input" value="${row.unit}"></td>
+            <td><input class="aw-input qty" data-i="${index}" value="${row.qty || ""}" placeholder="0"></td><td><input class="aw-input price" data-i="${index}" value="${row.price}" placeholder="0.00"></td><td><input class="aw-input" value="${row.amount || ""}" readonly></td><td><input class="aw-input" value="${row.month || ""}" placeholder="如 2026-06"></td><td><span class="aw-link remove" data-i="${index}" style="color:var(--aw-danger)">删除</span></td></tr>`).join("") || `<tr><td colspan="10" style="text-align:center;color:var(--aw-fg-3);padding:28px 12px">暂无计划产品，点击“新增明细”选择产品</td></tr>`;
+          summary.innerHTML = `目标数量：<strong>${rows.reduce((s, r) => s + Number(r.qty || 0), 0)}</strong><span>目标金额：<strong>${money(rows.reduce((s, r) => s + Number(r.amount || 0), 0))}</strong></span>`;
+          tbody.querySelectorAll(".qty,.price").forEach((input) => input.addEventListener("input", () => {
+            const row = rows[Number(input.dataset.i)];
+            row[input.classList.contains("qty") ? "qty" : "price"] = input.value;
+            row.amount = Number(row.qty || 0) * Number(row.price || 0);
+            renderRows();
+          }));
+          tbody.querySelectorAll(".remove").forEach((btn) => btn.addEventListener("click", () => { rows.splice(Number(btn.dataset.i), 1); renderRows(); }));
+        }
+        document.querySelector("#openPicker").addEventListener("click", () => renderPicker((picked) => { rows.push(...picked.map((p) => ({ ...p, qty:"", amount:"", month:"" }))); renderRows(); }));
+        renderRows();
+      }
+
+      function renderPicker(onConfirm) {
+        const host = document.querySelector("#pickerHost");
+        const selected = new Set();
+        host.innerHTML = `<div class="aw-mask"><div class="aw-modal lg"><div class="head"><strong>选择产品</strong><button class="aw-modal-close" type="button">×</button></div><div class="body"><table class="aw-table"><thead><tr><th>选择</th><th>产品编号</th><th>产品名称</th><th>规格型号</th><th>单位</th><th>计划单价</th></tr></thead><tbody>${products.map((row) => `<tr data-code="${row.productCode}"><td><label class="aw-check"><input type="checkbox"><span></span></label></td><td>${row.productCode}</td><td>${row.productName}</td><td>${row.model}</td><td>${row.unit}</td><td>${row.price}</td></tr>`).join("")}</tbody></table></div><div class="aw-modal-foot"><button class="aw-tool-btn cancel">取消</button><button class="aw-btn primary ok">确定</button></div></div></div>`;
+        host.querySelectorAll("tr[data-code]").forEach((tr) => tr.addEventListener("click", () => {
+          const code = tr.dataset.code;
+          selected.has(code) ? selected.delete(code) : selected.add(code);
+          tr.querySelector("input").checked = selected.has(code);
+        }));
+        host.querySelector(".aw-modal-close").onclick = host.querySelector(".cancel").onclick = () => host.innerHTML = "";
+        host.querySelector(".ok").onclick = () => { onConfirm(products.filter((p) => selected.has(p.productCode))); host.innerHTML = ""; };
+      }
+
+      function renderDetail() {
+        const key = params.get("id") || params.get("planId");
+        const plan = plans.find((row) => row.id === key || row.code === key) || plans[0];
+        root.innerHTML = `
+          <div class="aw-detail-page"><section class="aw-detail-toolbar"><a class="aw-back-btn" href="./preview-sales-plan-list.html"><span class="aw-line-icon line-back"></span>返回</a><div class="aw-detail-actions"><button class="aw-tool-btn">修改</button><button class="aw-tool-btn">提交审批</button><button class="aw-tool-btn">暂停</button><button class="aw-tool-btn">关闭</button><button class="aw-tool-btn">导出</button></div></section>
+          <section class="aw-detail-header"><div class="aw-detail-top"><div><div class="aw-detail-title"><h2>${esc(plan.name)}</h2><span class="aw-status ${plan.tone}">${plan.status}</span></div><div class="aw-detail-inline-meta"><span class="aw-detail-code">${plan.code}</span><span>计划周期：<strong>${plan.cycle}</strong></span><span>负责对象：<strong>${esc(plan.owner)}</strong></span><span>达成率：<strong>${plan.rate}%</strong></span></div></div></div></section>
+          <section class="aw-card"><div class="aw-detail-tabs"><button class="aw-detail-tab on" data-tab="info">计划信息</button><button class="aw-detail-tab" data-tab="performance">业绩追踪</button><button class="aw-detail-tab" data-tab="sales">销售明细</button><button class="aw-detail-tab" data-tab="logs">操作记录</button></div><div id="detailBody"></div></section></div>`;
+        bindDetail(plan);
+      }
+
+      function bindDetail(plan) {
+        const body = document.querySelector("#detailBody");
+        function info() {
+          body.innerHTML = `<div class="aw-detail-section-title">基础信息</div><div class="aw-detail-grid">${[
+            ["计划名称", plan.name],["计划编号", plan.code],["计划状态", plan.status],["计划产品", plan.product],["计划周期", plan.cycle],["负责对象", plan.owner],["目标数量", plan.qty],["目标金额", money(plan.amount)],["统计口径", "按订单确认"]
+          ].map(([k,v]) => `<div class="aw-detail-field"><span>${k}</span><strong>${esc(v)}</strong></div>`).join("")}</div>
+          <div class="aw-detail-section-title">计划产品</div><table class="aw-table"><thead><tr><th>产品编号</th><th>产品名称</th><th>目标数量</th><th>目标金额</th><th>完成数量</th><th>完成金额</th><th>达成率</th></tr></thead><tbody><tr><td>P-HM-450</td><td>${esc(plan.product)}</td><td>${plan.qty}</td><td>${money(plan.amount)}</td><td>${plan.doneQty}</td><td>${money(plan.doneAmount)}</td><td>${plan.rate}%</td></tr></tbody></table>
+          <div class="aw-detail-section-title">计划详情</div><div class="aw-rich-preview"><p>本计划面向 2026 年重点销售周期，围绕${esc(plan.product)}在重点客户和渠道客户中的新增订单转化展开。</p><p>目标销售数量 ${plan.qty}，目标销售金额 ${money(plan.amount)} 元，按订单确认口径统计业绩。</p><p>若月度达成率低于 70%，系统应触发计划预警，由负责人补充跟进记录并调整策略。</p></div>`;
+        }
+        function performance() {
+          const gap = Math.max(plan.amount - plan.doneAmount, 0);
+          body.innerHTML = `<div class="aw-detail-section-title">追踪筛选</div><div class="aw-form-grid"><div class="aw-field"><label>追踪维度</label><select class="aw-select"><option>按金额</option><option>按人员</option><option>按产品</option></select></div><div class="aw-field"><label>相关人员</label><input class="aw-input" value="李文涛、陈思源、赵强" readonly></div><div class="aw-field"><label>统计口径</label><select class="aw-select"><option>按订单确认</option><option>按发货</option><option>按回款</option></select></div></div>
+          <div class="aw-kpi-grid"><div class="aw-kpi sky"><div class="l">目标金额</div><div class="n">${money(plan.amount)}</div></div><div class="aw-kpi mint"><div class="l">完成金额</div><div class="n">${money(plan.doneAmount)}</div></div><div class="aw-kpi peach"><div class="l">缺口金额</div><div class="n">${money(gap)}</div></div><div class="aw-kpi rose"><div class="l">达成率</div><div class="n">${plan.rate}%</div></div></div>
+          <div class="aw-detail-section-title">执行进度 / 金额维度</div><table class="aw-table"><thead><tr><th>月份</th><th>目标金额</th><th>完成金额</th><th>达成率</th><th>相关人员</th><th>趋势</th></tr></thead><tbody><tr><td>2026-04</td><td>240,000</td><td>132,000</td><td>55%</td><td>李文涛</td><td>低于计划</td></tr><tr><td>2026-05</td><td>240,000</td><td>276,000</td><td>115%</td><td>李文涛、陈思源</td><td>超额完成</td></tr><tr><td>2026-06</td><td>240,000</td><td>0</td><td>0%</td><td>李文涛</td><td>待执行</td></tr></tbody></table>`;
+        }
+        function sales() {
+          body.innerHTML = `<div class="aw-detail-section-title">关联销售业绩</div><table class="aw-table"><thead><tr><th>销售订单</th><th>客户</th><th>产品</th><th>销售人员</th><th>数量</th><th>金额</th><th>日期</th><th>状态</th></tr></thead><tbody>${salesRows.map((r) => `<tr>${r.map((c, i) => `<td class="${i === 0 ? "aw-link" : ""}">${i === 5 ? money(c) : esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+        }
+        function logs() {
+          body.innerHTML = `<div class="aw-detail-section-title">操作记录</div><table class="aw-table"><thead><tr><th>时间</th><th>操作人</th><th>操作内容</th><th>备注</th></tr></thead><tbody><tr><td>2026-05-01 09:30</td><td>老大</td><td>创建销售计划</td><td>提交审批</td></tr><tr><td>2026-05-02 10:12</td><td>李文涛</td><td>计划开始执行</td><td>按销售一部目标拆解</td></tr></tbody></table>`;
+        }
+        const renderers = { info, performance, sales, logs };
+        document.querySelectorAll(".aw-detail-tab").forEach((tab) => tab.addEventListener("click", () => {
+          document.querySelectorAll(".aw-detail-tab").forEach((node) => node.classList.remove("on"));
+          tab.classList.add("on");
+          renderers[tab.dataset.tab]();
+        }));
+        info();
+      }
+
+      function renderSetting() {
+        const setting = params.get("setting");
+        const map = { fields:"计划自定义字段", numbers:"计划自定义编号", approvals:"计划审批设置", strategies:"计划策略设置", print:"设置计划打印模板" };
+        const title = map[setting] || "计划设置";
+        const toolbar = `<section class="aw-detail-toolbar"><a class="aw-back-btn" href="./preview-sales-plan-list.html"><span class="aw-line-icon line-back"></span>返回计划列表</a><div class="aw-detail-actions"><button class="aw-tool-btn">刷新</button>${["fields","approvals","print"].includes(setting) ? `<button class="aw-btn primary">${setting === "fields" ? "新增计划字段" : setting === "approvals" ? "新增计划审批规则" : "新增计划打印模板"}</button>` : ""}</div></section>`;
+        const settingTable = (heads, rows) => `<div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl"><thead><tr>${heads.map((head) => `<th>${head}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+        const scopes = [
+          { key: "basic", label: "基础信息" },
+          { key: "product", label: "计划产品" },
+          { key: "detail", label: "计划详情" },
+        ];
+        const fields = [
+          { name:"计划名称", code:"plan_name", type:"文本", required:"是", scope:"basic" },
+          { name:"计划编号", code:"plan_code", type:"自动编号", required:"是", scope:"basic" },
+          { name:"计划周期", code:"plan_cycle", type:"日期范围", required:"是", scope:"basic" },
+          { name:"统计口径", code:"stat_scope", type:"下拉选项", required:"否", scope:"basic" },
+          { name:"指定方式", code:"assign_type", type:"下拉选项", required:"是", scope:"basic" },
+          { name:"客户范围", code:"customer_scope", type:"下拉选项", required:"否", scope:"basic" },
+          { name:"产品明细", code:"plan_products", type:"子表", required:"是", scope:"product" },
+          { name:"目标数量", code:"target_qty", type:"数字", required:"是", scope:"product" },
+          { name:"目标金额", code:"target_amount", type:"金额", required:"是", scope:"product" },
+          { name:"达成率", code:"achievement_rate", type:"百分比", required:"否", scope:"product" },
+          { name:"计划说明", code:"plan_detail", type:"富文本", required:"否", scope:"detail" },
+        ];
+        const approvals = ["计划提交审批", "计划调整审批"];
+        function openModal(modalTitle, body, width = "min(900px,calc(100vw - 56px))") {
+          const mask = document.createElement("div");
+          mask.className = "aw-mask";
+          mask.innerHTML = `<div class="aw-modal" style="width:${width}" onclick="event.stopPropagation()"><div class="head"><strong>${modalTitle}</strong><button class="aw-modal-close" type="button">×</button></div><div class="body">${body}</div><div class="aw-modal-foot"><button class="aw-tool-btn close-modal" type="button">取消</button><button class="aw-btn primary close-modal" type="button">确定</button></div></div>`;
+          document.body.append(mask);
+          mask.addEventListener("click", () => mask.remove());
+          mask.querySelectorAll(".close-modal,.aw-modal-close").forEach((node) => node.addEventListener("click", () => mask.remove()));
+          return mask;
+        }
+        const pickerPersonsMap = {
+          "傲为智慧有限公司": [],
+          "采购部": [{id:"100001",name:"丁昌容",role:"采购人员",phone:"13500001111"},{id:"100002",name:"纪广",role:"采购人员",phone:"13500002222"},{id:"100003",name:"庞慧",role:"采购人员",phone:"13500003333"},{id:"100004",name:"顾伦",role:"采购人员",phone:"13500004444"}],
+          "采购一部": [{id:"100001",name:"丁昌容",role:"采购人员",phone:"13500001111"},{id:"100002",name:"纪广",role:"采购人员",phone:"13500002222"}],
+          "采购二部": [{id:"100003",name:"庞慧",role:"采购人员",phone:"13500003333"},{id:"100004",name:"顾伦",role:"采购人员",phone:"13500004444"}],
+          "设计部": [{id:"200001",name:"林悦",role:"UI设计师",phone:"13600001111"},{id:"200002",name:"何志远",role:"平面设计师",phone:"13600002222"}],
+          "产品部": [{id:"300001",name:"苏婉清",role:"产品经理",phone:"13700001111"},{id:"300002",name:"赵一鸣",role:"产品经理",phone:"13700002222"}],
+          "销售部": [{id:"400001",name:"陈志强",role:"销售经理",phone:"13800001111"},{id:"400002",name:"刘芳",role:"销售代表",phone:"13800002222"}]
+        };
+        const pickerDepartments = ["傲为智慧有限公司","采购部","采购一部","采购二部","设计部","产品部","销售部"];
+        let pickerDept = "采购部";
+        function openPersonPickerModal({ lockedNames = [], onConfirm }) {
+          let pickedPersons = [];
+          const pickerMask = document.createElement("div");
+          pickerMask.className = "aw-modal-mask";
+          pickerMask.innerHTML = `<div class="aw-modal aw-person-picker-modal">
+            <div class="aw-modal-head"><strong>选择负责人</strong><button class="aw-modal-close" type="button">×</button></div>
+            <div class="aw-picker-body">
+              <aside class="aw-picker-side">
+                <div class="aw-picker-search"><span class="aw-line-icon line-search"></span><input placeholder="搜索" /></div>
+                <div class="aw-picker-tree"></div>
+              </aside>
+              <section class="aw-picker-main">
+                <div class="aw-picker-title"><strong class="aw-picker-dept-title">采购部</strong><span class="aw-picker-dept-count">共 4 人</span></div>
+                <table class="aw-doc-tbl"><thead><tr><th style="width:44px"><input class="aw-picker-all" type="checkbox" /></th><th>姓名</th><th>编号</th><th>角色</th><th>联系电话</th></tr></thead><tbody class="aw-picker-body-rows"></tbody></table>
+              </section>
+            </div>
+            <div class="aw-modal-foot"><button class="aw-tool-btn close-picker" type="button">取消</button><button class="aw-btn primary confirm-picker" type="button">确认</button></div>
+          </div>`;
+          const renderPersonPicker = () => {
+            const persons = pickerPersonsMap[pickerDept] || [];
+            const selectablePersons = persons.filter((person) => !lockedNames.includes(person.name));
+            pickerMask.querySelector(".aw-picker-tree").innerHTML = pickerDepartments.map((dept) => `<button class="aw-picker-tree-row ${dept === pickerDept ? "on" : ""}" type="button" data-dept="${dept}"><span>${dept === "傲为智慧有限公司" || dept === "采购部" ? "▼" : ""}</span>${dept}</button>`).join("");
+            pickerMask.querySelector(".aw-picker-dept-title").textContent = pickerDept;
+            pickerMask.querySelector(".aw-picker-dept-count").textContent = `共 ${persons.length} 人`;
+            pickerMask.querySelector(".aw-picker-all").checked = selectablePersons.length > 0 && selectablePersons.every((person) => pickedPersons.some((item) => item.id === person.id));
+            pickerMask.querySelector(".aw-picker-body-rows").innerHTML = persons.map((person) => {
+              const locked = lockedNames.includes(person.name);
+              const checked = locked || pickedPersons.some((item) => item.id === person.id);
+              return `<tr class="${locked ? "is-locked" : ""}" data-id="${person.id}"><td><input type="checkbox" ${checked ? "checked" : ""} ${locked ? "disabled" : ""}></td><td>${person.name}</td><td>${person.id}</td><td>${person.role}</td><td>${person.phone}</td></tr>`;
+            }).join("");
+            pickerMask.querySelectorAll(".aw-picker-tree-row").forEach((node) => node.addEventListener("click", () => {
+              pickerDept = node.dataset.dept;
+              pickedPersons = [];
+              renderPersonPicker();
+            }));
+            pickerMask.querySelectorAll(".aw-picker-body-rows tr").forEach((node) => node.addEventListener("click", () => {
+              const person = (pickerPersonsMap[pickerDept] || []).find((item) => item.id === node.dataset.id);
+              if (!person || lockedNames.includes(person.name)) return;
+              pickedPersons = pickedPersons.some((item) => item.id === person.id) ? pickedPersons.filter((item) => item.id !== person.id) : [...pickedPersons, person];
+              renderPersonPicker();
+            }));
+          };
+          pickerMask.querySelector(".aw-modal").addEventListener("click", (event) => event.stopPropagation());
+          pickerMask.addEventListener("click", () => pickerMask.remove());
+          pickerMask.querySelectorAll(".close-picker,.aw-modal-close").forEach((node) => node.addEventListener("click", () => pickerMask.remove()));
+          pickerMask.querySelector(".aw-picker-all").addEventListener("change", () => {
+            const persons = (pickerPersonsMap[pickerDept] || []).filter((person) => !lockedNames.includes(person.name));
+            const allChecked = persons.length > 0 && persons.every((person) => pickedPersons.some((item) => item.id === person.id));
+            pickedPersons = allChecked ? [] : [...persons];
+            renderPersonPicker();
+          });
+          pickerMask.querySelector(".confirm-picker").addEventListener("click", () => {
+            onConfirm(pickedPersons, pickerDept);
+            pickerMask.remove();
+          });
+          document.body.append(pickerMask);
+          renderPersonPicker();
+        }
+        function fieldModal(row = {}) {
+          let fieldPermissions = (row.permissions || []).map((item) => ({...item}));
+          const mask = document.createElement("div");
+          mask.className = "aw-modal-mask";
+          mask.innerHTML = `<div class="aw-modal aw-field-modal">
+            <div class="aw-modal-head"><strong>新增字段</strong><button class="aw-modal-close" type="button">×</button></div>
+            <div class="aw-modal-body aw-field-config-body">
+              <label class="aw-field"><span><b>*</b>字段名称</span><input value="${row.name || ""}" placeholder="请输入字段名称"></label>
+              <label class="aw-field"><span><b>*</b>字段编码</span><input value="${row.code || ""}" placeholder="请输入字段编码"></label>
+              <label class="aw-field"><span>字段类型</span><select>${["文本","数字","日期","下拉","多选","附件"].map((item) => `<option ${row.type === item ? "selected" : ""}>${item}</option>`).join("")}</select></label>
+              <label class="aw-field aw-field-full"><span>是否必填</span><label class="aw-switch-line"><input type="checkbox" ${row.required === "是" ? "checked" : ""}><i></i><em>是否必填</em></label></label>
+              <label class="aw-field"><span>默认值</span><input placeholder="请输入默认值"></label>
+              <label class="aw-field"><span>提示文字</span><input placeholder="请输入提示文字"></label>
+              <div class="aw-field aw-field-full"><div class="aw-form-sub-title">权限设置</div><div class="aw-permission-count">已设置权限人员（0）</div><div class="aw-permission-box aw-permission-table-box"><div class="aw-permission-empty">暂未添加权限人员，点击下方按钮添加</div></div><button class="aw-btn primary aw-permission-add" type="button">添加负责人</button></div>
+            </div>
+            <div class="aw-modal-foot"><button class="aw-tool-btn close-modal" type="button">取消</button><button class="aw-btn primary close-modal" type="button">确定</button></div>
+          </div>`;
+          const renderFieldPermissions = () => {
+            const count = mask.querySelector(".aw-permission-count");
+            const box = mask.querySelector(".aw-permission-box");
+            count.textContent = `已设置权限人员（${fieldPermissions.length}）`;
+            box.innerHTML = fieldPermissions.length
+              ? `<table class="aw-permission-table"><thead><tr><th>姓名</th><th>部门</th><th>职位</th><th style="width:110px">是否可见</th></tr></thead><tbody>${fieldPermissions.map((person, index) => `<tr><td>${person.name}</td><td>${person.dept || ""}</td><td>${person.role || ""}</td><td><label class="aw-switch-line mini"><input type="checkbox" ${person.visible !== false ? "checked" : ""} data-index="${index}"><i></i></label></td></tr>`).join("")}</tbody></table>`
+              : `<div class="aw-permission-empty">暂未添加权限人员，点击下方按钮添加</div>`;
+            box.querySelectorAll("input[type='checkbox']").forEach((input) => {
+              input.addEventListener("change", () => {
+                fieldPermissions[Number(input.dataset.index)].visible = input.checked;
+              });
+            });
+          };
+          const openPersonPicker = () => openPersonPickerModal({
+            onConfirm(persons, dept) {
+              persons.forEach((person) => {
+                if (!fieldPermissions.some((item) => item.name === person.name)) {
+                  fieldPermissions.push({ name:person.name, dept, role:person.role, visible:true });
+                }
+              });
+              renderFieldPermissions();
+            },
+          });
+          document.body.append(mask);
+          mask.querySelector(".aw-modal").addEventListener("click", (event) => event.stopPropagation());
+          mask.addEventListener("click", () => mask.remove());
+          mask.querySelectorAll(".close-modal,.aw-modal-close").forEach((node) => node.addEventListener("click", () => mask.remove()));
+          mask.querySelector(".aw-permission-add").addEventListener("click", openPersonPicker);
+          renderFieldPermissions();
+          return mask;
+        }
+        function approvalModal(name = "计划提交审批") {
+          const mask = document.createElement("div");
+          let activeNode = 0;
+          let nodes = [
+            { name:"直属主管审批", approvers:["李文涛"], method:"依次审批" },
+            { name:"销售负责人复核", approvers:["老大"], method:"会签" },
+          ];
+          mask.className = "aw-modal-mask";
+          mask.innerHTML = `<div class="aw-modal aw-field-modal">
+            <div class="aw-modal-head"><strong>审批规则设置</strong><button class="aw-modal-close" type="button">×</button></div>
+            <div class="aw-modal-body aw-field-full"><section class="aw-form-card aw-approval-editor" style="box-shadow:none;border:0;padding:0">
+              <div class="aw-detail-section-title">审批规则设置</div>
+              <div class="aw-approval-basic-grid"><label class="aw-field"><span><b>*</b>流程名称</span><input class="approval-name" value="${name}" placeholder="请输入流程名称"></label></div>
+              <div class="aw-detail-section-title">审批节点</div>
+              <div class="aw-approval-flow-strip"></div>
+            </section></div>
+            <div class="aw-modal-foot"><button class="aw-tool-btn close-modal" type="button">取消</button><button class="aw-btn primary close-modal" type="button">确定</button></div>
+          </div>`;
+          const renderNodes = () => {
+            const strip = mask.querySelector(".aw-approval-flow-strip");
+            strip.innerHTML = nodes.map((node, index) => `${index > 0 ? `<div class="aw-approval-arrow">→</div>` : ""}
+              <div class="aw-approval-card ${activeNode === index ? "on" : ""}" data-node-index="${index}">
+                <button class="aw-approval-remove" type="button" data-remove-node="${index}">×</button>
+                <div class="aw-approval-card-title">节点 ${index + 1}</div>
+                <label>节点名称<input value="${node.name}" data-node-name="${index}" placeholder="填写审批节点名称"></label>
+                <label>审批人<div class="aw-approval-person-input" data-pick-node="${index}">请选择负责人  +</div>
+                  <div class="aw-approval-picked">${node.approvers.map((person) => `<span>${person}<button type="button" data-remove-person="${index}|${person}">×</button></span>`).join("")}</div>
+                </label>
+                <div class="aw-approval-methods"><div>审批方式</div>${["依次审批","会签","或签"].map((method) => `<label data-method="${index}|${method}"><input type="radio" name="planApprovalWay${index}" ${node.method === method ? "checked" : ""}> <span>${method}</span><em>${method === "依次审批" ? "按节点顺序逐级审批" : method === "会签" ? "所有审批人通过后生效" : "任一审批人通过即可"}</em></label>`).join("")}</div>
+              </div>`).join("") + `<button class="aw-approval-add-card" type="button">+ 添加节点</button>`;
+            strip.querySelectorAll(".aw-approval-card").forEach((card) => card.addEventListener("click", () => { activeNode = Number(card.dataset.nodeIndex); renderNodes(); }));
+            strip.querySelectorAll("[data-node-name]").forEach((input) => input.addEventListener("input", () => { nodes[Number(input.dataset.nodeName)].name = input.value; }));
+            strip.querySelectorAll("[data-remove-node]").forEach((button) => button.addEventListener("click", (event) => {
+              event.stopPropagation();
+              if (nodes.length <= 1) return;
+              nodes.splice(Number(button.dataset.removeNode), 1);
+              activeNode = Math.max(0, Math.min(activeNode, nodes.length - 1));
+              renderNodes();
+            }));
+            strip.querySelectorAll("[data-remove-person]").forEach((button) => button.addEventListener("click", (event) => {
+              event.stopPropagation();
+              const [index, person] = button.dataset.removePerson.split("|");
+              nodes[Number(index)].approvers = nodes[Number(index)].approvers.filter((item) => item !== person);
+              renderNodes();
+            }));
+            strip.querySelectorAll("[data-pick-node]").forEach((button) => button.addEventListener("click", (event) => {
+              event.stopPropagation();
+              const index = Number(button.dataset.pickNode);
+              openPersonPickerModal({
+                lockedNames:nodes[index].approvers,
+                onConfirm(persons) {
+                  nodes[index].approvers = [...new Set([...nodes[index].approvers, ...persons.map((person) => person.name)])];
+                  renderNodes();
+                },
+              });
+            }));
+            strip.querySelectorAll("[data-method]").forEach((label) => label.addEventListener("click", (event) => {
+              event.stopPropagation();
+              const [index, method] = label.dataset.method.split("|");
+              nodes[Number(index)].method = method;
+              renderNodes();
+            }));
+            strip.querySelector(".aw-approval-add-card").addEventListener("click", () => {
+              nodes.push({ name:`审批节点 ${nodes.length + 1}`, approvers:[], method:"依次审批" });
+              activeNode = nodes.length - 1;
+              renderNodes();
+            });
+          };
+          document.body.append(mask);
+          mask.querySelector(".aw-modal").addEventListener("click", (event) => event.stopPropagation());
+          mask.addEventListener("click", () => mask.remove());
+          mask.querySelectorAll(".close-modal,.aw-modal-close").forEach((node) => node.addEventListener("click", () => mask.remove()));
+          renderNodes();
+          return mask;
+        }
+        function printModal(name = "计划标准打印模板") {
+          const isNew = name.startsWith("新增");
+          const mask = document.createElement("div");
+          mask.className = "aw-modal-mask";
+          mask.innerHTML = `<div class="aw-modal aw-category-modal">
+            <div class="aw-modal-head"><strong>${isNew ? "新增计划打印模板" : "编辑计划打印模板"}</strong><button class="aw-modal-close" type="button">×</button></div>
+            <div class="aw-modal-body">
+              <label class="aw-field"><span>模板名称</span><input value="${isNew ? "" : name}" placeholder="请输入模板名称"></label>
+              <label class="aw-field"><span>适用场景</span><select><option>新增/详情打印</option><option>审批完成后打印</option></select></label>
+              <label class="aw-field"><span>纸张</span><select><option>A4 纵向</option><option>A4 横向</option></select></label>
+              <label class="aw-field aw-field-full"><span>模板说明</span><textarea placeholder="请输入打印模板备注"></textarea></label>
+            </div>
+            <div class="aw-modal-foot"><button class="aw-tool-btn close-modal" type="button">取消</button><button class="aw-btn primary close-modal" type="button">确定</button></div>
+          </div>`;
+          document.body.append(mask);
+          mask.querySelector(".aw-modal").addEventListener("click", (event) => event.stopPropagation());
+          mask.addEventListener("click", () => mask.remove());
+          mask.querySelectorAll(".close-modal,.aw-modal-close").forEach((node) => node.addEventListener("click", () => mask.remove()));
+          return mask;
+        }
+        if (setting === "fields") {
+          root.innerHTML = `<div class="aw-setting-page">${toolbar}<div class="aw-setting-split"><aside class="aw-setting-tree"><div class="aw-setting-tree-title">字段位置</div>${scopes.map((scope, index) => `<button class="aw-setting-tree-row ${index === 0 ? "on" : ""}" data-scope="${scope.key}"><span class="aw-line-icon line-doc"></span><span>${scope.label}</span><em>${fields.filter((row) => row.scope === scope.key).length}</em></button>`).join("")}</aside><section class="aw-form-card aw-setting-list-card"><div class="aw-setting-head"><div><div id="fieldScopeTitle" class="aw-detail-section-title">基础信息</div><p>配置当前区域展示的计划自定义字段。</p></div><div class="aw-search aw-setting-search"><span class="aw-line-icon line-search"></span><input placeholder="搜索字段名称/编码"></div></div><div id="fieldRows"></div></section></div></div>`;
+          const renderFields = (scopeKey = "basic") => {
+            const rows = fields.filter((row) => row.scope === scopeKey);
+            document.querySelector("#fieldScopeTitle").textContent = scopes.find((scope) => scope.key === scopeKey)?.label || "基础信息";
+            document.querySelector("#fieldRows").innerHTML = settingTable(["序号","字段名称","字段编码","字段类型","是否必填","是否启用","操作"], rows.map((row, index) => `<tr><td>${index + 1}</td><td>${row.name}</td><td>${row.code}</td><td>${row.type}</td><td><label class="aw-switch-line mini"><input type="checkbox" ${row.required === "是" ? "checked" : ""}><i></i></label></td><td><label class="aw-switch-line mini"><input type="checkbox" checked><i></i></label></td><td><span class="aw-link edit-field" data-code="${row.code}">编辑</span><span class="aw-action-split">|</span><span class="aw-link" style="color:var(--aw-danger)">删除</span></td></tr>`).join(""));
+            document.querySelectorAll(".edit-field").forEach((node) => node.addEventListener("click", () => fieldModal(fields.find((row) => row.code === node.dataset.code))));
+          };
+          document.querySelectorAll(".aw-setting-tree-row").forEach((node) => node.addEventListener("click", () => {
+            document.querySelectorAll(".aw-setting-tree-row").forEach((item) => item.classList.toggle("on", item === node));
+            renderFields(node.dataset.scope);
+          }));
+          document.querySelector(".aw-detail-actions .aw-btn.primary")?.addEventListener("click", () => fieldModal());
+          renderFields();
+          return;
+        }
+        if (setting === "numbers") {
+          const candidates = [
+            { key:"prefix", name:"前缀", preview:"SPP", fixed:true },
+            { key:"yearMonth", name:"年月", preview:"202605" },
+            { key:"yearMonthDay", name:"年月日", preview:"20260527" },
+            { key:"serial3", name:"流水号 3 位", preview:"001" },
+            { key:"serial4", name:"流水号 4 位", preview:"0001" },
+            { key:"dept", name:"部门编码", preview:"XS" },
+            { key:"owner", name:"负责人编码", preview:"LW" },
+            { key:"cc1", name:"自定义代码1", preview:"C1", editable:true },
+            { key:"cc2", name:"自定义代码2", preview:"C2", editable:true },
+          ];
+          const selected = new Set(["yearMonthDay", "serial3"]);
+          root.innerHTML = `<div class="aw-setting-page">${toolbar}<section class="aw-code-builder"><section class="aw-form-card aw-code-preview-card"><div class="aw-code-preview-hero"><div class="aw-barcode"></div><div><span>当前格式：</span><strong id="codePreview"></strong></div></div><div class="aw-code-picked-head"><strong>已选编号项</strong><span id="codeCount">3 / 5</span></div><div id="pickedCodes"></div></section><section class="aw-form-card aw-code-config-card"><div class="aw-code-rule-grid"><label class="aw-field"><span><b>*</b>规则名称</span><input class="aw-input" value="计划编号规则"></label><label class="aw-field"><span><b>*</b>规则编码</span><input class="aw-input" value="PLAN_CODE_RULE"></label><label class="aw-field"><span>间隔符</span><input class="aw-input" value="-"></label></div><div class="aw-detail-section-title">编号项</div><p class="aw-setting-note">前缀固定占 1 个名额，新增编号项使用系统按钮色。</p><div id="numberCandidates" class="aw-code-candidates"></div><div class="aw-setting-note">扩展项</div><div id="numberExtraCandidates" class="aw-code-candidates"></div><div class="aw-code-footer"><button id="codeReset" class="aw-tool-btn" type="button">重置</button><button class="aw-btn primary" type="button">保存</button></div></section></section></div>`;
+          const renderCodes = () => {
+            const picked = [candidates[0], ...candidates.filter((row) => selected.has(row.key) && !row.fixed)];
+            const rest = picked.filter((row) => !row.fixed).map((row) => row.preview).join("-");
+            document.querySelector("#codePreview").innerHTML = `<span class="aw-code-preview-prefix">SPP${rest ? "-" : ""}</span>${rest ? `<span class="aw-code-preview-items">${rest}</span>` : ""}`;
+            document.querySelector("#codeCount").textContent = `${picked.length} / 5`;
+            document.querySelector("#pickedCodes").innerHTML = picked.map((row, index) => row.fixed ? `<div class="aw-code-picked fixed"><span class="aw-line-icon line-lock"></span><strong>前缀</strong><input value="${row.preview}"><label class="aw-switch-line mini"><em>搜索项</em><input type="checkbox"><i></i></label></div>` : `<div class="aw-code-picked" draggable="true" data-drag-index="${index - 1}"><span class="aw-code-drag">⠿</span><strong>${row.name}</strong>${row.editable ? `<input value="${row.name}"><input value="${row.preview}">` : `<span>${row.preview}</span>`}<label class="aw-switch-line mini"><em>搜索项</em><input type="checkbox"><i></i></label><button data-remove-code="${row.key}" type="button">×</button></div>`).join("");
+            document.querySelector("#numberCandidates").innerHTML = `<button class="aw-code-card fixed" type="button"><em>1</em><strong>前缀</strong><span>预览值：SPP</span><i class="aw-line-icon line-lock"></i></button>` + candidates.filter((row) => !row.fixed && !row.editable).map((row) => `<button class="aw-code-card ${selected.has(row.key) ? "on" : ""}" data-code-key="${row.key}" type="button"><strong>${row.name}</strong><span>${row.preview}</span></button>`).join("");
+            document.querySelector("#numberExtraCandidates").innerHTML = candidates.filter((row) => row.editable).map((row) => `<button class="aw-code-card ${selected.has(row.key) ? "on" : ""}" data-code-key="${row.key}" type="button"><strong>${row.name}</strong><span>${row.preview}</span></button>`).join("");
+            document.querySelectorAll("[data-code-key]").forEach((node) => node.classList.toggle("on", selected.has(node.dataset.codeKey)));
+            document.querySelectorAll("[data-code-key]").forEach((node) => node.addEventListener("click", () => {
+              const key = node.dataset.codeKey;
+              if (selected.has(key)) selected.delete(key);
+              else if (selected.size < 4) selected.add(key);
+              renderCodes();
+            }));
+            document.querySelectorAll("[data-remove-code]").forEach((node) => node.addEventListener("click", () => { selected.delete(node.dataset.removeCode); renderCodes(); }));
+            let dragIndex = null;
+            document.querySelectorAll("[data-drag-index]").forEach((node) => {
+              node.addEventListener("dragstart", () => { dragIndex = Number(node.dataset.dragIndex); });
+              node.addEventListener("dragover", (event) => event.preventDefault());
+              node.addEventListener("drop", () => {
+                const targetIndex = Number(node.dataset.dragIndex);
+                const keys = [...selected];
+                if (dragIndex === null || dragIndex === targetIndex) return;
+                const [moved] = keys.splice(dragIndex, 1);
+                keys.splice(targetIndex, 0, moved);
+                selected.clear();
+                keys.forEach((key) => selected.add(key));
+                renderCodes();
+              });
+            });
+          };
+          document.querySelector("#codeReset").addEventListener("click", () => { selected.clear(); selected.add("yearMonthDay"); selected.add("serial3"); renderCodes(); });
+          renderCodes();
+          return;
+        }
+        if (setting === "approvals") {
+          let approvalRows = [
+            { id:1, name:"计划提交审批", category:"新增销售计划", nodes:[{name:"直属主管审批", approvers:"李文涛", method:"依次审批"},{name:"销售负责人复核", approvers:"老大", method:"会签"}], creator:"李文涛", updatedAt:"2026-05-27", enabled:true },
+            { id:2, name:"计划调整审批", category:"目标变更", nodes:[{name:"计划负责人审批", approvers:"陈思源", method:"依次审批"},{name:"销售总监审批", approvers:"老大", method:"或签"}], creator:"陈思源", updatedAt:"2026-05-27", enabled:true },
+          ];
+          let editingApprovalId = null;
+          let approvalNodes = [];
+          let activeApprovalNode = 0;
+          root.innerHTML = `<div class="aw-setting-page">
+            <section class="aw-detail-toolbar">
+              <a class="aw-back-btn" href="./preview-sales-plan-list.html"><span class="aw-line-icon line-back"></span>返回计划列表</a>
+              <div class="aw-detail-actions">
+                <button id="refreshBtn" class="aw-tool-btn" type="button">刷新</button>
+                <button id="addBtn" class="aw-btn primary" type="button">新增计划审批规则</button>
+                <div id="approvalTopActions" class="aw-detail-actions" style="display:none">
+                  <button class="aw-tool-btn" type="button" id="cancelApprovalEditor">取消</button>
+                  <button class="aw-tool-btn" type="button">编辑</button>
+                  <button class="aw-btn primary" type="button" id="saveApprovalEditor">保存</button>
+                </div>
+              </div>
+            </section>
+            <section id="approvalListCard" class="aw-form-card">
+              <div class="aw-setting-head"><div><div class="aw-detail-section-title">${title}</div><p>统一维护当前模块审批规则，策略设置中的流程下拉来源于此列表。</p></div><div class="aw-search aw-setting-search"><span class="aw-line-icon line-search"></span><input placeholder="搜索流程名称/适用场景"></div></div>
+              <div id="approvalRows"></div>
+            </section>
+            <section id="approvalEditorCard" class="aw-form-card aw-approval-editor" style="display:none">
+              <div class="aw-detail-section-title">审批规则设置</div>
+              <div class="aw-approval-basic-grid">
+                <label class="aw-field"><span><b>*</b>流程名称</span><input id="approvalNameInline" placeholder="请输入流程名称" /></label>
+              </div>
+              <div class="aw-detail-section-title">审批节点</div>
+              <div id="approvalInlineNodes" class="aw-approval-flow-strip"></div>
+            </section>
+          </div>`;
+          const renderApprovalRows = () => {
+            document.querySelector("#approvalRows").innerHTML = settingTable(["序号","流程名称","适用场景","节点数","创建人","更新时间","是否启用","操作"], approvalRows.map((row, index) => `<tr><td>${index + 1}</td><td>${row.name}</td><td>${row.category}</td><td>${row.nodes.length}</td><td>${row.creator}</td><td>${row.updatedAt}</td><td><label class="aw-switch-line mini"><input type="checkbox" ${row.enabled ? "checked" : ""} data-toggle-approval="${row.id}"><i></i></label></td><td><span class="aw-link" data-edit-approval="${row.id}">编辑</span><span class="aw-action-split">|</span><span class="aw-link" style="color:var(--aw-danger)" data-delete-approval="${row.id}">删除</span></td></tr>`).join(""));
+            document.querySelectorAll("[data-edit-approval]").forEach((node) => node.addEventListener("click", () => openApprovalEditor(Number(node.dataset.editApproval))));
+            document.querySelectorAll("[data-delete-approval]").forEach((node) => node.addEventListener("click", () => {
+              approvalRows = approvalRows.filter((row) => row.id !== Number(node.dataset.deleteApproval));
+              renderApprovalRows();
+            }));
+            document.querySelectorAll("[data-toggle-approval]").forEach((node) => node.addEventListener("change", () => {
+              const row = approvalRows.find((item) => item.id === Number(node.dataset.toggleApproval));
+              if (row) row.enabled = node.checked;
+            }));
+          };
+          const syncApprovalInlineFromDom = () => {
+            approvalNodes = [...document.querySelectorAll("#approvalInlineNodes .aw-approval-card")].map((card) => ({
+              name: card.querySelector(".approval-node-name-inline").value.trim(),
+              approvers: card.querySelector(".approval-node-approvers-inline").dataset.value || "",
+              method: card.querySelector("input[type='radio']:checked")?.value || "依次审批",
+            }));
+          };
+          const renderApprovalInlineNodes = () => {
+            document.querySelector("#approvalInlineNodes").innerHTML = approvalNodes.map((node, index) => {
+              const picked = (node.approvers || "").split(/[，,]/).map((name) => name.trim()).filter(Boolean);
+              return `${index > 0 ? `<div class="aw-approval-arrow">→</div>` : ""}<div class="aw-approval-card ${activeApprovalNode === index ? "on" : ""}" data-inline-node="${index}"><button class="aw-approval-remove" type="button" data-remove-inline-node="${index}">×</button><div class="aw-approval-card-title">节点 ${index + 1}</div><label>节点名称<input class="approval-node-name-inline" value="${node.name || ""}" placeholder="填写审批节点名称" /></label><label>审批人<div class="approval-node-approvers-inline aw-approval-person-input" data-value="${node.approvers || ""}" data-pick-inline-node="${index}">请选择负责人  +</div>${picked.length ? `<div class="aw-approval-picked">${picked.map((name) => `<span>${name}<button type="button" data-remove-inline-person="${index}|${name}">×</button></span>`).join("")}</div>` : ""}</label><div class="aw-approval-methods"><div>审批方式</div>${["依次审批","会签","或签"].map((method) => `<label data-inline-method="${index}|${method}"><input type="radio" name="approvalMethod${index}" value="${method}" ${node.method === method ? "checked" : ""} /><span>${method}</span><em>${method === "依次审批" ? "按先后顺序，一人同意才流转到下一人" : method === "会签" ? "所选人员必须全部审批后进入下一节点" : "选中的人里只要有一人同意即可"}</em></label>`).join("")}</div></div>`;
+            }).join("") + `<button class="aw-approval-add-card" type="button" id="addApprovalInlineNode">+ 添加节点</button>`;
+            document.querySelectorAll("[data-inline-node]").forEach((card) => card.addEventListener("click", () => { activeApprovalNode = Number(card.dataset.inlineNode); renderApprovalInlineNodes(); }));
+            document.querySelectorAll(".approval-node-name-inline").forEach((input) => input.addEventListener("input", syncApprovalInlineFromDom));
+            document.querySelectorAll("[data-remove-inline-node]").forEach((button) => button.addEventListener("click", (event) => {
+              event.stopPropagation();
+              syncApprovalInlineFromDom();
+              if (approvalNodes.length <= 1) return;
+              approvalNodes = approvalNodes.filter((_, index) => index !== Number(button.dataset.removeInlineNode));
+              activeApprovalNode = Math.max(0, Math.min(activeApprovalNode, approvalNodes.length - 1));
+              renderApprovalInlineNodes();
+            }));
+            document.querySelectorAll("[data-remove-inline-person]").forEach((button) => button.addEventListener("click", (event) => {
+              event.stopPropagation();
+              syncApprovalInlineFromDom();
+              const [index, name] = button.dataset.removeInlinePerson.split("|");
+              approvalNodes[Number(index)].approvers = approvalNodes[Number(index)].approvers.split(/[，,]/).map((item) => item.trim()).filter((item) => item && item !== name).join("，");
+              renderApprovalInlineNodes();
+            }));
+            document.querySelectorAll("[data-pick-inline-node]").forEach((button) => button.addEventListener("click", (event) => {
+              event.stopPropagation();
+              syncApprovalInlineFromDom();
+              const index = Number(button.dataset.pickInlineNode);
+              const lockedNames = approvalNodes[index].approvers.split(/[，,]/).map((name) => name.trim()).filter(Boolean);
+              openPersonPickerModal({
+                lockedNames,
+                onConfirm(persons) {
+                  const names = persons.map((person) => person.name);
+                  approvalNodes[index].approvers = [...new Set([...lockedNames, ...names])].join("，");
+                  renderApprovalInlineNodes();
+                },
+              });
+            }));
+            document.querySelectorAll("[data-inline-method]").forEach((label) => label.addEventListener("click", (event) => {
+              event.stopPropagation();
+              syncApprovalInlineFromDom();
+              const [index, method] = label.dataset.inlineMethod.split("|");
+              approvalNodes[Number(index)].method = method;
+              activeApprovalNode = Number(index);
+              renderApprovalInlineNodes();
+            }));
+            document.querySelector("#addApprovalInlineNode").addEventListener("click", () => {
+              syncApprovalInlineFromDom();
+              approvalNodes.push({ name:"", approvers:"", method:"依次审批" });
+              activeApprovalNode = approvalNodes.length - 1;
+              renderApprovalInlineNodes();
+            });
+          };
+          const openApprovalEditor = (id) => {
+            const row = approvalRows.find((item) => item.id === id);
+            editingApprovalId = row?.id || null;
+            document.querySelector("#approvalNameInline").value = row?.name || "";
+            approvalNodes = row?.nodes.map((node) => ({ ...node })) || [{ name:"", approvers:"", method:"依次审批" }, { name:"", approvers:"", method:"依次审批" }, { name:"", approvers:"", method:"依次审批" }];
+            activeApprovalNode = Math.min(1, approvalNodes.length - 1);
+            document.querySelector("#approvalListCard").style.display = "none";
+            document.querySelector("#approvalEditorCard").style.display = "block";
+            document.querySelector("#refreshBtn").style.display = "none";
+            document.querySelector("#addBtn").style.display = "none";
+            document.querySelector("#approvalTopActions").style.display = "flex";
+            renderApprovalInlineNodes();
+          };
+          const closeApprovalEditor = () => {
+            document.querySelector("#approvalEditorCard").style.display = "none";
+            document.querySelector("#approvalListCard").style.display = "block";
+            document.querySelector("#refreshBtn").style.display = "";
+            document.querySelector("#addBtn").style.display = "";
+            document.querySelector("#approvalTopActions").style.display = "none";
+            renderApprovalRows();
+          };
+          const confirmApprovalEditor = () => {
+            syncApprovalInlineFromDom();
+            const name = document.querySelector("#approvalNameInline").value.trim();
+            if (!name) return;
+            const existing = approvalRows.find((row) => row.id === editingApprovalId);
+            const next = { id:editingApprovalId || Date.now(), name, category:existing?.category || "新增销售计划", nodes:approvalNodes.filter((node) => node.name || node.approvers), creator:existing?.creator || "李文涛", updatedAt:"2026-05-27", enabled:existing?.enabled ?? true };
+            approvalRows = editingApprovalId ? approvalRows.map((row) => row.id === editingApprovalId ? next : row) : [...approvalRows, next];
+            closeApprovalEditor();
+          };
+          document.querySelector("#addBtn").addEventListener("click", () => openApprovalEditor());
+          document.querySelector("#cancelApprovalEditor").addEventListener("click", closeApprovalEditor);
+          document.querySelector("#saveApprovalEditor").addEventListener("click", confirmApprovalEditor);
+          renderApprovalRows();
+          return;
+        }
+        if (setting === "strategies") {
+          let activeStrategy = "submit";
+          const strategyRows = {
+            submit: [
+              { title:"计划提交审批", sub:"提交后按所选审批流程进入审批流。", type:"select" },
+              { title:"审批后锁定关键字段", sub:"审批通过后锁定目标金额、计划周期和负责对象。", type:"switch", enabled:true },
+            ],
+            writeback: [
+              { title:"达成率预警", sub:"月度达成率低于阈值时通知负责人。", type:"switch", enabled:true },
+              { title:"业绩回写", sub:"订单确认后自动回写计划完成金额和达成率。", type:"switch", enabled:true },
+            ],
+          };
+          root.innerHTML = `<div class="aw-setting-page">${toolbar}<section class="aw-form-card aw-policy-card"><div class="aw-policy-head"><strong>${title}</strong><span>用于控制业务逻辑、审批触发、业绩回写和异常拦截规则</span></div><div class="aw-tabs"><button class="t on" data-strategy-tab="submit">提交控制</button><button class="t" data-strategy-tab="writeback">回写策略</button></div><div class="aw-policy-list"></div><div class="aw-policy-foot"><button class="aw-tool-btn" type="button">重置默认</button><button class="aw-btn primary" type="button">保存</button></div></section></div>`;
+          const renderStrategies = () => {
+            document.querySelectorAll("[data-strategy-tab]").forEach((tab) => tab.classList.toggle("on", tab.dataset.strategyTab === activeStrategy));
+            document.querySelector(".aw-policy-list").innerHTML = strategyRows[activeStrategy].map((row, index) => {
+              const control = row.type === "select"
+                ? `<select class="aw-select"><option>计划提交审批</option><option>计划调整审批</option></select>`
+                : `<div class="aw-policy-radio" data-policy-index="${index}"><label class="aw-radio ${row.enabled !== false ? "on" : ""}" data-policy-value="on"><span class="aw-dot"></span>启用</label><label class="aw-radio ${row.enabled === false ? "on" : ""}" data-policy-value="off"><span class="aw-dot"></span>关闭</label></div>`;
+              return `<div class="aw-policy-row"><div><div class="aw-policy-row-title">${row.title}</div><div class="aw-policy-row-sub">${row.sub}</div></div><div class="aw-policy-row-control">${control}</div></div>`;
+            }).join("");
+            document.querySelectorAll("[data-policy-index] .aw-radio").forEach((node) => node.addEventListener("click", () => {
+              const index = Number(node.closest("[data-policy-index]").dataset.policyIndex);
+              strategyRows[activeStrategy][index].enabled = node.dataset.policyValue === "on";
+              renderStrategies();
+            }));
+          };
+          document.querySelectorAll("[data-strategy-tab]").forEach((tab) => tab.addEventListener("click", () => { activeStrategy = tab.dataset.strategyTab; renderStrategies(); }));
+          renderStrategies();
+          return;
+        }
+        root.innerHTML = `<div class="aw-setting-page">${toolbar}<section class="aw-form-card"><div class="aw-detail-section-title">${title}</div>${settingTable(["序号","模板名称","适用场景","纸张","状态","更新时间","操作"], [1,2].map((index) => `<tr><td>${index}</td><td>计划${index === 1 ? "标准打印模板" : "审批留痕模板"}</td><td>${index === 1 ? "新增/详情打印" : "审批完成后打印"}</td><td>A4 ${index === 1 ? "纵向" : "横向"}</td><td><span class="aw-status green">启用</span></td><td>2026-05-27</td><td><span class="aw-link">编辑</span><span class="aw-action-split">|</span><span class="aw-link" style="color:var(--aw-danger)">删除</span></td></tr>`).join(""))}</section></div>`;
+        document.querySelector(".aw-detail-actions .aw-btn.primary")?.addEventListener("click", () => printModal("新增"));
+        document.querySelectorAll(".aw-form-card tbody .aw-link:first-child").forEach((node, index) => node.addEventListener("click", () => printModal(index === 0 ? "计划标准打印模板" : "计划审批留痕模板")));
+      }
+
+      if (params.get("action") === "new") renderCreate();
+      else if (params.get("setting")) renderSetting();
+      else if (params.get("id") || params.get("planId")) renderDetail();
+      else renderList();
+
+      const triggers = document.querySelectorAll("[data-flyout-trigger]");
+      const flyouts = document.querySelectorAll("[data-flyout]");
+      let flyoutTimer = null;
+      function hideFlyouts() { flyouts.forEach((flyout) => { flyout.style.display = "none"; }); }
+      function showFlyout(key, trigger) {
+        clearTimeout(flyoutTimer); hideFlyouts();
+        const flyout = document.querySelector(`[data-flyout="${key}"]`);
+        if (!flyout) return;
+        const rect = trigger.getBoundingClientRect();
+        flyout.style.top = `${Math.max(52, rect.top + rect.height / 2 - 110)}px`;
+        flyout.style.display = "block";
+      }
+      function scheduleHide() { flyoutTimer = setTimeout(hideFlyouts, 150); }
+      triggers.forEach((trigger) => {
+        trigger.addEventListener("mouseenter", () => showFlyout(trigger.dataset.flyoutTrigger, trigger));
+        trigger.addEventListener("mouseleave", scheduleHide);
+      });
+      flyouts.forEach((flyout) => {
+        flyout.addEventListener("mouseenter", () => clearTimeout(flyoutTimer));
+        flyout.addEventListener("mouseleave", scheduleHide);
+      });
+    </script>
+  </body>
+</html>

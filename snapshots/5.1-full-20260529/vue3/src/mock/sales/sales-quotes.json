@@ -1,0 +1,133 @@
+[
+  {
+    "id": "quote_001",
+    "code": "SP-20251221001",
+    "topic": "荣某定制",
+    "quoteType": "terminalCustomer",
+    "quoteTypeName": "终端客户",
+    "customerId": "cust_001",
+    "customerName": "傲为",
+    "amount": 5960,
+    "currency": "CNY",
+    "priceVersion": "V1",
+    "conversionStatus": "convertedOrder",
+    "conversionStatusName": "已转订单",
+    "contractCode": "-",
+    "orderCode": "SO-20251221001",
+    "quoteDate": "2025-12-21",
+    "expireDate": "2025-12-21",
+    "ownerName": "傲为",
+    "status": "pendingApproval",
+    "statusName": "审核中",
+    "category": "group",
+    "relationKind": "关联分组",
+    "relationName": "重点客户",
+    "detail": "报价说明、适用条件、客户沟通记录等信息。",
+    "attachments": [
+      { "id": "qa_001", "name": "新建文本文档.PDF", "size": "0 Bytes", "uploadedAt": "2024-08-01 17:46:27" }
+    ],
+    "products": [
+      { "id": "qp1", "productNo": "7820864", "productName": "半成品物料", "model": "HM-450", "unit": "KG", "price": 50, "tier": "启用" },
+      { "id": "qp2", "productNo": "5786931", "productName": "半成品物料", "model": "HM-451", "unit": "KG", "price": 48, "tier": "启用" },
+      { "id": "qp3", "productNo": "8518691", "productName": "铝合金型材", "model": "AL-6061", "unit": "KG", "price": 32, "tier": "未启用" }
+    ],
+    "tiers": [
+      { "id": "qt1", "minQty": 100, "discount": 3, "note": "大于等于 100 KG，优惠 3%" },
+      { "id": "qt2", "minQty": 300, "discount": 5, "note": "大于等于 300 KG，优惠 5%" },
+      { "id": "qt3", "minQty": 500, "discount": 8, "note": "大于等于 500 KG，优惠 8%" }
+    ]
+  },
+  {
+    "id": "quote_002",
+    "code": "SP-20251221002",
+    "topic": "经销商年度报价",
+    "quoteType": "dealer",
+    "quoteTypeName": "经销商报价",
+    "customerName": "通用",
+    "amount": 128000,
+    "currency": "CNY",
+    "priceVersion": "V2",
+    "conversionStatus": "convertedContract",
+    "conversionStatusName": "已转合同",
+    "contractCode": "HT-20251220001",
+    "orderCode": "SO-20251221002",
+    "quoteDate": "2025-12-20",
+    "expireDate": "2026-12-31",
+    "ownerName": "老大",
+    "status": "approved",
+    "statusName": "已批准",
+    "category": "group",
+    "relationKind": "关联分组",
+    "relationName": "渠道客户",
+    "detail": "年度经销报价，支持阶梯折扣。",
+    "attachments": [],
+    "products": [
+      { "id": "qp1", "productNo": "7820864", "productName": "半成品物料", "model": "HM-450", "unit": "KG", "price": 50, "tier": "启用" },
+      { "id": "qp2", "productNo": "5786931", "productName": "半成品物料", "model": "HM-451", "unit": "KG", "price": 48, "tier": "启用" }
+    ],
+    "tiers": [
+      { "id": "qt1", "minQty": 100, "discount": 3, "note": "大于等于 100 KG，优惠 3%" },
+      { "id": "qt2", "minQty": 300, "discount": 5, "note": "大于等于 300 KG，优惠 5%" }
+    ]
+  },
+  {
+    "id": "quote_003",
+    "code": "SP-20251221003",
+    "topic": "年末通用报价",
+    "quoteType": "universal",
+    "quoteTypeName": "通用报价",
+    "customerName": "通用",
+    "amount": 32000,
+    "currency": "CNY",
+    "priceVersion": "V1",
+    "conversionStatus": "notConverted",
+    "conversionStatusName": "未转化",
+    "contractCode": "-",
+    "orderCode": "-",
+    "quoteDate": "2025-12-18",
+    "expireDate": "2025-12-31",
+    "ownerName": "李文涛",
+    "status": "expired",
+    "statusName": "已失效",
+    "category": "universal",
+    "relationKind": "通用",
+    "relationName": "通用",
+    "detail": "全量客户通用底价。",
+    "attachments": [],
+    "products": [
+      { "id": "qp3", "productNo": "8518691", "productName": "铝合金型材", "model": "AL-6061", "unit": "KG", "price": 32, "tier": "未启用" }
+    ],
+    "tiers": []
+  },
+  {
+    "id": "quote_004",
+    "code": "SP-20251221004",
+    "topic": "一次性项目报价",
+    "quoteType": "once",
+    "quoteTypeName": "一次性报价",
+    "customerName": "深圳市启明科技有限公司",
+    "amount": 68000,
+    "currency": "CNY",
+    "priceVersion": "V1",
+    "conversionStatus": "pendingExecution",
+    "conversionStatusName": "待执行",
+    "contractCode": "-",
+    "orderCode": "-",
+    "quoteDate": "2025-12-17",
+    "expireDate": "2026-01-17",
+    "ownerName": "陈思源",
+    "status": "draft",
+    "statusName": "草稿",
+    "category": "once",
+    "relationKind": "关联项目",
+    "relationName": "电子装配测试线",
+    "detail": "绑定一次交易、项目或合同，用完即失效。",
+    "attachments": [],
+    "products": [
+      { "id": "qp1", "productNo": "7820864", "productName": "半成品物料", "model": "HM-450", "unit": "KG", "price": 50, "tier": "启用" }
+    ],
+    "tiers": [
+      { "id": "qt1", "minQty": 100, "discount": 3, "note": "大于等于 100 KG，优惠 3%" }
+    ]
+  }
+]

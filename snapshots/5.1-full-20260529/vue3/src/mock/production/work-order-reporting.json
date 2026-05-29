@@ -1,0 +1,59 @@
+{
+  "claimTasks": [
+    { "id": "claim_pool_001", "workNo": "WO-20260517001", "product": "智能温控终端", "process": "总装", "planQty": 120, "claimedQty": 40, "canClaim": 80, "station": "总装工位01", "start": "2026-05-19", "status": "可领取" },
+    { "id": "claim_pool_002", "workNo": "WO-20260517002", "product": "半成品模组", "process": "焊接", "planQty": 300, "claimedQty": 180, "canClaim": 120, "station": "焊接工位02", "start": "2026-05-19", "status": "部分领取" },
+    { "id": "claim_pool_003", "workNo": "WO-20260517004", "product": "显示模组", "process": "老化测试", "planQty": 160, "claimedQty": 0, "canClaim": 160, "station": "老化房01", "start": "2026-05-20", "status": "可领取" }
+  ],
+  "assignedTasks": [
+    { "id": "assigned_001", "workNo": "WO-20260517005", "product": "铝合金外壳", "process": "表面处理", "assignTo": "三红", "assignQty": 80, "reportedQty": 20, "leftQty": 60, "station": "委外跟进", "assigner": "生产主管", "status": "待报工" },
+    { "id": "assigned_002", "workNo": "WO-20260517006", "product": "智能温控终端", "process": "包装", "assignTo": "三红", "assignQty": 120, "reportedQty": 80, "leftQty": 40, "station": "包装区01", "assigner": "王工", "status": "生产中" }
+  ],
+  "dispatchClaimRows": [
+    ["三红", "领工模式", "40", "20", "20", "2026-05-19 09:20", "待报工"],
+    ["李工", "领工模式", "40", "40", "0", "2026-05-19 09:42", "已完成"]
+  ],
+  "dispatchAssignRows": [
+    ["王工", "派工模式", "30", "20", "10", "生产主管", "2026-05-19 10:10", "生产中"],
+    ["陈工", "派工模式", "20", "0", "20", "生产主管", "2026-05-19 10:20", "待报工"]
+  ],
+  "reportRecords": [
+    { "id": "report_record_001", "workNo": "WO-20260517001", "product": "智能温控终端", "process": "总装", "dept": "生产一部", "person": "三红", "source": "领工派工", "planQty": 120, "allowQty": 80, "reportedQty": 80, "goodQty": 78, "badQty": 2, "count": 3, "lastTime": "2026-05-18 17:10", "status": "待质检" },
+    { "id": "report_record_002", "workNo": "WO-20260517002", "product": "半成品模组", "process": "焊接", "dept": "焊接班组", "person": "三红", "source": "自由模式", "planQty": 300, "allowQty": "-", "reportedQty": 120, "goodQty": 118, "badQty": 2, "count": 2, "lastTime": "2026-05-18 16:20", "status": "生产中" },
+    { "id": "report_record_003", "workNo": "WO-20260517003", "product": "铝合金外壳", "process": "表面处理", "dept": "委外管理组", "person": "李工", "source": "派工模式", "planQty": 260, "allowQty": 80, "reportedQty": 20, "goodQty": 20, "badQty": 0, "count": 1, "lastTime": "2026-05-18 15:30", "status": "待报工" }
+  ],
+  "reportDetailRows": [
+    ["BG-20260518001", "第一次报工", "三红", "40", "39", "1", "0", "2026-05-18 10:20", "已提交"],
+    ["BG-20260518002", "第二次报工", "三红", "30", "30", "0", "0", "2026-05-18 14:40", "已提交"],
+    ["BG-20260518003", "第三次报工", "三红", "10", "9", "1", "0", "2026-05-18 17:10", "待质检"]
+  ],
+  "reportPeople": [
+    {
+      "group": "总装产线",
+      "people": [
+        { "id": "P001", "name": "三红", "dept": "生产一部", "line": "总装产线", "role": "总装工" },
+        { "id": "P002", "name": "李工", "dept": "生产一部", "line": "总装产线", "role": "装配工" }
+      ]
+    },
+    {
+      "group": "焊接班组",
+      "people": [
+        { "id": "P007", "name": "周焊", "dept": "焊接车间", "line": "焊接班组", "role": "焊接工" },
+        { "id": "P008", "name": "林焊", "dept": "焊接车间", "line": "焊接班组", "role": "焊接工" }
+      ]
+    },
+    {
+      "group": "包装班组",
+      "people": [
+        { "id": "P009", "name": "王包", "dept": "包装车间", "line": "包装班组", "role": "包装工" },
+        { "id": "P010", "name": "郑包", "dept": "包装车间", "line": "包装班组", "role": "包装工" }
+      ]
+    },
+    {
+      "group": "自由报工人员",
+      "people": [
+        { "id": "P006", "name": "老夏", "dept": "生产中心", "line": "自由报工", "role": "生产主管" },
+        { "id": "P004", "name": "陈工", "dept": "装配车间", "line": "自由报工", "role": "调试工" }
+      ]
+    }
+  ]
+}

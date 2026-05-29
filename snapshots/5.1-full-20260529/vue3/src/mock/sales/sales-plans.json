@@ -1,0 +1,82 @@
+[
+  {
+    "id": "plan_001",
+    "code": "SPP-202605001",
+    "name": "Q2 高精度伺服电机销售计划",
+    "productSummary": "高精度伺服电机",
+    "cycleStart": "2026-04-01",
+    "cycleEnd": "2026-06-30",
+    "ownerType": "department",
+    "ownerName": "销售一部 / 李文涛",
+    "targetQuantity": 120,
+    "targetAmount": 720000,
+    "doneQuantity": 68,
+    "doneAmount": 408000,
+    "achievementRate": 57,
+    "status": "executing",
+    "statusName": "执行中",
+    "lines": [
+      { "productId": "prod_001", "productCode": "P-HM-450", "productName": "高精度伺服电机", "model": "HM-450", "unit": "台", "targetQuantity": 120, "unitPrice": 6000, "targetAmount": 720000, "planMonth": "2026-06" }
+    ]
+  },
+  {
+    "id": "plan_002",
+    "code": "SPP-202605002",
+    "name": "华南半成品物料专项计划",
+    "productSummary": "半成品物料",
+    "cycleStart": "2026-05-01",
+    "cycleEnd": "2026-05-31",
+    "ownerType": "department",
+    "ownerName": "销售二部 / 陈思源",
+    "targetQuantity": 500,
+    "targetAmount": 25000,
+    "doneQuantity": 360,
+    "doneAmount": 18000,
+    "achievementRate": 72,
+    "status": "executing",
+    "statusName": "执行中",
+    "lines": [
+      { "productId": "prod_002", "productCode": "P-SEMI-001", "productName": "半成品物料", "model": "HM-451", "unit": "KG", "targetQuantity": 500, "unitPrice": 50, "targetAmount": 25000, "planMonth": "2026-05" }
+    ]
+  },
+  {
+    "id": "plan_003",
+    "code": "SPP-202605003",
+    "name": "重点客户铝合金型材计划",
+    "productSummary": "铝合金型材",
+    "cycleStart": "2026-05-15",
+    "cycleEnd": "2026-07-15",
+    "ownerType": "person",
+    "ownerName": "人员 / 赵强",
+    "targetQuantity": 800,
+    "targetAmount": 25600,
+    "doneQuantity": 800,
+    "doneAmount": 25600,
+    "achievementRate": 100,
+    "status": "completed",
+    "statusName": "已完成",
+    "lines": [
+      { "productId": "prod_003", "productCode": "P-AL-6061", "productName": "铝合金型材", "model": "AL-6061", "unit": "KG", "targetQuantity": 800, "unitPrice": 32, "targetAmount": 25600, "planMonth": "2026-07" }
+    ]
+  },
+  {
+    "id": "plan_004",
+    "code": "SPP-202605004",
+    "name": "渠道客户包装材料计划",
+    "productSummary": "外箱包装",
+    "cycleStart": "2026-06-01",
+    "cycleEnd": "2026-06-30",
+    "ownerType": "channel",
+    "ownerName": "渠道组 / 苏婉清",
+    "targetQuantity": 2000,
+    "targetAmount": 9000,
+    "doneQuantity": 0,
+    "doneAmount": 0,
+    "achievementRate": 0,
+    "status": "notStarted",
+    "statusName": "未开始",
+    "lines": [
+      { "productId": "prod_004", "productCode": "P-PACK-001", "productName": "外箱包装", "model": "BX-12", "unit": "个", "targetQuantity": 2000, "unitPrice": 4.5, "targetAmount": 9000, "planMonth": "2026-06" }
+    ]
+  }
+]

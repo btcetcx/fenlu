@@ -1,0 +1,85 @@
+{
+  "shifts": [
+    { "code": "A", "name": "早班", "short": "早", "time": "08:00-16:00", "hours": 8, "rest": "60分钟", "ratio": "1.0x", "color": "#FDECDC", "fg": "#B26A24", "cross": false, "status": "启用", "preset": true },
+    { "code": "B", "name": "中班", "short": "中", "time": "16:00-00:00", "hours": 8, "rest": "45分钟", "ratio": "1.0x", "color": "#DCE7FB", "fg": "#2E4A85", "cross": true, "status": "启用", "preset": true },
+    { "code": "C", "name": "夜班", "short": "夜", "time": "00:00-08:00", "hours": 8, "rest": "45分钟", "ratio": "1.2x", "color": "#E8DEFB", "fg": "#4D2F84", "cross": false, "status": "启用", "preset": true },
+    { "code": "D", "name": "常白", "short": "白", "time": "08:30-17:30", "hours": 8, "rest": "60分钟", "ratio": "1.0x", "color": "#DBF3E6", "fg": "#1F6A40", "cross": false, "status": "启用", "preset": true },
+    { "code": "E", "name": "弹性", "short": "弹", "time": "09:00-18:00", "hours": 8, "rest": "60分钟", "ratio": "1.0x", "color": "#E8F5F4", "fg": "#16756A", "cross": false, "status": "启用", "preset": true },
+    { "code": "O", "name": "加班", "short": "加", "time": "18:00-21:00", "hours": 3, "rest": "0分钟", "ratio": "1.5x", "color": "#FFE7B3", "fg": "#7A4F00", "cross": false, "status": "启用", "preset": true },
+    { "code": "R", "name": "休息", "short": "休", "time": "--", "hours": 0, "rest": "--", "ratio": "0x", "color": "#F3F4F6", "fg": "#6B7280", "cross": false, "status": "启用", "preset": true }
+  ],
+  "teams": [
+    { "code": "TEAM-001", "name": "总装一班", "workshop": "总装车间", "line": "总装产线A", "leader": "三红", "pattern": "三班两运转", "skills": ["总装", "包装"], "members": 18, "hours": 720, "attendance": "98%", "capacity": 144, "demand": 132, "plan": "SP-202606-A01", "status": "启用" },
+    { "code": "TEAM-002", "name": "焊接夜班", "workshop": "焊接车间", "line": "焊接产线A", "leader": "李工", "pattern": "两班倒", "skills": ["焊接", "点检"], "members": 12, "hours": 504, "attendance": "96%", "capacity": 84, "demand": 96, "plan": "SP-202606-B02", "status": "启用" },
+    { "code": "TEAM-003", "name": "机加工A组", "workshop": "机加工车间", "line": "CNC-01", "leader": "王敏", "pattern": "常白", "skills": ["CNC", "检具"], "members": 15, "hours": 660, "attendance": "99%", "capacity": 120, "demand": 118, "plan": "SP-202606-C03", "status": "启用" }
+  ],
+  "plans": [
+    { "code": "SP-202606-A01", "name": "2026年6月总装一班排班", "team": "总装一班", "pattern": "A-B-C-R", "calendar": "2026标准工作日历", "start": "2026-06-01", "end": "2026-06-30", "days": 30, "people": 18, "hours": 720, "demandHours": 688, "coverage": "104.7%", "conflicts": 1, "approval": "发布免审", "status": "已发布" },
+    { "code": "SP-202606-B02", "name": "焊接车间夜班补充计划", "team": "焊接夜班", "pattern": "B-C-R-R", "calendar": "2026标准工作日历", "start": "2026-06-01", "end": "2026-06-28", "days": 28, "people": 12, "hours": 504, "demandHours": 548, "coverage": "92.0%", "conflicts": 2, "approval": "生产经理审批", "status": "待审批" },
+    { "code": "SP-202606-C03", "name": "机加工A组常白计划", "team": "机加工A组", "pattern": "D-D-D-D-D-R-R", "calendar": "2026标准工作日历", "start": "2026-06-01", "end": "2026-06-30", "days": 30, "people": 15, "hours": 660, "demandHours": 640, "coverage": "103.1%", "conflicts": 0, "approval": "草稿未提交", "status": "草稿" }
+  ],
+  "employees": [
+    { "name": "三红", "no": "P006", "team": "总装一班", "station": "总装工位01", "skill": "总装", "cert": "装配上岗证", "weeklyLimit": 48, "shifts": ["A", "A", "B", "B", "C", "R", "R"], "source": "计划生成", "reason": "-" },
+    { "name": "陈思源", "no": "P018", "team": "总装一班", "station": "包装工位02", "skill": "包装", "cert": "包装检验", "weeklyLimit": 48, "shifts": ["A", "B", "B", "C", "C", "R", "O"], "source": "手工调整", "reason": "周日临时加班" },
+    { "name": "李工", "no": "P022", "team": "焊接夜班", "station": "焊接工位A", "skill": "焊接", "cert": "焊工证", "weeklyLimit": 44, "shifts": ["B", "B", "C", "C", "R", "R", "A"], "source": "计划生成", "reason": "-" },
+    { "name": "王敏", "no": "P031", "team": "机加工A组", "station": "CNC-01", "skill": "CNC", "cert": "CNC高级", "weeklyLimit": 48, "shifts": ["D", "D", "D", "D", "D", "R", "R"], "source": "计划生成", "reason": "-" },
+    { "name": "赵凯", "no": "P044", "team": "总装一班", "station": "点检区", "skill": "点检", "cert": "设备点检", "weeklyLimit": 40, "shifts": ["R", "A", "A", "B", "B", "C", "R"], "source": "手工调整", "reason": "补位夜班" }
+  ],
+  "days": ["06-01 周一", "06-02 周二", "06-03 周三", "06-04 周四", "06-05 周五", "06-06 周六", "06-07 周日"],
+  "calendarExceptions": [
+    { "date": "2026-06-01", "day": "06-01 周一", "type": "节假日", "rule": "强制休 R", "note": "端午假期调休" },
+    { "date": "2026-06-02", "day": "06-02 周二", "type": "节假日", "rule": "强制休 R", "note": "端午假期调休" },
+    { "date": "2026-06-08", "day": "06-08 周一", "type": "调班", "rule": "若循环为 R 自动改 A", "note": "补 06-01 工作量" }
+  ],
+  "calendars": [
+    {
+      "id": "cal_std_2026",
+      "name": "2026标准工作日历",
+      "scope": "全公司",
+      "workMode": "双休",
+      "inheritFrom": "集团标准日历",
+      "holidayRule": "同步国务院法定节假日",
+      "swapRule": "调班日若循环为 R 自动改 A",
+      "status": "启用",
+      "exceptionsByMonth": {
+        "2026-06": [
+          { "date": "2026-06-01", "day": "06-01 周一", "type": "节假日", "rule": "强制休 R", "note": "端午假期调休" },
+          { "date": "2026-06-02", "day": "06-02 周二", "type": "节假日", "rule": "强制休 R", "note": "端午假期调休" },
+          { "date": "2026-06-08", "day": "06-08 周一", "type": "调班", "rule": "若循环为 R 自动改 A", "note": "补 06-01 工作量" }
+        ],
+        "2026-07": [
+          { "date": "2026-07-03", "day": "07-03 周五", "type": "休息", "rule": "强制休 R", "note": "产线统一检修窗口" },
+          { "date": "2026-07-11", "day": "07-11 周六", "type": "调班", "rule": "若循环为 R 自动改 A", "note": "补 07-03 工作量" }
+        ]
+      }
+    },
+    {
+      "id": "cal_assembly_2026",
+      "name": "总装车间工作日历",
+      "scope": "总装车间",
+      "workMode": "双休",
+      "inheritFrom": "2026标准工作日历",
+      "holidayRule": "继承标准日历并允许车间例外",
+      "swapRule": "调班日按早班计算",
+      "status": "启用",
+      "exceptionsByMonth": {
+        "2026-06": [
+          { "date": "2026-06-01", "day": "06-01 周一", "type": "节假日", "rule": "强制休 R", "note": "端午假期调休" },
+          { "date": "2026-06-02", "day": "06-02 周二", "type": "节假日", "rule": "强制休 R", "note": "端午假期调休" },
+          { "date": "2026-06-08", "day": "06-08 周一", "type": "调班", "rule": "若循环为 R 自动改 A", "note": "补 06-01 工作量" },
+          { "date": "2026-06-15", "day": "06-15 周一", "type": "调班", "rule": "按早班计算", "note": "总装产线补位" }
+        ],
+        "2026-07": [
+          { "date": "2026-07-06", "day": "07-06 周一", "type": "调班", "rule": "按早班计算", "note": "总装产线订单补位" },
+          { "date": "2026-07-20", "day": "07-20 周一", "type": "休息", "rule": "强制休 R", "note": "总装设备保养" }
+        ]
+      }
+    }
+  ],
+  "conflicts": [
+    { "level": "高", "target": "李工 / 06-07 周日", "issue": "连续夜班后 8 小时内安排早班", "fix": "建议改为 R 或 D" },
+    { "level": "中", "target": "陈思源 / 本周", "issue": "周工时 43h，含 3h 加班", "fix": "需填写临时加班原因" },
+    { "level": "中", "target": "焊接夜班", "issue": "计划覆盖率 92.0%，产能低于需求", "fix": "增加 1 名焊接人员或启用 O 班" }
+  ],
+  "workshops": ["全部车间", "总装车间", "焊接车间", "机加工车间", "包装车间"]
+}

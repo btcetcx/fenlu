@@ -1,0 +1,141 @@
+[
+  {
+    "id": "contract_001",
+    "code": "HT-20251220001",
+    "topic": "启明年度供货合同",
+    "customerName": "深圳市启明科技有限公司",
+    "sourceCode": "报价单 SP-20251221002",
+    "amount": 128000,
+    "currency": "CNY",
+    "orderedAmount": 42600,
+    "shippedAmount": 18600,
+    "receivableAmount": 18600,
+    "invoiceAmount": 5960,
+    "receivedAmount": 3000,
+    "balanceAmount": 85400,
+    "signedDate": "2025-12-20",
+    "effectiveDate": "2025-12-20",
+    "expireDate": "2026-12-31",
+    "ownerName": "张国",
+    "executionStatus": "performing",
+    "executionStatusName": "履约中",
+    "status": "performing",
+    "statusName": "履约中",
+    "customerId": "CUS-2026-001",
+    "customerContact": "何志远",
+    "customerPhone": "13900139002",
+    "discountAmount": 0,
+    "finalAmount": 128000,
+    "detailHtml": "合同条款包括按订单分批交付、按订单节点付款、价格有效期至合同失效日，双方需按约履行违约责任。",
+    "products": [
+      { "id": "cp1", "sourceLine": "SP-20251221002-01", "productCode": "7820864", "productName": "半成品物料", "model": "HM-450", "unit": "KG", "quantity": 1200, "unitPrice": 50, "amount": 60000, "orderedQuantity": 400, "balanceQuantity": 800, "deliveryTerm": "按订单分批", "paymentTerm": "按订单节点付款" },
+      { "id": "cp2", "sourceLine": "SP-20251221002-02", "productCode": "5786931", "productName": "半成品模组", "model": "HM-451", "unit": "KG", "quantity": 1000, "unitPrice": 48, "amount": 48000, "orderedQuantity": 300, "balanceQuantity": 700, "deliveryTerm": "按订单分批", "paymentTerm": "按订单节点付款" },
+      { "id": "cp3", "sourceLine": "手动", "productCode": "8518691", "productName": "铝合金型材", "model": "AL-6061", "unit": "KG", "quantity": 625, "unitPrice": 32, "amount": 20000, "orderedQuantity": 0, "balanceQuantity": 625, "deliveryTerm": "2026-03-31前", "paymentTerm": "按订单节点付款" }
+    ],
+    "orderWriteOffs": [
+      { "id": "ow1", "orderCode": "SO-20251221002", "orderLine": "SO-20251221002-01", "quantity": 300, "amount": 14400, "time": "2025-12-21", "status": "已核销" }
+    ],
+    "deliveryRecords": [
+      { "id": "dr1", "deliveryCode": "DLV-20251222001", "orderCode": "SO-20251221002", "quantity": 120, "amount": 5960, "logisticsStatus": "运输中", "time": "2025-12-22" }
+    ],
+    "invoiceRecords": [
+      { "id": "ir1", "requestCode": "INV-REQ-20251222001", "invoiceCode": "待开票", "amount": 5960, "taxAmount": 774.8, "status": "待开票" }
+    ],
+    "paymentRecords": [
+      { "id": "pr1", "receiptCode": "REC-20251223001", "amount": 3000, "orderCode": "SO-20251221002", "writeOffStatus": "部分核销", "time": "2025-12-23" }
+    ],
+    "operationRecords": [
+      { "id": "op1", "time": "2025-12-20 10:20", "operator": "张国", "action": "创建合同", "remark": "从报价单生成合同" },
+      { "id": "op2", "time": "2025-12-21 09:30", "operator": "系统", "action": "核销", "remark": "销售订单引用合同明细" }
+    ]
+  },
+  {
+    "id": "contract_002",
+    "code": "HT-20251218003",
+    "topic": "泽远项目合同",
+    "customerName": "上海泽远制造有限公司",
+    "sourceCode": "项目 PRJ-2026-05555",
+    "amount": 68000,
+    "currency": "CNY",
+    "orderedAmount": 68000,
+    "shippedAmount": 68000,
+    "receivableAmount": 68000,
+    "invoiceAmount": 68000,
+    "receivedAmount": 68000,
+    "balanceAmount": 0,
+    "signedDate": "2025-12-18",
+    "effectiveDate": "2025-12-18",
+    "expireDate": "2026-06-30",
+    "ownerName": "陈思源",
+    "executionStatus": "completed",
+    "executionStatusName": "履约完成",
+    "status": "completed",
+    "statusName": "履约完成",
+    "customerId": "CUS-2026-005",
+    "customerContact": "周远",
+    "customerPhone": "13500135005",
+    "discountAmount": 0,
+    "finalAmount": 68000,
+    "detailHtml": "项目来源合同，订单、发货、开票和回款均已完成。",
+    "products": [
+      { "id": "cp4", "sourceLine": "PRJ-2026-05555-01", "productCode": "9102456", "productName": "项目专用组件", "model": "PRJ-55", "unit": "套", "quantity": 20, "unitPrice": 3400, "amount": 68000, "orderedQuantity": 20, "balanceQuantity": 0, "deliveryTerm": "项目节点交付", "paymentTerm": "验收后付款" }
+    ],
+    "orderWriteOffs": [
+      { "id": "ow2", "orderCode": "SO-20251218003", "orderLine": "SO-20251218003-01", "quantity": 20, "amount": 68000, "time": "2025-12-18", "status": "已核销" }
+    ],
+    "deliveryRecords": [
+      { "id": "dr2", "deliveryCode": "DLV-20251219002", "orderCode": "SO-20251218003", "quantity": 20, "amount": 68000, "logisticsStatus": "已签收", "time": "2025-12-19" }
+    ],
+    "invoiceRecords": [
+      { "id": "ir2", "requestCode": "INV-REQ-20251219003", "invoiceCode": "INV-20251219003", "amount": 68000, "taxAmount": 8840, "status": "已开票" }
+    ],
+    "paymentRecords": [
+      { "id": "pr2", "receiptCode": "REC-20251220004", "amount": 68000, "orderCode": "SO-20251218003", "writeOffStatus": "全部核销", "time": "2025-12-20" }
+    ],
+    "operationRecords": [
+      { "id": "op3", "time": "2025-12-18 14:10", "operator": "陈思源", "action": "创建合同", "remark": "从项目生成合同" },
+      { "id": "op4", "time": "2025-12-20 16:30", "operator": "系统", "action": "履约完成", "remark": "订单、发货、开票、回款均已完成" }
+    ]
+  },
+  {
+    "id": "contract_003",
+    "code": "HT-20251215008",
+    "topic": "明德渠道框架合同",
+    "customerName": "广州明德贸易有限公司",
+    "sourceCode": "手动创建",
+    "amount": 80000,
+    "currency": "CNY",
+    "orderedAmount": 12000,
+    "shippedAmount": 0,
+    "receivableAmount": 0,
+    "invoiceAmount": 0,
+    "receivedAmount": 0,
+    "balanceAmount": 68000,
+    "signedDate": "2025-12-15",
+    "effectiveDate": "2025-12-15",
+    "expireDate": "2026-03-31",
+    "ownerName": "李文涛",
+    "executionStatus": "pendingApproval",
+    "executionStatusName": "待审批",
+    "status": "pendingApproval",
+    "statusName": "待审批",
+    "customerId": "CUS-2026-003",
+    "customerContact": "苏婉清",
+    "customerPhone": "13700137003",
+    "discountAmount": 2000,
+    "finalAmount": 78000,
+    "detailHtml": "手动创建渠道框架合同，新增后默认待审批，后续由审批、订单核销和终止流程自动推进履约状态。",
+    "products": [
+      { "id": "cp5", "sourceLine": "手动", "productCode": "8518691", "productName": "铝合金型材", "model": "AL-6061", "unit": "KG", "quantity": 2500, "unitPrice": 32, "amount": 80000, "orderedQuantity": 375, "balanceQuantity": 2125, "deliveryTerm": "2026-03-31前", "paymentTerm": "月结付款" }
+    ],
+    "orderWriteOffs": [
+      { "id": "ow3", "orderCode": "SO-20251221004", "orderLine": "SO-20251221004-01", "quantity": 375, "amount": 12000, "time": "2025-12-21", "status": "部分核销" }
+    ],
+    "deliveryRecords": [],
+    "invoiceRecords": [],
+    "paymentRecords": [],
+    "operationRecords": [
+      { "id": "op5", "time": "2025-12-15 11:08", "operator": "李文涛", "action": "创建合同", "remark": "手动创建" }
+    ]
+  }
+]

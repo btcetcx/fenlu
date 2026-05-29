@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>海南傲为 ERP Vue3 客户详情样板</title>
+    <link rel="stylesheet" href="./src/styles/tokens.css" />
+    <link rel="stylesheet" href="./src/styles/aw-console.css" />
+  </head>
+  <body>
+    <div data-screen-label="ERP Console">
+      <div class="aw-topbar">
+        <div class="brand">海南傲为智慧</div>
+        <div class="tabs">
+          <span class="tab">▣ PRD</span><span class="tab">⌁ 研发</span><span class="tab">◈ 采购</span><a class="tab on" href="./preview-framework.html" onclick="location.href='./preview-framework.html';return false">▣ 销售</a>
+          <span class="tab">☎ 售后</span><span class="tab">▤ 仓储</span><span class="tab">⚙ 生产</span><span class="tab">✓ 质检</span><span class="tab">¥ 财务</span><span class="tab">♟ 人力</span><span class="tab">⚙ 设置</span>
+        </div>
+        <div class="right">
+          <button class="ic aw-top-help" type="button">?</button>
+          <button class="aw-top-notice" type="button">●<span class="aw-top-notice-badge">4</span></button>
+          <div class="av">夏</div><span>老夏 ▾</span>
+        </div>
+      </div>
+
+      <div class="aw-shell">
+        <aside class="aw-side">
+          <h4>销售中心</h4>
+          <a class="item" href="./preview-framework.html"><span class="dot">○</span> 工作台</a>
+          <div class="item on" data-flyout-trigger="customer"><span class="dot">○</span> 客户管理</div>
+          <div class="item"><span class="dot">○</span> 销售计划</div>
+          <div class="item"><span class="dot">○</span> 报价管理</div>
+          <div class="item"><span class="dot">○</span> 合同管理</div>
+          <div class="item"><span class="dot">○</span> 订单管理</div>
+          <div class="item"><span class="dot">○</span> 销售退货</div>
+          <div class="item"><span class="dot">○</span> 销售换货</div>
+          <div class="item"><span class="dot">○</span> 销售报表</div>
+          <div class="aw-flyout" data-flyout="customer" style="top:92px;display:none">
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">客户管理</div><div class="aw-flyout-items"><a>添加客户</a><a href="./preview-customer-list.html">客户列表</a></div></div>
+            <div class="aw-flyout-sec"><div class="aw-flyout-h">客户设置</div><div class="aw-flyout-items"><a href="./preview-customer-setting.html?type=groups">客户分组设置</a><a href="./preview-customer-setting.html?type=fields">客户自定义字段</a><a href="./preview-customer-setting.html?type=numbers">客户自定义编号</a><a href="./preview-customer-setting.html?type=levels">客户等级设置</a><a href="./preview-customer-setting.html?type=approvals">客户审批设置</a><a href="./preview-customer-setting.html?type=strategies">客户策略设置</a></div></div>
+          </div>
+        </aside>
+
+        <main class="aw-main">
+          <div class="aw-page-head"><span class="aw-page-title">客户详情</span></div>
+          <div class="aw-detail-page">
+            <section class="aw-detail-toolbar">
+              <button class="aw-back-btn" type="button" onclick="location.href='./preview-customer-list.html'"><span class="aw-line-icon line-back"></span>返回列表</button>
+              <div class="aw-detail-actions">
+                <button class="aw-tool-btn" type="button">修改</button>
+                <button class="aw-tool-btn" type="button">删除</button>
+                <button class="aw-tool-btn" type="button">打印</button>
+                <button class="aw-tool-btn" type="button">导出</button>
+                <button class="aw-tool-btn danger" type="button">停用</button>
+              </div>
+            </section>
+            <section class="aw-detail-header">
+              <div class="aw-detail-top">
+                <div>
+                  <div class="aw-detail-title">
+                    <h2 id="customerName">海南星海智能制造有限公司</h2>
+                    <span class="aw-status green">已审核</span>
+                  </div>
+                  <div class="aw-detail-inline-meta">
+                    <span class="aw-detail-code">CUS-2026-001</span>
+                    <span>客户分组：<strong>重点客户</strong></span>
+                    <span>主联系人：<strong>林悦 / 采购经理</strong></span>
+                    <span>联系方式：<strong>13800138001</strong></span>
+                    <span>客户经理：<strong>老夏</strong></span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="aw-card">
+              <div class="aw-detail-tabs">
+                <button class="aw-detail-tab on" type="button">客户信息</button>
+                <button class="aw-detail-tab" type="button">产品记录</button>
+                <button class="aw-detail-tab" type="button">购买记录</button>
+                <button class="aw-detail-tab" type="button">发货记录</button>
+                <button class="aw-detail-tab" type="button">开票记录</button>
+                <button class="aw-detail-tab" type="button">回款核销</button>
+                <button class="aw-detail-tab" type="button">售后记录</button>
+                <button class="aw-detail-tab" type="button">操作记录</button>
+              </div>
+              <div id="tabInfo">
+                <div class="aw-detail-section-title">基础信息</div>
+                <div class="aw-detail-grid">
+                  <div class="aw-detail-field"><span>客户名称</span><strong>海南星海智能制造有限公司</strong></div>
+                  <div class="aw-detail-field"><span>客户分组</span><strong>重点客户</strong></div>
+                  <div class="aw-detail-field"><span>主联系人</span><strong>林悦</strong></div>
+                  <div class="aw-detail-field"><span>职位</span><strong>采购经理</strong></div>
+                  <div class="aw-detail-field"><span>联系方式</span><strong>13800138001</strong></div>
+                  <div class="aw-detail-field"><span>客户经理</span><strong>老夏</strong></div>
+                  <div class="aw-detail-field"><span>地址</span><strong>海南省海口市龙华区滨海大道88号</strong></div>
+                  <div class="aw-detail-field"><span>客户状态</span><strong>已审核</strong></div>
+                </div>
+                <div class="aw-detail-metrics">
+                  <div class="aw-detail-metric"><span>信用额度</span><strong>200,000.00</strong></div>
+                  <div class="aw-detail-metric"><span>已用额度</span><strong>68,000.00</strong></div>
+                  <div class="aw-detail-metric"><span>占用额度</span><strong>32,000.00</strong></div>
+                  <div class="aw-detail-metric"><span>应收未收</span><strong>36,000.00</strong></div>
+                  <div class="aw-detail-metric"><span>可用额度</span><strong>64,000.00</strong></div>
+                </div>
+              </div>
+              <div id="tabTable" style="display:none">
+                <div class="aw-detail-section-title">购买记录</div>
+                <div class="aw-doc-tbl-wrap"><div class="aw-doc-tbl-inner"><table class="aw-doc-tbl">
+                  <thead><tr><th class="aw-index-col"><div class="aw-th-inner">序号</div></th><th>单据编号</th><th>业务类型</th><th>金额</th><th>状态</th><th>业务日期</th></tr></thead>
+                  <tbody><tr><td>1</td><td class="aw-link">SO-202605-031</td><td>销售订单</td><td class="aw-num">288,000.00</td><td><span class="aw-status green">已确认</span></td><td>2026-05-31</td></tr></tbody>
+                </table></div></div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+      <button class="aw-float-help" type="button">?</button>
+    </div>
+    <script>
+      document.querySelectorAll(".aw-detail-tab").forEach((tab, index) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".aw-detail-tab").forEach((item) => item.classList.remove("on"));
+          tab.classList.add("on");
+          document.querySelector("#tabInfo").style.display = index === 0 ? "" : "none";
+          document.querySelector("#tabTable").style.display = index === 0 ? "none" : "";
+          document.querySelector("#tabTable .aw-detail-section-title").textContent = tab.textContent;
+        });
+      });
+      const triggers = document.querySelectorAll("[data-flyout-trigger]");
+      const flyouts = document.querySelectorAll("[data-flyout]");
+      let flyoutTimer = null;
+      function hideFlyouts(){flyouts.forEach((flyout)=>{flyout.style.display="none";});}
+      function showFlyout(key, trigger){clearTimeout(flyoutTimer);hideFlyouts();const flyout=document.querySelector(`[data-flyout="${key}"]`);const rect=trigger.getBoundingClientRect();flyout.style.top=`${Math.max(52,rect.top+rect.height/2-110)}px`;flyout.style.display="block";}
+      function scheduleHide(){flyoutTimer=setTimeout(hideFlyouts,150);}
+      triggers.forEach((trigger)=>{trigger.addEventListener("mouseenter",()=>showFlyout(trigger.dataset.flyoutTrigger,trigger));trigger.addEventListener("mouseleave",scheduleHide);});
+      flyouts.forEach((flyout)=>{flyout.addEventListener("mouseenter",()=>clearTimeout(flyoutTimer));flyout.addEventListener("mouseleave",scheduleHide);});
+    </script>
+  </body>
+</html>
